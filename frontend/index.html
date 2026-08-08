@@ -11,48 +11,57 @@
   gtag('js', new Date());
   gtag('config', 'G-9K7V2BCFHD');
 </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
   tailwind.config = {
     theme: {
       extend: {
+        fontFamily: {
+          serif: ['Fraunces', 'Georgia', 'serif'],
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+        },
         colors: {
-          bg: '#10161a',
-          surface: '#182226',
-          surfaceRaised: '#1f2b30',
-          bezel: '#0d1417',
-          amber: '#e8a33d',
-          teal: '#5fcfc0',
-          line: '#2a3438',
-          muted: '#8b9a97',
+          bg: '#faf6f0',
+          surface: '#ffffff',
+          surfaceRaised: '#fffdfb',
+          bezel: '#f3ede3',
+          coral: '#d9663c',
+          coralDark: '#c25630',
+          sage: '#5c7d6a',
+          line: '#eadfcf',
+          ink: '#2b2620',
+          muted: '#8a8070',
         }
       }
     }
   }
 </script>
 <style>
-  body { background-color:#10161a; }
-  input[type=range]{ accent-color:#e8a33d; }
+  body { background-color:#faf6f0; }
+  input[type=range]{ accent-color:#d9663c; }
   ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background:#2a3438; border-radius:8px; }
+  ::-webkit-scrollbar-thumb{ background:#eadfcf; border-radius:8px; }
 </style>
 </head>
-<body class="text-[#edeae2] font-sans min-h-screen flex flex-col">
+<body class="text-ink font-sans min-h-screen flex flex-col">
 
   <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
     <header class="text-center mb-8">
-      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Vocalis</h1>
-      <p class="text-sm text-muted mt-1">Free, unlimited text to speech</p>
+      <h1 class="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-ink">Vocalis</h1>
+      <p class="text-sm text-muted mt-2">Free, unlimited text to speech</p>
     </header>
 
-    <section class="bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6 shadow-xl">
+    <section class="bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(43,38,32,0.06)]">
 
       <!-- Language -->
       <div>
         <label for="language" class="block text-xs uppercase tracking-wider text-muted mb-2">Language</label>
-        <select id="language" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+        <select id="language" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
@@ -60,7 +69,7 @@
       <!-- Voice -->
       <div>
         <label for="voice" class="block text-xs uppercase tracking-wider text-muted mb-2">Voice</label>
-        <select id="voice" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+        <select id="voice" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
@@ -72,7 +81,7 @@
           <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
         </div>
         <textarea id="text" rows="6"
-          class="w-full bg-bezel border border-line rounded-lg px-3 py-3 text-[15px] resize-y focus:outline-none focus:ring-2 focus:ring-teal placeholder:text-muted/60"
+          class="w-full bg-bezel border border-line rounded-lg px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
           placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
       </div>
 
@@ -81,14 +90,14 @@
         <div>
           <div class="flex items-center justify-between mb-2">
             <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
-            <span class="text-xs text-amber font-mono" id="speedVal">0%</span>
+            <span class="text-xs text-coral font-mono font-medium" id="speedVal">0%</span>
           </div>
           <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
             <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
-            <span class="text-xs text-amber font-mono" id="pitchVal">0Hz</span>
+            <span class="text-xs text-coral font-mono font-medium" id="pitchVal">0Hz</span>
           </div>
           <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
@@ -96,7 +105,7 @@
 
       <!-- Generate button -->
       <button id="generateBtn" disabled
-        class="w-full flex items-center justify-center gap-2 bg-amber hover:bg-[#f0ae4d] disabled:opacity-40 disabled:cursor-not-allowed text-[#1a1207] font-semibold text-[15px] rounded-lg py-3.5 transition">
+        class="w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-lg py-3.5 transition shadow-[0_4px_14px_rgba(217,102,60,0.3)]">
         <i data-lucide="play" class="w-4 h-4"></i>
         <span id="generateLabel">Generate Speech</span>
       </button>
@@ -105,9 +114,9 @@
     </section>
 
     <!-- Audio result -->
-    <section id="audioResult" class="hidden mt-6 bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6">
+    <section id="audioResult" class="hidden mt-6 bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(43,38,32,0.06)]">
       <div class="flex items-center gap-4">
-        <button id="playBtn" class="shrink-0 w-11 h-11 rounded-full bg-amber hover:bg-[#f0ae4d] flex items-center justify-center text-[#1a1207] transition">
+        <button id="playBtn" class="shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-white transition">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
         </button>
 
@@ -120,7 +129,7 @@
         </div>
 
         <a id="downloadBtn" download="speech.mp3"
-          class="shrink-0 w-11 h-11 rounded-full border border-line hover:border-teal flex items-center justify-center text-teal transition">
+          class="shrink-0 w-11 h-11 rounded-full border border-line hover:border-sage hover:bg-sage/5 flex items-center justify-center text-sage transition">
           <i data-lucide="download" class="w-5 h-5"></i>
         </a>
       </div>
@@ -129,7 +138,7 @@
   </main>
 
   <footer class="text-center text-xs text-muted py-6">
-    Made With <span class="text-red-400">❤️</span> By ZEESHAN
+    Made With <span class="text-coral">❤️</span> By ZEESHAN
   </footer>
 
 <audio id="audioEl" class="hidden"></audio>

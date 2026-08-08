@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vocalis — Free Unlimited Text to Speech</title>
+<title>Vocalis — Free Text to Speech</title>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -11,223 +11,348 @@
   gtag('js', new Date());
   gtag('config', 'G-9K7V2BCFHD');
 </script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#10161a',
+          surface: '#182226',
+          surfaceRaised: '#1f2b30',
+          bezel: '#0d1417',
+          amber: '#e8a33d',
+          teal: '#5fcfc0',
+          line: '#2a3438',
+          muted: '#8b9a97',
+        }
+      }
+    }
+  }
+</script>
 <style>
-  :root{
-    --bg:#10161a; --bg-deep:#0b1013; --surface:#182226; --surface-raised:#1f2b30;
-    --bezel:#0d1417; --amber:#e8a33d; --teal:#5fcfc0; --text:#edeae2;
-    --muted:#8b9a97; --line:#2a3438; --radius:10px;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg);
-    background-image:
-      radial-gradient(ellipse at top, rgba(232,163,61,0.07), transparent 55%),
-      radial-gradient(ellipse at bottom, rgba(95,207,192,0.05), transparent 55%);
-    color:var(--text); font-family:'IBM Plex Sans','Segoe UI',system-ui,sans-serif; line-height:1.5;
-  }
-  .mono{ font-family:'IBM Plex Mono','JetBrains Mono',ui-monospace,monospace; }
-  .hero{ max-width:880px; margin:0 auto; padding:64px 24px 32px; text-align:center; }
-  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.18em;
-    color:var(--teal); text-transform:uppercase; margin-bottom:16px; }
-  .eyebrow::before{ content:"● "; color:var(--amber); }
-  h1{ font-size:clamp(30px,5vw,50px); line-height:1.05; margin:0 0 16px; letter-spacing:-.02em; font-weight:600; }
-  h1 span{ color:var(--amber); }
-  .sub{ color:var(--muted); font-size:16px; max-width:540px; margin:0 auto; }
-
-  .panel-wrap{ max-width:880px; margin:36px auto 100px; padding:0 24px; }
-  .panel{
-    background:linear-gradient(180deg,var(--surface-raised),var(--surface));
-    border:1px solid var(--line); border-radius:14px; padding:28px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.35);
-  }
-  label{ display:block; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em;
-    text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  textarea{
-    width:100%; min-height:120px; background:var(--bezel); border:1px solid var(--line);
-    border-radius:8px; color:var(--text); font-size:15px; padding:14px; resize:vertical; font-family:inherit;
-  }
-  textarea:focus, select:focus, input:focus, button:focus{ outline:2px solid var(--teal); outline-offset:2px; }
-  .charcount{ text-align:right; font-size:12px; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:6px; }
-
-  .controls-row{ display:grid; grid-template-columns:1fr 1.4fr 1fr; gap:20px; margin:22px 0; }
-  @media (max-width:640px){ .controls-row{ grid-template-columns:1fr; } }
-  select{ width:100%; background:var(--bezel); border:1px solid var(--line); color:var(--text);
-    padding:10px 12px; border-radius:8px; font-size:14px; }
-  .dial-value{ color:var(--amber); font-family:'IBM Plex Mono',monospace; }
-  input[type=range]{ width:100%; accent-color:var(--amber); }
-
-  .action-row{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:8px; }
-  button{ font-family:'IBM Plex Mono',monospace; font-size:14px; letter-spacing:.03em; border-radius:8px;
-    padding:13px 22px; border:1px solid var(--line); cursor:pointer; transition:transform .1s ease,background .15s ease; }
-  button:active{ transform:scale(0.98); }
-  button:disabled{ opacity:.45; cursor:not-allowed; }
-  #generateBtn{ background:var(--amber); color:#1a1207; border:none; font-weight:600; }
-  #generateBtn:hover:not(:disabled){ background:#f0ae4d; }
-  #downloadBtn{ background:transparent; color:var(--teal); border:1px solid var(--teal); }
-  #downloadBtn:hover:not(:disabled){ background:rgba(95,207,192,0.1); }
-
-  audio{ width:100%; margin-top:18px; display:none; }
-  .status-line{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-top:10px; }
-  .footnote{ text-align:center; color:var(--muted); font-size:12.5px; margin-top:20px; font-family:'IBM Plex Mono',monospace; }
-  .footnote a{ color:var(--teal); text-decoration:none; }
-  .footnote a:hover{ text-decoration:underline; }
+  body { background-color:#10161a; }
+  input[type=range]{ accent-color:#e8a33d; }
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:#2a3438; border-radius:8px; }
 </style>
 </head>
-<body>
+<body class="text-[#edeae2] font-sans min-h-screen flex flex-col">
 
-  <section class="hero">
-    <div class="eyebrow mono">free · unlimited · 300+ voices</div>
-    <h1>Give your text <span>a voice.</span></h1>
-    <p class="sub">Free, unlimited text-to-speech powered by Microsoft's neural voices — no signup, no per-character cost.</p>
-  </section>
+  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14">
 
-  <div class="panel-wrap">
-    <div class="panel">
-      <label for="text">Your text</label>
-      <textarea id="text" placeholder="Type or paste what you want spoken aloud...">Kindness is a language the deaf can hear and the blind can see.</textarea>
-      <div class="charcount"><span id="charcount">0</span> / 5000 characters</div>
+    <header class="text-center mb-8">
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Vocalis</h1>
+      <p class="text-sm text-muted mt-1">Free, unlimited text to speech</p>
+    </header>
 
-      <div class="controls-row">
+    <section class="bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6 shadow-xl">
+
+      <!-- Language -->
+      <div>
+        <label for="language" class="block text-xs uppercase tracking-wider text-muted mb-2">Language</label>
+        <select id="language" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Voice -->
+      <div>
+        <label for="voice" class="block text-xs uppercase tracking-wider text-muted mb-2">Voice</label>
+        <select id="voice" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="text" class="block text-xs uppercase tracking-wider text-muted">Your text</label>
+          <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
+        </div>
+        <textarea id="text" rows="6"
+          class="w-full bg-bezel border border-line rounded-lg px-3 py-3 text-[15px] resize-y focus:outline-none focus:ring-2 focus:ring-teal placeholder:text-muted/60"
+          placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
+      </div>
+
+      <!-- Speed + Pitch -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <label for="language">Language</label>
-          <select id="language"><option>Loading…</option></select>
+          <div class="flex items-center justify-between mb-2">
+            <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
+            <span class="text-xs text-amber font-mono" id="speedVal">0%</span>
+          </div>
+          <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
         <div>
-          <label for="voice">Voice</label>
-          <select id="voice"><option>Loading…</option></select>
-        </div>
-        <div>
-          <label for="speed">Speed — <span class="dial-value" id="speedVal">1.0x</span></label>
-          <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
+          <div class="flex items-center justify-between mb-2">
+            <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
+            <span class="text-xs text-amber font-mono" id="pitchVal">0Hz</span>
+          </div>
+          <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
       </div>
 
-      <div class="action-row">
-        <button id="generateBtn" disabled>▶ Generate Speech</button>
-        <button id="downloadBtn" disabled>⬇ Download MP3</button>
+      <!-- Generate button -->
+      <button id="generateBtn" disabled
+        class="w-full flex items-center justify-center gap-2 bg-amber hover:bg-[#f0ae4d] disabled:opacity-40 disabled:cursor-not-allowed text-[#1a1207] font-semibold text-[15px] rounded-lg py-3.5 transition">
+        <i data-lucide="play" class="w-4 h-4"></i>
+        <span id="generateLabel">Generate Speech</span>
+      </button>
+
+      <p id="statusLine" class="text-xs text-muted text-center -mt-2">Connecting to voice server…</p>
+    </section>
+
+    <!-- Audio result -->
+    <section id="audioResult" class="hidden mt-6 bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6">
+      <div class="flex items-center gap-4">
+        <button id="playBtn" class="shrink-0 w-11 h-11 rounded-full bg-amber hover:bg-[#f0ae4d] flex items-center justify-center text-[#1a1207] transition">
+          <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
+        </button>
+
+        <div class="flex-1 min-w-0">
+          <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
+          <div class="flex justify-between text-xs text-muted mt-1 font-mono">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <a id="downloadBtn" download="speech.mp3"
+          class="shrink-0 w-11 h-11 rounded-full border border-line hover:border-teal flex items-center justify-center text-teal transition">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </a>
       </div>
+    </section>
 
-      <div class="status-line" id="statusLine">Connecting to voice server…</div>
-      <audio id="player" controls></audio>
-    </div>
+  </main>
 
-    <p class="footnote">
-      Free · Unlimited · No signup required
-    </p>
-  </div>
+  <footer class="text-center text-xs text-muted py-6">
+    Made With <span class="text-red-400">❤️</span> By ZEESHAN
+  </footer>
+
+<audio id="audioEl" class="hidden"></audio>
 
 <script>
-  const API_BASE = "https://vocalis-tts.vercel.app";
+  const API_BASE = "https://vocalis-tts.vercel.app"; // backend URL
 
-  const textEl = document.getElementById('text');
-  const charcountEl = document.getElementById('charcount');
+  // Elements
   const languageEl = document.getElementById('language');
   const voiceEl = document.getElementById('voice');
+  const textEl = document.getElementById('text');
+  const charcountEl = document.getElementById('charcount');
   const speedEl = document.getElementById('speed');
   const speedValEl = document.getElementById('speedVal');
+  const pitchEl = document.getElementById('pitch');
+  const pitchValEl = document.getElementById('pitchVal');
   const generateBtn = document.getElementById('generateBtn');
-  const downloadBtn = document.getElementById('downloadBtn');
+  const generateLabel = document.getElementById('generateLabel');
   const statusLine = document.getElementById('statusLine');
-  const player = document.getElementById('player');
+  const audioResult = document.getElementById('audioResult');
+  const audioEl = document.getElementById('audioEl');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const progressEl = document.getElementById('progress');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const downloadBtn = document.getElementById('downloadBtn');
 
   let allVoices = [];
   let lastUrl = null;
 
-  textEl.addEventListener('input', () => charcountEl.textContent = textEl.value.length);
+  // ---------- helpers ----------
+  const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
+  const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
+
+  function friendlyLocale(locale) {
+    try {
+      const [lang, region] = locale.split('-');
+      const langName = langDisplay.of(lang) || lang;
+      const regionName = region ? (regionDisplay.of(region) || region) : null;
+      return regionName ? `${langName} (${regionName})` : langName;
+    } catch (e) {
+      return locale;
+    }
+  }
+
+  function formatTime(sec) {
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // ---------- text counter ----------
+  textEl.addEventListener('input', () => {
+    charcountEl.textContent = textEl.value.length;
+  });
   charcountEl.textContent = textEl.value.length;
 
+  // ---------- speed / pitch sliders ----------
+  function fmtSigned(val, suffix) {
+    const n = parseInt(val, 10);
+    return (n >= 0 ? '+' : '') + n + suffix;
+  }
   speedEl.addEventListener('input', () => {
-    speedValEl.textContent = parseFloat(speedEl.value).toFixed(1) + 'x';
+    speedValEl.textContent = fmtSigned(speedEl.value, '%');
+  });
+  pitchEl.addEventListener('input', () => {
+    pitchValEl.textContent = fmtSigned(pitchEl.value, 'Hz');
   });
 
-  function populateVoicesForLanguage(){
+  // ---------- load languages + voices ----------
+  async function loadVoices() {
+    try {
+      const res = await fetch(`${API_BASE}/voices`);
+      if (!res.ok) throw new Error('Server error');
+      allVoices = await res.json();
+
+      const locales = [...new Set(allVoices.map(v => v.locale))].sort();
+      languageEl.innerHTML = '';
+      for (const loc of locales) {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = friendlyLocale(loc);
+        languageEl.appendChild(opt);
+      }
+      const defaultLoc = locales.find(l => l === 'en-US') || locales[0];
+      languageEl.value = defaultLoc;
+      populateVoicesForLanguage();
+
+      statusLine.textContent = `Ready — ${allVoices.length} voices available.`;
+      generateBtn.disabled = false;
+    } catch (err) {
+      statusLine.textContent = `Could not reach the voice server. Please try again shortly.`;
+      console.error(err);
+    }
+  }
+
+  function populateVoicesForLanguage() {
     const loc = languageEl.value;
     voiceEl.innerHTML = '';
     const filtered = allVoices.filter(v => v.locale === loc);
-    for(const v of filtered){
+    for (const v of filtered) {
       const opt = document.createElement('option');
       opt.value = v.id;
       opt.textContent = `${v.name} — ${v.gender}`;
       voiceEl.appendChild(opt);
     }
+    const anaOpt = [...voiceEl.options].find(o => o.textContent.startsWith('Ana —'));
+    if (anaOpt) voiceEl.value = anaOpt.value;
   }
-
-  async function loadVoices(){
-    try{
-      const res = await fetch(`${API_BASE}/voices`);
-      if(!res.ok) throw new Error('Server error');
-      allVoices = await res.json();
-
-      const locales = [...new Set(allVoices.map(v => v.locale))].sort();
-      languageEl.innerHTML = '';
-      for(const loc of locales){
-        const opt = document.createElement('option');
-        opt.value = loc;
-        opt.textContent = loc;
-        languageEl.appendChild(opt);
-      }
-      languageEl.value = locales.find(l => l.startsWith('en-US')) || locales[0];
-      populateVoicesForLanguage();
-
-      statusLine.textContent = `Connected — ${allVoices.length} voices available.`;
-      generateBtn.disabled = false;
-    } catch(err){
-      statusLine.textContent = `Could not reach backend at ${API_BASE}. Is it running?`;
-      console.error(err);
-    }
-  }
-
   languageEl.addEventListener('change', populateVoicesForLanguage);
 
-  async function generate(){
+  // ---------- validation ----------
+  function validateInputs() {
     const text = textEl.value.trim();
-    if(!text) return;
+    if (!text) return 'Please enter some text.';
+    if (text.length > 5000) return 'Text is too long (max 5000 characters).';
+    if (!voiceEl.value) return 'Please select a voice.';
+    const speed = parseInt(speedEl.value, 10);
+    if (isNaN(speed) || speed < -50 || speed > 100) return 'Invalid speed value.';
+    const pitch = parseInt(pitchEl.value, 10);
+    if (isNaN(pitch) || pitch < -50 || pitch > 50) return 'Invalid pitch value.';
+    return null;
+  }
 
-    const speed = parseFloat(speedEl.value);
-    const ratePct = Math.round((speed - 1) * 100);
-    const rate = (ratePct >= 0 ? '+' : '') + ratePct + '%';
+  // ---------- generate ----------
+  async function generate() {
+    const validationError = validateInputs();
+    if (validationError) {
+      statusLine.textContent = validationError;
+      return;
+    }
 
     generateBtn.disabled = true;
-    generateBtn.textContent = '● Generating…';
+    generateLabel.textContent = 'Generating...';
     statusLine.textContent = 'Generating speech…';
 
-    try{
+    try {
+      const rate = fmtSigned(speedEl.value, '%');
+      const pitch = fmtSigned(pitchEl.value, 'Hz');
+
       const res = await fetch(`${API_BASE}/speak`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice: voiceEl.value, rate })
+        body: JSON.stringify({
+          text: textEl.value.trim(),
+          voice: voiceEl.value,
+          rate,
+          pitch
+        })
       });
-      if(!res.ok){
+
+      if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.detail || 'Generation failed');
       }
+
       const blob = await res.blob();
-      if(lastUrl) URL.revokeObjectURL(lastUrl);
+      if (lastUrl) URL.revokeObjectURL(lastUrl);
       lastUrl = URL.createObjectURL(blob);
 
-      player.src = lastUrl;
-      player.style.display = 'block';
-      player.play();
-      downloadBtn.disabled = false;
+      audioEl.src = lastUrl;
+      downloadBtn.href = lastUrl;
+      audioResult.classList.remove('hidden');
+      resetPlayerUI();
       statusLine.textContent = 'Done.';
-    } catch(err){
+    } catch (err) {
       statusLine.textContent = 'Error: ' + err.message;
       console.error(err);
     } finally {
       generateBtn.disabled = false;
-      generateBtn.textContent = '▶ Generate Speech';
+      generateLabel.textContent = 'Generate Speech';
     }
   }
-
   generateBtn.addEventListener('click', generate);
-  downloadBtn.addEventListener('click', () => {
-    if(!lastUrl) return;
-    const a = document.createElement('a');
-    a.href = lastUrl;
-    a.download = 'speech.mp3';
-    a.click();
+
+  // ---------- custom audio player ----------
+  function resetPlayerUI() {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+    progressEl.value = 0;
+    currentTimeEl.textContent = '0:00';
+    durationEl.textContent = '0:00';
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audioEl.paused) {
+      audioEl.play();
+    } else {
+      audioEl.pause();
+    }
   });
 
+  audioEl.addEventListener('play', () => {
+    playIcon.setAttribute('data-lucide', 'pause');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('pause', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('ended', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audioEl.duration);
+  });
+  audioEl.addEventListener('timeupdate', () => {
+    if (audioEl.duration) {
+      progressEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+      currentTimeEl.textContent = formatTime(audioEl.currentTime);
+    }
+  });
+  progressEl.addEventListener('input', () => {
+    if (audioEl.duration) {
+      audioEl.currentTime = (progressEl.value / 100) * audioEl.duration;
+    }
+  });
+
+  // ---------- init ----------
+  lucide.createIcons();
   loadVoices();
 </script>
 

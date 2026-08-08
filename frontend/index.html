@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocalis — Free Text to Speech</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9K7V2BCFHD');
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#10161a',
+          surface: '#182226',
+          surfaceRaised: '#1f2b30',
+          bezel: '#0d1417',
+          amber: '#e8a33d',
+          teal: '#5fcfc0',
+          line: '#2a3438',
+          muted: '#8b9a97',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color:#10161a; }
+  input[type=range]{ accent-color:#e8a33d; }
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:#2a3438; border-radius:8px; }
+</style>
+</head>
+<body class="text-[#edeae2] font-sans min-h-screen flex flex-col">
+
+  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14">
+
+    <header class="text-center mb-8">
+      <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">Vocalis</h1>
+      <p class="text-sm text-muted mt-1">Free, unlimited text to speech</p>
+    </header>
+
+    <section class="bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6 shadow-xl">
+
+      <!-- Language -->
+      <div>
+        <label for="language" class="block text-xs uppercase tracking-wider text-muted mb-2">Language</label>
+        <select id="language" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Voice -->
+      <div>
+        <label for="voice" class="block text-xs uppercase tracking-wider text-muted mb-2">Voice</label>
+        <select id="voice" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="text" class="block text-xs uppercase tracking-wider text-muted">Your text</label>
+          <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
+        </div>
+        <textarea id="text" rows="6"
+          class="w-full bg-bezel border border-line rounded-lg px-3 py-3 text-[15px] resize-y focus:outline-none focus:ring-2 focus:ring-teal placeholder:text-muted/60"
+          placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
+      </div>
+
+      <!-- Speed + Pitch -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
+            <span class="text-xs text-amber font-mono" id="speedVal">0%</span>
+          </div>
+          <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
+            <span class="text-xs text-amber font-mono" id="pitchVal">0Hz</span>
+          </div>
+          <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
+        </div>
+      </div>
+
+      <!-- Generate button -->
+      <button id="generateBtn" disabled
+        class="w-full flex items-center justify-center gap-2 bg-amber hover:bg-[#f0ae4d] disabled:opacity-40 disabled:cursor-not-allowed text-[#1a1207] font-semibold text-[15px] rounded-lg py-3.5 transition">
+        <i data-lucide="play" class="w-4 h-4"></i>
+        <span id="generateLabel">Generate Speech</span>
+      </button>
+
+      <p id="statusLine" class="text-xs text-muted text-center -mt-2">Connecting to voice server…</p>
+    </section>
+
+    <!-- Audio result -->
+    <section id="audioResult" class="hidden mt-6 bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6">
+      <div class="flex items-center gap-4">
+        <button id="playBtn" class="shrink-0 w-11 h-11 rounded-full bg-amber hover:bg-[#f0ae4d] flex items-center justify-center text-[#1a1207] transition">
+          <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
+        </button>
+
+        <div class="flex-1 min-w-0">
+          <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
+          <div class="flex justify-between text-xs text-muted mt-1 font-mono">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <a id="downloadBtn" download="speech.mp3"
+          class="shrink-0 w-11 h-11 rounded-full border border-line hover:border-teal flex items-center justify-center text-teal transition">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-xs text-muted py-6">
+    Made With <span class="text-red-400">❤️</span> By ZEESHAN
+  </footer>
+
+<audio id="audioEl" class="hidden"></audio>
+
+<script>
+  const API_BASE = "https://vocalis-tts.vercel.app"; // backend URL
+
+  // Elements
+  const languageEl = document.getElementById('language');
+  const voiceEl = document.getElementById('voice');
+  const textEl = document.getElementById('text');
+  const charcountEl = document.getElementById('charcount');
+  const speedEl = document.getElementById('speed');
+  const speedValEl = document.getElementById('speedVal');
+  const pitchEl = document.getElementById('pitch');
+  const pitchValEl = document.getElementById('pitchVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const generateLabel = document.getElementById('generateLabel');
+  const statusLine = document.getElementById('statusLine');
+  const audioResult = document.getElementById('audioResult');
+  const audioEl = document.getElementById('audioEl');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const progressEl = document.getElementById('progress');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  let allVoices = [];
+  let lastUrl = null;
+
+  // ---------- helpers ----------
+  const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
+  const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
+
+  function friendlyLocale(locale) {
+    try {
+      const [lang, region] = locale.split('-');
+      const langName = langDisplay.of(lang) || lang;
+      const regionName = region ? (regionDisplay.of(region) || region) : null;
+      return regionName ? `${langName} (${regionName})` : langName;
+    } catch (e) {
+      return locale;
+    }
+  }
+
+  function formatTime(sec) {
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // ---------- text counter ----------
+  textEl.addEventListener('input', () => {
+    charcountEl.textContent = textEl.value.length;
+  });
+  charcountEl.textContent = textEl.value.length;
+
+  // ---------- speed / pitch sliders ----------
+  function fmtSigned(val, suffix) {
+    const n = parseInt(val, 10);
+    return (n >= 0 ? '+' : '') + n + suffix;
+  }
+  speedEl.addEventListener('input', () => {
+    speedValEl.textContent = fmtSigned(speedEl.value, '%');
+  });
+  pitchEl.addEventListener('input', () => {
+    pitchValEl.textContent = fmtSigned(pitchEl.value, 'Hz');
+  });
+
+  // ---------- load languages + voices ----------
+  async function loadVoices() {
+    try {
+      const res = await fetch(`${API_BASE}/voices`);
+      if (!res.ok) throw new Error('Server error');
+      allVoices = await res.json();
+
+      const locales = [...new Set(allVoices.map(v => v.locale))].sort();
+      languageEl.innerHTML = '';
+      for (const loc of locales) {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = friendlyLocale(loc);
+        languageEl.appendChild(opt);
+      }
+      const defaultLoc = locales.find(l => l === 'en-US') || locales[0];
+      languageEl.value = defaultLoc;
+      populateVoicesForLanguage();
+
+      statusLine.textContent = `Ready — ${allVoices.length} voices available.`;
+      generateBtn.disabled = false;
+    } catch (err) {
+      statusLine.textContent = `Could not reach the voice server. Please try again shortly.`;
+      console.error(err);
+    }
+  }
+
+  function populateVoicesForLanguage() {
+    const loc = languageEl.value;
+    voiceEl.innerHTML = '';
+    const filtered = allVoices.filter(v => v.locale === loc);
+    for (const v of filtered) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = `${v.name} — ${v.gender}`;
+      voiceEl.appendChild(opt);
+    }
+    const anaOpt = [...voiceEl.options].find(o => o.textContent.startsWith('Ana —'));
+    if (anaOpt) voiceEl.value = anaOpt.value;
+  }
+  languageEl.addEventListener('change', populateVoicesForLanguage);
+
+  // ---------- validation ----------
+  function validateInputs() {
+    const text = textEl.value.trim();
+    if (!text) return 'Please enter some text.';
+    if (text.length > 5000) return 'Text is too long (max 5000 characters).';
+    if (!voiceEl.value) return 'Please select a voice.';
+    const speed = parseInt(speedEl.value, 10);
+    if (isNaN(speed) || speed < -50 || speed > 100) return 'Invalid speed value.';
+    const pitch = parseInt(pitchEl.value, 10);
+    if (isNaN(pitch) || pitch < -50 || pitch > 50) return 'Invalid pitch value.';
+    return null;
+  }
+
+  // ---------- generate ----------
+  async function generate() {
+    const validationError = validateInputs();
+    if (validationError) {
+      statusLine.textContent = validationError;
+      return;
+    }
+
+    generateBtn.disabled = true;
+    generateLabel.textContent = 'Generating...';
+    statusLine.textContent = 'Generating speech…';
+
+    try {
+      const rate = fmtSigned(speedEl.value, '%');
+      const pitch = fmtSigned(pitchEl.value, 'Hz');
+
+      const res = await fetch(`${API_BASE}/speak`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textEl.value.trim(),
+          voice: voiceEl.value,
+          rate,
+          pitch
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || 'Generation failed');
+      }
+
+      const blob = await res.blob();
+      if (lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+
+      audioEl.src = lastUrl;
+      downloadBtn.href = lastUrl;
+      audioResult.classList.remove('hidden');
+      resetPlayerUI();
+      statusLine.textContent = 'Done.';
+    } catch (err) {
+      statusLine.textContent = 'Error: ' + err.message;
+      console.error(err);
+    } finally {
+      generateBtn.disabled = false;
+      generateLabel.textContent = 'Generate Speech';
+    }
+  }
+  generateBtn.addEventListener('click', generate);
+
+  // ---------- custom audio player ----------
+  function resetPlayerUI() {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+    progressEl.value = 0;
+    currentTimeEl.textContent = '0:00';
+    durationEl.textContent = '0:00';
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audioEl.paused) {
+      audioEl.play();
+    } else {
+      audioEl.pause();
+    }
+  });
+
+  audioEl.addEventListener('play', () => {
+    playIcon.setAttribute('data-lucide', 'pause');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('pause', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('ended', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audioEl.duration);
+  });
+  audioEl.addEventListener('timeupdate', () => {
+    if (audioEl.duration) {
+      progressEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+      currentTimeEl.textContent = formatTime(audioEl.currentTime);
+    }
+  });
+  progressEl.addEventListener('input', () => {
+    if (audioEl.duration) {
+      audioEl.currentTime = (progressEl.value / 100) * audioEl.duration;
+    }
+  });
+
+  // ---------- init ----------
+  lucide.createIcons();
+  loadVoices();
+</script>
+
+</body>
+</html>

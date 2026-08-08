@@ -10,7 +10,8 @@ Endpoints:
   POST /speak            -> { text, voice, rate, pitch } -> returns MP3 audio
 """
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import edge_tts
@@ -85,20 +86,17 @@ async def speak(req: SpeakRequest):
     text = req.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
-    if len(text) > 10000:
-        raise HTTPException(status_code=400, detail="Text too long (max 10,000 characters)")
+    if len(text) > 100000:
+        raise HTTPException(status_code=400, detail="Text too long (max 100,000 characters)")
 
-    communicate = edge_tts.Communicate(text, req.voice, rate=req.rate, pitch=req.pitch)
-    audio_bytes = bytearray()
-    async for chunk in communicate.stream():
-        if chunk["type"] == "audio":
-            audio_bytes.extend(chunk["data"])
+    async def audio_stream():
+        communicate = edge_tts.Communicate(text, req.voice, rate=req.rate, pitch=req.pitch)
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                yield chunk["data"]
 
-    if not audio_bytes:
-        raise HTTPException(status_code=502, detail="No audio was generated. Try again.")
-
-    return Response(
-        content=bytes(audio_bytes),
+    return StreamingResponse(
+        audio_stream(),
         media_type="audio/mpeg",
         headers={"Content-Disposition": "inline; filename=speech.mp3"},
     )

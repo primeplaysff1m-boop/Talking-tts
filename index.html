@@ -41,10 +41,55 @@
   }
 </script>
 <style>
-  body { background-color:#faf6f0; }
+  body {
+    background-color:#f5efe6;
+    background-image:
+      radial-gradient(circle at 8% 15%, rgba(217,102,60,0.35), transparent 40%),
+      radial-gradient(circle at 92% 10%, rgba(92,125,106,0.30), transparent 42%),
+      radial-gradient(circle at 50% 100%, rgba(244,196,120,0.35), transparent 55%),
+      radial-gradient(circle at 100% 90%, rgba(122,102,178,0.22), transparent 45%);
+    background-attachment: fixed;
+  }
   input[type=range]{ accent-color:#d9663c; }
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:#eadfcf; border-radius:8px; }
+
+  .card-3d{
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 2px 4px rgba(43,38,32,0.04),
+      0 12px 24px rgba(43,38,32,0.10),
+      0 30px 60px -12px rgba(43,38,32,0.18);
+  }
+  .btn-3d{
+    box-shadow: 0 4px 0 #a8481f, 0 10px 22px rgba(217,102,60,0.35);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d:active:not(:disabled){
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #a8481f, 0 4px 10px rgba(217,102,60,0.25);
+  }
+  .btn-3d:disabled{ box-shadow: 0 4px 0 rgba(168,72,31,0.35), 0 10px 22px rgba(217,102,60,0.12); }
+
+  .fab-3d{
+    box-shadow: 0 3px 0 #a8481f, 0 8px 16px rgba(217,102,60,0.35);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .fab-3d:active{
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #a8481f, 0 3px 8px rgba(217,102,60,0.25);
+  }
+  .fab-outline-3d{
+    box-shadow: 0 3px 0 #d8cbb4, 0 8px 16px rgba(43,38,32,0.08);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .fab-outline-3d:active{
+    transform: translateY(3px);
+    box-shadow: 0 0 0 #d8cbb4, 0 3px 8px rgba(43,38,32,0.06);
+  }
 </style>
 </head>
 <body class="text-ink font-sans min-h-screen flex flex-col">
@@ -56,12 +101,12 @@
       <p class="text-sm text-muted mt-2">Free, unlimited text to speech</p>
     </header>
 
-    <section class="bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6 shadow-[0_8px_30px_rgba(43,38,32,0.06)]">
+    <section class="card-3d bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6">
 
       <!-- Language -->
       <div>
         <label for="language" class="block text-xs uppercase tracking-wider text-muted mb-2">Language</label>
-        <select id="language" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+        <select id="language" class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
@@ -69,7 +114,7 @@
       <!-- Voice -->
       <div>
         <label for="voice" class="block text-xs uppercase tracking-wider text-muted mb-2">Voice</label>
-        <select id="voice" class="w-full bg-bezel border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+        <select id="voice" class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
@@ -78,10 +123,10 @@
       <div>
         <div class="flex items-center justify-between mb-2">
           <label for="text" class="block text-xs uppercase tracking-wider text-muted">Your text</label>
-          <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
+          <span class="text-xs text-muted"><span id="charcount">0</span> / 10,000 characters</span>
         </div>
         <textarea id="text" rows="6"
-          class="w-full bg-bezel border border-line rounded-lg px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
+          class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
           placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
       </div>
 
@@ -105,7 +150,7 @@
 
       <!-- Generate button -->
       <button id="generateBtn" disabled
-        class="w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-lg py-3.5 transition shadow-[0_4px_14px_rgba(217,102,60,0.3)]">
+        class="btn-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-lg py-3.5 transition-colors">
         <i data-lucide="play" class="w-4 h-4"></i>
         <span id="generateLabel">Generate Speech</span>
       </button>
@@ -114,9 +159,9 @@
     </section>
 
     <!-- Audio result -->
-    <section id="audioResult" class="hidden mt-6 bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6 shadow-[0_8px_30px_rgba(43,38,32,0.06)]">
+    <section id="audioResult" class="hidden mt-6 card-3d bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6">
       <div class="flex items-center gap-4">
-        <button id="playBtn" class="shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-white transition">
+        <button id="playBtn" class="fab-3d shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-white transition-colors">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
         </button>
 
@@ -129,7 +174,7 @@
         </div>
 
         <a id="downloadBtn" download="speech.mp3"
-          class="shrink-0 w-11 h-11 rounded-full border border-line hover:border-sage hover:bg-sage/5 flex items-center justify-center text-sage transition">
+          class="fab-outline-3d shrink-0 w-11 h-11 rounded-full border border-line hover:border-sage hover:bg-sage/5 flex items-center justify-center text-sage transition-colors">
           <i data-lucide="download" class="w-5 h-5"></i>
         </a>
       </div>
@@ -256,7 +301,7 @@
   function validateInputs() {
     const text = textEl.value.trim();
     if (!text) return 'Please enter some text.';
-    if (text.length > 5000) return 'Text is too long (max 5000 characters).';
+    if (text.length > 10000) return 'Text is too long (max 10,000 characters).';
     if (!voiceEl.value) return 'Please select a voice.';
     const speed = parseInt(speedEl.value, 10);
     if (isNaN(speed) || speed < -50 || speed > 100) return 'Invalid speed value.';

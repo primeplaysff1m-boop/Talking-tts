@@ -85,8 +85,8 @@ async def speak(req: SpeakRequest):
     text = req.text.strip()
     if not text:
         raise HTTPException(status_code=400, detail="Text is required")
-    if len(text) > 5000:
-        raise HTTPException(status_code=400, detail="Text too long (max 5000 characters)")
+    if len(text) > 10000:
+        raise HTTPException(status_code=400, detail="Text too long (max 10,000 characters)")
 
     communicate = edge_tts.Communicate(text, req.voice, rate=req.rate, pitch=req.pitch)
     audio_bytes = bytearray()

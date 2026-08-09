@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -334,9 +334,9 @@
 <script>
   const API_BASE = "https://talking-tts-production.up.railway.app"; // backend URL
 
-  // ⚠️ Fill these in from your Supabase project (Project Settings → API)
-  const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-  const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+  // Supabase project credentials
+  const SUPABASE_URL = "https://iycyblxunuuuthghhtlc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_aSR7nG_peq88DTMnVxHY1g_id6_tgYi";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const WHATSAPP_NUMBER = "923350443538";

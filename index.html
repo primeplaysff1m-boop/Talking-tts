@@ -13,7 +13,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
@@ -25,14 +25,15 @@
           sans: ['Inter', 'system-ui', 'sans-serif'],
         },
         colors: {
-          bg: '#faf6f0',
           surface: '#ffffff',
           surfaceRaised: '#fffdfb',
-          bezel: '#f3ede3',
+          bezel: '#f6f0e6',
           coral: '#d9663c',
-          coralDark: '#c25630',
+          coralDark: '#a8481f',
           sage: '#5c7d6a',
-          line: '#eadfcf',
+          gold: '#e6a94f',
+          violet: '#7a66b2',
+          line: '#ecdfca',
           ink: '#2b2620',
           muted: '#8a8070',
         }
@@ -41,80 +42,135 @@
   }
 </script>
 <style>
+  html, body { height:100%; }
   body {
     background-color:#f5efe6;
     background-image:
-      radial-gradient(circle at 8% 15%, rgba(217,102,60,0.35), transparent 40%),
-      radial-gradient(circle at 92% 10%, rgba(92,125,106,0.30), transparent 42%),
-      radial-gradient(circle at 50% 100%, rgba(244,196,120,0.35), transparent 55%),
-      radial-gradient(circle at 100% 90%, rgba(122,102,178,0.22), transparent 45%);
+      radial-gradient(circle at 10% 20%, rgba(217,102,60,0.38), transparent 42%),
+      radial-gradient(circle at 90% 15%, rgba(92,125,106,0.32), transparent 44%),
+      radial-gradient(circle at 50% 105%, rgba(230,169,79,0.38), transparent 55%),
+      radial-gradient(circle at 100% 90%, rgba(122,102,178,0.26), transparent 48%);
+    background-size: 180% 180%;
     background-attachment: fixed;
+    animation: driftBg 22s ease-in-out infinite alternate;
+    overflow-x: hidden;
   }
+  @keyframes driftBg {
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%; }
+    100% { background-position: 10% 10%, 90% 5%, 45% 95%, 90% 85%; }
+  }
+
+  /* floating decorative orbs */
+  .orb{ position:fixed; border-radius:9999px; filter: blur(50px); opacity:.5; pointer-events:none; z-index:0; }
+  .orb1{ width:260px; height:260px; background:#d9663c; top:-60px; left:-60px; animation: floatY 9s ease-in-out infinite; }
+  .orb2{ width:220px; height:220px; background:#7a66b2; bottom:-40px; right:-40px; animation: floatY 11s ease-in-out infinite reverse; }
+  .orb3{ width:180px; height:180px; background:#e6a94f; top:40%; right:5%; animation: floatY 13s ease-in-out infinite; }
+  @keyframes floatY {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-24px); }
+  }
+
   input[type=range]{ accent-color:#d9663c; }
   ::-webkit-scrollbar{ width:8px; }
   ::-webkit-scrollbar-thumb{ background:#eadfcf; border-radius:8px; }
 
-  .card-3d{
+  /* glass 3D card with mouse-tracked tilt */
+  .glass-3d{
+    position: relative;
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.6);
     box-shadow:
       0 1px 0 rgba(255,255,255,0.9) inset,
-      0 2px 4px rgba(43,38,32,0.04),
-      0 12px 24px rgba(43,38,32,0.10),
-      0 30px 60px -12px rgba(43,38,32,0.18);
+      0 2px 4px rgba(43,38,32,0.05),
+      0 20px 40px -8px rgba(43,38,32,0.20),
+      0 40px 80px -20px rgba(43,38,32,0.25);
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform .15s ease-out, box-shadow .3s ease;
   }
+  .glass-raised{
+    background: rgba(255,255,255,0.78);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.9) inset,
+      0 12px 24px rgba(43,38,32,0.10),
+      0 28px 56px -14px rgba(43,38,32,0.20);
+  }
+
   .btn-3d{
-    box-shadow: 0 4px 0 #a8481f, 0 10px 22px rgba(217,102,60,0.35);
+    box-shadow: 0 4px 0 #a8481f, 0 12px 26px rgba(217,102,60,0.4);
     transform: translateY(0);
     transition: transform .08s ease, box-shadow .08s ease;
   }
   .btn-3d:active:not(:disabled){
     transform: translateY(4px);
-    box-shadow: 0 0 0 #a8481f, 0 4px 10px rgba(217,102,60,0.25);
+    box-shadow: 0 0 0 #a8481f, 0 4px 10px rgba(217,102,60,0.3);
   }
   .btn-3d:disabled{ box-shadow: 0 4px 0 rgba(168,72,31,0.35), 0 10px 22px rgba(217,102,60,0.12); }
+  .btn-3d:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 5px 0 #a8481f, 0 16px 32px rgba(217,102,60,0.45); }
 
   .fab-3d{
-    box-shadow: 0 3px 0 #a8481f, 0 8px 16px rgba(217,102,60,0.35);
+    box-shadow: 0 3px 0 #a8481f, 0 10px 20px rgba(217,102,60,0.4);
     transform: translateY(0);
     transition: transform .08s ease, box-shadow .08s ease;
   }
-  .fab-3d:active{
-    transform: translateY(3px);
-    box-shadow: 0 0 0 #a8481f, 0 3px 8px rgba(217,102,60,0.25);
-  }
+  .fab-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #a8481f, 0 3px 8px rgba(217,102,60,0.25); }
   .fab-outline-3d{
-    box-shadow: 0 3px 0 #d8cbb4, 0 8px 16px rgba(43,38,32,0.08);
+    box-shadow: 0 3px 0 #d8cbb4, 0 10px 20px rgba(43,38,32,0.10);
     transform: translateY(0);
     transition: transform .08s ease, box-shadow .08s ease;
   }
-  .fab-outline-3d:active{
-    transform: translateY(3px);
-    box-shadow: 0 0 0 #d8cbb4, 0 3px 8px rgba(43,38,32,0.06);
+  .fab-outline-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #d8cbb4, 0 3px 8px rgba(43,38,32,0.08); }
+
+  .field-inset{
+    box-shadow: inset 0 2px 5px rgba(43,38,32,0.08), inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+
+  .badge-icon{
+    width:30px; height:30px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(145deg, #fff, #f3ede0);
+    box-shadow: 0 2px 5px rgba(43,38,32,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
   }
 </style>
 </head>
-<body class="text-ink font-sans min-h-screen flex flex-col">
+<body class="text-ink font-sans min-h-screen flex flex-col relative">
 
-  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
 
     <header class="text-center mb-8">
-      <h1 class="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-ink">Vocalis</h1>
+      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-ink drop-shadow-sm">Vocalis</h1>
       <p class="text-sm text-muted mt-2">Free, unlimited text to speech</p>
     </header>
 
-    <section class="card-3d bg-surface border border-line rounded-2xl p-5 sm:p-8 space-y-6">
+    <section id="mainCard" class="glass-3d rounded-3xl p-5 sm:p-9 space-y-6">
 
       <!-- Language -->
       <div>
-        <label for="language" class="block text-xs uppercase tracking-wider text-muted mb-2">Language</label>
-        <select id="language" class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+        <label for="language" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
+          <span class="badge-icon"><i data-lucide="globe" class="w-3.5 h-3.5 text-coral"></i></span>
+          Language
+        </label>
+        <select id="language" class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
 
       <!-- Voice -->
       <div>
-        <label for="voice" class="block text-xs uppercase tracking-wider text-muted mb-2">Voice</label>
-        <select id="voice" class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+        <label for="voice" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
+          <span class="badge-icon"><i data-lucide="mic-2" class="w-3.5 h-3.5 text-sage"></i></span>
+          Voice
+        </label>
+        <select id="voice" class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
           <option>Loading…</option>
         </select>
       </div>
@@ -122,11 +178,14 @@
       <!-- Text -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label for="text" class="block text-xs uppercase tracking-wider text-muted">Your text</label>
+          <label for="text" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted">
+            <span class="badge-icon"><i data-lucide="text-cursor-input" class="w-3.5 h-3.5 text-gold"></i></span>
+            Your text
+          </label>
           <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
         </div>
         <textarea id="text" rows="6"
-          class="w-full bg-bezel border border-line rounded-lg shadow-[inset_0_2px_4px_rgba(43,38,32,0.06)] px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
+          class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
           placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
       </div>
 
@@ -135,14 +194,14 @@
         <div>
           <div class="flex items-center justify-between mb-2">
             <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
-            <span class="text-xs text-coral font-mono font-medium" id="speedVal">0%</span>
+            <span class="text-xs text-coral font-mono font-semibold" id="speedVal">0%</span>
           </div>
           <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
             <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
-            <span class="text-xs text-coral font-mono font-medium" id="pitchVal">0Hz</span>
+            <span class="text-xs text-coral font-mono font-semibold" id="pitchVal">0Hz</span>
           </div>
           <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
@@ -150,7 +209,7 @@
 
       <!-- Generate button -->
       <button id="generateBtn" disabled
-        class="btn-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-lg py-3.5 transition-colors">
+        class="btn-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-xl py-3.5 transition-colors">
         <i data-lucide="play" class="w-4 h-4"></i>
         <span id="generateLabel">Generate Speech</span>
       </button>
@@ -159,7 +218,7 @@
     </section>
 
     <!-- Audio result -->
-    <section id="audioResult" class="hidden mt-6 card-3d bg-surfaceRaised border border-line rounded-2xl p-5 sm:p-6">
+    <section id="audioResult" class="hidden mt-6 glass-raised rounded-3xl p-5 sm:p-6">
       <div class="flex items-center gap-4">
         <button id="playBtn" class="fab-3d shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-white transition-colors">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
@@ -182,7 +241,7 @@
 
   </main>
 
-  <footer class="text-center text-xs text-muted py-6">
+  <footer class="text-center text-xs text-muted py-6 relative z-10">
     Made With <span class="text-coral">❤️</span> By ZEESHAN
   </footer>
 
@@ -211,9 +270,26 @@
   const currentTimeEl = document.getElementById('currentTime');
   const durationEl = document.getElementById('duration');
   const downloadBtn = document.getElementById('downloadBtn');
+  const mainCard = document.getElementById('mainCard');
 
   let allVoices = [];
   let lastUrl = null;
+
+  // ---------- 3D tilt effect on main card ----------
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+  if (!isTouchDevice) {
+    mainCard.addEventListener('mousemove', (e) => {
+      const rect = mainCard.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotateX = (-y * 5).toFixed(2);
+      const rotateY = (x * 5).toFixed(2);
+      mainCard.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+    });
+    mainCard.addEventListener('mouseleave', () => {
+      mainCard.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+    });
+  }
 
   // ---------- helpers ----------
   const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
@@ -320,7 +396,7 @@
 
     generateBtn.disabled = true;
     generateLabel.textContent = 'Generating...';
-    statusLine.textContent = 'Generating speech…';
+    statusLine.textContent = 'Generating speech… this can take up to 30–45s for longer text.';
 
     try {
       const rate = fmtSigned(speedEl.value, '%');

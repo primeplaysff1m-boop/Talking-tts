@@ -10,11 +10,12 @@ Endpoints:
   POST /speak            -> { text, voice, rate, pitch } -> returns MP3 audio
 """
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import edge_tts
+import asyncio
+import time
 
 app = FastAPI(title="Vocalis API", version="1.0.0")
 
@@ -89,14 +90,38 @@ async def speak(req: SpeakRequest):
     if len(text) > 100000:
         raise HTTPException(status_code=400, detail="Text too long (max 100,000 characters)")
 
-    async def audio_stream():
+    async def _synthesize() -> bytes:
+        t0 = time.perf_counter()
         communicate = edge_tts.Communicate(text, req.voice, rate=req.rate, pitch=req.pitch)
+        audio = bytearray()
+        chunk_count = 0
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
-                yield chunk["data"]
+                audio.extend(chunk["data"])
+                chunk_count += 1
+        elapsed = time.perf_counter() - t0
+        print(f"[speak] voice={req.voice} chars={len(text)} chunks={chunk_count} "
+              f"bytes={len(audio)} elapsed={elapsed:.2f}s", flush=True)
+        return bytes(audio)
 
-    return StreamingResponse(
-        audio_stream(),
+    try:
+        req_t0 = time.perf_counter()
+        # 45s is generous for normal-length text; if it takes longer, something
+        # upstream (network route to Microsoft's TTS service) is the bottleneck.
+        audio_bytes = await asyncio.wait_for(_synthesize(), timeout=45)
+        print(f"[speak] total request time={time.perf_counter()-req_t0:.2f}s", flush=True)
+    except asyncio.TimeoutError:
+        print(f"[speak] TIMED OUT after 45s for voice={req.voice} chars={len(text)}", flush=True)
+        raise HTTPException(
+            status_code=504,
+            detail="Voice generation timed out. Try shorter text, or try again in a moment.",
+        )
+
+    if not audio_bytes:
+        raise HTTPException(status_code=502, detail="No audio was generated. Try again.")
+
+    return Response(
+        content=audio_bytes,
         media_type="audio/mpeg",
         headers={"Content-Disposition": "inline; filename=speech.mp3"},
     )

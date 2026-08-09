@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocalis — Free Text to Speech</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-9K7V2BCFHD');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          serif: ['Space Grotesk', 'system-ui', 'sans-serif'],
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          surface: '#131629',
+          surfaceRaised: '#161a30',
+          bezel: '#171b30',
+          coral: '#22d3ee',
+          coralDark: '#0e9fbd',
+          sage: '#f472b6',
+          gold: '#a78bfa',
+          violet: '#a78bfa',
+          line: '#2a2f52',
+          ink: '#eef0fb',
+          muted: '#8b93b8',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html, body { height:100%; }
+  body {
+    background-color:#090b16;
+    background-image:
+      radial-gradient(circle at 12% 20%, rgba(34,211,238,0.28), transparent 42%),
+      radial-gradient(circle at 88% 15%, rgba(244,114,182,0.24), transparent 44%),
+      radial-gradient(circle at 50% 105%, rgba(167,139,250,0.30), transparent 55%),
+      radial-gradient(circle at 100% 90%, rgba(34,211,238,0.16), transparent 48%);
+    background-size: 180% 180%;
+    background-attachment: fixed;
+    animation: driftBg 22s ease-in-out infinite alternate;
+    overflow-x: hidden;
+  }
+  @keyframes driftBg {
+    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%; }
+    100% { background-position: 10% 10%, 90% 5%, 45% 95%, 90% 85%; }
+  }
+
+  /* floating decorative orbs */
+  .orb{ position:fixed; border-radius:9999px; filter: blur(60px); opacity:.45; pointer-events:none; z-index:0; }
+  .orb1{ width:280px; height:280px; background:#22d3ee; top:-70px; left:-70px; animation: floatY 9s ease-in-out infinite; }
+  .orb2{ width:240px; height:240px; background:#f472b6; bottom:-40px; right:-40px; animation: floatY 11s ease-in-out infinite reverse; }
+  .orb3{ width:200px; height:200px; background:#a78bfa; top:40%; right:5%; animation: floatY 13s ease-in-out infinite; }
+  @keyframes floatY {
+    0%,100% { transform: translateY(0px); }
+    50% { transform: translateY(-24px); }
+  }
+
+  input[type=range]{ accent-color:#22d3ee; }
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:#2a2f52; border-radius:8px; }
+
+  /* glass 3D card with mouse-tracked tilt */
+  .glass-3d{
+    position: relative;
+    background: rgba(19,22,41,0.72);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 2px 4px rgba(0,0,0,0.3),
+      0 20px 40px -8px rgba(34,211,238,0.15),
+      0 40px 90px -20px rgba(0,0,0,0.6);
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: transform .15s ease-out, box-shadow .3s ease;
+  }
+  .glass-raised{
+    background: rgba(22,26,48,0.78);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 12px 24px rgba(0,0,0,0.35),
+      0 28px 56px -14px rgba(167,139,250,0.18);
+  }
+
+  .btn-3d{
+    box-shadow: 0 4px 0 #0e9fbd, 0 12px 30px rgba(34,211,238,0.45);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn-3d:active:not(:disabled){
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #0e9fbd, 0 4px 12px rgba(34,211,238,0.35);
+  }
+  .btn-3d:disabled{ box-shadow: 0 4px 0 rgba(14,159,189,0.35), 0 10px 22px rgba(34,211,238,0.12); }
+  .btn-3d:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 5px 0 #0e9fbd, 0 16px 36px rgba(34,211,238,0.5); }
+
+  .fab-3d{
+    box-shadow: 0 3px 0 #0e9fbd, 0 10px 22px rgba(34,211,238,0.45);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .fab-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #0e9fbd, 0 3px 8px rgba(34,211,238,0.3); }
+  .fab-outline-3d{
+    box-shadow: 0 3px 0 #3a3f66, 0 10px 22px rgba(0,0,0,0.25);
+    transform: translateY(0);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .fab-outline-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #3a3f66, 0 3px 8px rgba(0,0,0,0.2); }
+
+  .field-inset{
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+
+  .badge-icon{
+    width:30px; height:30px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(145deg, #1c2140, #12152a);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+</style>
+</head>
+<body class="text-ink font-sans min-h-screen flex flex-col relative">
+
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- Navbar -->
+  <nav class="relative z-20 w-full border-b border-line/60">
+    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="badge-icon"><i data-lucide="audio-lines" class="w-4 h-4 text-coral"></i></span>
+        <span class="font-serif font-semibold text-lg tracking-tight">Vocalis</span>
+      </div>
+      <div id="authArea" class="flex items-center gap-3">
+        <button id="signInNavBtn" class="text-sm font-medium text-ink hover:text-coral transition-colors">Sign In</button>
+        <button id="signUpNavBtn" class="fab-3d bg-coral hover:bg-coralDark text-[#06131a] text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Sign Up</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
+
+    <header class="text-center mb-8">
+      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-ink" style="text-shadow: 0 0 30px rgba(34,211,238,0.35), 0 0 60px rgba(167,139,250,0.2);">Vocalis</h1>
+      <p class="text-sm text-muted mt-2">1 free voice generation, then upgrade for unlimited</p>
+    </header>
+
+    <section id="mainCard" class="glass-3d rounded-3xl p-5 sm:p-9 space-y-6">
+
+      <!-- Language -->
+      <div>
+        <label for="language" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
+          <span class="badge-icon"><i data-lucide="globe" class="w-3.5 h-3.5 text-coral"></i></span>
+          Language
+        </label>
+        <select id="language" class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Voice -->
+      <div>
+        <label for="voice" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
+          <span class="badge-icon"><i data-lucide="mic-2" class="w-3.5 h-3.5 text-sage"></i></span>
+          Voice
+        </label>
+        <select id="voice" class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+          <option>Loading…</option>
+        </select>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label for="text" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted">
+            <span class="badge-icon"><i data-lucide="text-cursor-input" class="w-3.5 h-3.5 text-gold"></i></span>
+            Your text
+          </label>
+          <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
+        </div>
+        <textarea id="text" rows="6"
+          class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
+          placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
+      </div>
+
+      <!-- Speed + Pitch -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
+            <span class="text-xs text-coral font-mono font-semibold" id="speedVal">0%</span>
+          </div>
+          <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
+            <span class="text-xs text-coral font-mono font-semibold" id="pitchVal">0Hz</span>
+          </div>
+          <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
+        </div>
+      </div>
+
+      <!-- Generate button -->
+      <button id="generateBtn" disabled
+        class="btn-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-[15px] rounded-xl py-3.5 transition-colors">
+        <i data-lucide="play" class="w-4 h-4"></i>
+        <span id="generateLabel">Generate Speech</span>
+      </button>
+
+      <p id="statusLine" class="text-xs text-muted text-center -mt-2">Connecting to voice server…</p>
+    </section>
+
+    <!-- Audio result -->
+    <section id="audioResult" class="hidden mt-6 glass-raised rounded-3xl p-5 sm:p-6">
+      <div class="flex items-center gap-4">
+        <button id="playBtn" class="fab-3d shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-white transition-colors">
+          <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
+        </button>
+
+        <div class="flex-1 min-w-0">
+          <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
+          <div class="flex justify-between text-xs text-muted mt-1 font-mono">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <a id="downloadBtn" download="speech.mp3"
+          class="fab-outline-3d shrink-0 w-11 h-11 rounded-full border border-line hover:border-sage hover:bg-sage/5 flex items-center justify-center text-sage transition-colors">
+          <i data-lucide="download" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-xs text-muted py-6 relative z-10">
+    Made With <span class="text-coral">❤️</span> By ZEESHAN
+  </footer>
+
+<audio id="audioEl" class="hidden"></audio>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="glass-3d rounded-3xl p-6 sm:p-8 w-full max-w-sm relative">
+      <button id="authModalClose" class="absolute top-4 right-4 text-muted hover:text-ink">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h2 class="font-serif text-2xl font-semibold mb-1" id="authModalTitle">Sign In</h2>
+      <p class="text-sm text-muted mb-5">Sign in to generate your free voice.</p>
+
+      <div class="space-y-3">
+        <input id="authEmail" type="email" placeholder="Email"
+          class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage" />
+        <input id="authPassword" type="password" placeholder="Password"
+          class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage" />
+        <p id="authError" class="hidden text-xs text-sage"></p>
+        <button id="authSubmitBtn" class="btn-3d w-full bg-coral hover:bg-coralDark text-[#06131a] font-semibold text-sm rounded-xl py-3 transition-colors">
+          Sign In
+        </button>
+      </div>
+
+      <p class="text-xs text-muted text-center mt-5">
+        <span id="authToggleText">Don't have an account?</span>
+        <button id="authToggleBtn" class="text-coral font-medium hover:underline">Sign Up</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- Upgrade / Pricing Modal -->
+  <div id="upgradeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div class="glass-3d rounded-3xl p-6 sm:p-8 w-full max-w-lg relative">
+      <button id="upgradeModalClose" class="absolute top-4 right-4 text-muted hover:text-ink">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="text-center mb-6">
+        <span class="badge-icon mx-auto mb-3"><i data-lucide="sparkles" class="w-4 h-4 text-sage"></i></span>
+        <h2 class="font-serif text-2xl font-semibold">You've used your free generation</h2>
+        <p class="text-sm text-muted mt-1">Upgrade to keep generating unlimited voices.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="glass-raised rounded-2xl p-5">
+          <p class="text-xs uppercase tracking-wider text-muted mb-1">Free</p>
+          <p class="font-serif text-2xl font-semibold mb-3">Rs. 0</p>
+          <ul class="text-xs text-muted space-y-1.5 mb-4">
+            <li>1 voice generation</li>
+            <li>All languages &amp; voices</li>
+            <li>Standard speed</li>
+          </ul>
+          <div class="w-full text-center text-xs text-muted border border-line rounded-lg py-2">Current plan</div>
+        </div>
+
+        <div class="glass-raised rounded-2xl p-5 border border-coral/40">
+          <p class="text-xs uppercase tracking-wider text-coral mb-1">Pro</p>
+          <p class="font-serif text-2xl font-semibold mb-3">Contact us</p>
+          <ul class="text-xs text-muted space-y-1.5 mb-4">
+            <li>Unlimited generations</li>
+            <li>Priority speed</li>
+            <li>Longer text support</li>
+          </ul>
+          <a id="whatsappUpgradeBtn" href="#" target="_blank" rel="noopener"
+            class="fab-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark text-[#06131a] text-sm font-semibold rounded-lg py-2.5 transition-colors">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            Subscribe via WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const API_BASE = "https://talking-tts-production.up.railway.app"; // backend URL
+
+  // Supabase project credentials
+  const SUPABASE_URL = "https://iycyblxunuuuthghhtlc.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_aSR7nG_peq88DTMnVxHY1g_id6_tgYi";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const WHATSAPP_NUMBER = "923350443538";
+
+  let currentUser = null;
+  let currentProfile = null;
+  let authMode = 'signin'; // 'signin' | 'signup'
+
+  // Elements
+  const languageEl = document.getElementById('language');
+  const voiceEl = document.getElementById('voice');
+  const textEl = document.getElementById('text');
+  const charcountEl = document.getElementById('charcount');
+  const speedEl = document.getElementById('speed');
+  const speedValEl = document.getElementById('speedVal');
+  const pitchEl = document.getElementById('pitch');
+  const pitchValEl = document.getElementById('pitchVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const generateLabel = document.getElementById('generateLabel');
+  const statusLine = document.getElementById('statusLine');
+  const audioResult = document.getElementById('audioResult');
+  const audioEl = document.getElementById('audioEl');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const progressEl = document.getElementById('progress');
+  const currentTimeEl = document.getElementById('currentTime');
+  const durationEl = document.getElementById('duration');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const mainCard = document.getElementById('mainCard');
+
+  // Navbar / auth elements
+  const signInNavBtn = document.getElementById('signInNavBtn');
+  const signUpNavBtn = document.getElementById('signUpNavBtn');
+  const authArea = document.getElementById('authArea');
+  const authModal = document.getElementById('authModal');
+  const authModalClose = document.getElementById('authModalClose');
+  const authModalTitle = document.getElementById('authModalTitle');
+  const authEmail = document.getElementById('authEmail');
+  const authPassword = document.getElementById('authPassword');
+  const authError = document.getElementById('authError');
+  const authSubmitBtn = document.getElementById('authSubmitBtn');
+  const authToggleText = document.getElementById('authToggleText');
+  const authToggleBtn = document.getElementById('authToggleBtn');
+
+  // Upgrade modal elements
+  const upgradeModal = document.getElementById('upgradeModal');
+  const upgradeModalClose = document.getElementById('upgradeModalClose');
+  const whatsappUpgradeBtn = document.getElementById('whatsappUpgradeBtn');
+  whatsappUpgradeBtn.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi! I want to upgrade to the Pro plan on Vocalis.')}`;
+
+  let allVoices = [];
+  let lastUrl = null;
+
+  // ---------- 3D tilt effect on main card ----------
+  const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+  if (!isTouchDevice) {
+    mainCard.addEventListener('mousemove', (e) => {
+      const rect = mainCard.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotateX = (-y * 5).toFixed(2);
+      const rotateY = (x * 5).toFixed(2);
+      mainCard.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`;
+    });
+    mainCard.addEventListener('mouseleave', () => {
+      mainCard.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+    });
+  }
+
+  // ---------- Auth Modal open/close ----------
+  function openAuthModal(mode) {
+    authMode = mode;
+    authError.classList.add('hidden');
+    authEmail.value = '';
+    authPassword.value = '';
+    if (mode === 'signup') {
+      authModalTitle.textContent = 'Create Account';
+      authSubmitBtn.textContent = 'Sign Up';
+      authToggleText.textContent = 'Already have an account?';
+      authToggleBtn.textContent = 'Sign In';
+    } else {
+      authModalTitle.textContent = 'Sign In';
+      authSubmitBtn.textContent = 'Sign In';
+      authToggleText.textContent = "Don't have an account?";
+      authToggleBtn.textContent = 'Sign Up';
+    }
+    authModal.classList.remove('hidden');
+  }
+  function closeAuthModal() { authModal.classList.add('hidden'); }
+
+  signInNavBtn.addEventListener('click', () => openAuthModal('signin'));
+  signUpNavBtn.addEventListener('click', () => openAuthModal('signup'));
+  authModalClose.addEventListener('click', closeAuthModal);
+  authToggleBtn.addEventListener('click', () => openAuthModal(authMode === 'signin' ? 'signup' : 'signin'));
+
+  authSubmitBtn.addEventListener('click', async () => {
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || !password) {
+      authError.textContent = 'Please enter both email and password.';
+      authError.classList.remove('hidden');
+      return;
+    }
+    authError.classList.add('hidden');
+    authSubmitBtn.disabled = true;
+
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) throw error;
+        if (data.user) {
+          await supabaseClient.from('profiles').insert({ id: data.user.id, email, plan: 'free', free_used: false });
+        }
+      } else {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      }
+      closeAuthModal();
+      await refreshAuthState();
+    } catch (err) {
+      authError.textContent = err.message || 'Something went wrong.';
+      authError.classList.remove('hidden');
+    } finally {
+      authSubmitBtn.disabled = false;
+    }
+  });
+
+  // ---------- Upgrade Modal ----------
+  function openUpgradeModal() { upgradeModal.classList.remove('hidden'); }
+  function closeUpgradeModal() { upgradeModal.classList.add('hidden'); }
+  upgradeModalClose.addEventListener('click', closeUpgradeModal);
+
+  // ---------- Auth state ----------
+  async function refreshAuthState() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    currentUser = user;
+
+    if (user) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+      currentProfile = profile;
+
+      authArea.innerHTML = `
+        <span class="text-sm text-muted hidden sm:inline">${user.email}</span>
+        <button id="signOutBtn" class="fab-outline-3d border border-line text-sm font-medium px-4 py-2 rounded-lg hover:border-sage transition-colors">Sign Out</button>
+      `;
+      document.getElementById('signOutBtn').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        await refreshAuthState();
+      });
+    } else {
+      currentProfile = null;
+      authArea.innerHTML = `
+        <button id="signInNavBtn" class="text-sm font-medium text-ink hover:text-coral transition-colors">Sign In</button>
+        <button id="signUpNavBtn" class="fab-3d bg-coral hover:bg-coralDark text-[#06131a] text-sm font-semibold px-4 py-2 rounded-lg transition-colors">Sign Up</button>
+      `;
+      document.getElementById('signInNavBtn').addEventListener('click', () => openAuthModal('signin'));
+      document.getElementById('signUpNavBtn').addEventListener('click', () => openAuthModal('signup'));
+    }
+  }
+
+  // ---------- helpers ----------
+  const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
+  const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
+
+  function friendlyLocale(locale) {
+    try {
+      const [lang, region] = locale.split('-');
+      const langName = langDisplay.of(lang) || lang;
+      const regionName = region ? (regionDisplay.of(region) || region) : null;
+      return regionName ? `${langName} (${regionName})` : langName;
+    } catch (e) {
+      return locale;
+    }
+  }
+
+  function formatTime(sec) {
+    if (!isFinite(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  }
+
+  // ---------- text counter ----------
+  textEl.addEventListener('input', () => {
+    charcountEl.textContent = textEl.value.length;
+  });
+  charcountEl.textContent = textEl.value.length;
+
+  // ---------- speed / pitch sliders ----------
+  function fmtSigned(val, suffix) {
+    const n = parseInt(val, 10);
+    return (n >= 0 ? '+' : '') + n + suffix;
+  }
+  speedEl.addEventListener('input', () => {
+    speedValEl.textContent = fmtSigned(speedEl.value, '%');
+  });
+  pitchEl.addEventListener('input', () => {
+    pitchValEl.textContent = fmtSigned(pitchEl.value, 'Hz');
+  });
+
+  // ---------- load languages + voices ----------
+  async function loadVoices() {
+    try {
+      const res = await fetch(`${API_BASE}/voices`);
+      if (!res.ok) throw new Error('Server error');
+      allVoices = await res.json();
+
+      const locales = [...new Set(allVoices.map(v => v.locale))].sort();
+      languageEl.innerHTML = '';
+      for (const loc of locales) {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = friendlyLocale(loc);
+        languageEl.appendChild(opt);
+      }
+      const defaultLoc = locales.find(l => l === 'en-US') || locales[0];
+      languageEl.value = defaultLoc;
+      populateVoicesForLanguage();
+
+      statusLine.textContent = `Ready — ${allVoices.length} voices available.`;
+      generateBtn.disabled = false;
+    } catch (err) {
+      statusLine.textContent = `Could not reach the voice server. Please try again shortly.`;
+      console.error(err);
+    }
+  }
+
+  function populateVoicesForLanguage() {
+    const loc = languageEl.value;
+    voiceEl.innerHTML = '';
+    const filtered = allVoices.filter(v => v.locale === loc);
+    for (const v of filtered) {
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = `${v.name} — ${v.gender}`;
+      voiceEl.appendChild(opt);
+    }
+    const anaOpt = [...voiceEl.options].find(o => o.textContent.startsWith('Ana —'));
+    if (anaOpt) voiceEl.value = anaOpt.value;
+  }
+  languageEl.addEventListener('change', populateVoicesForLanguage);
+
+  // ---------- validation ----------
+  function validateInputs() {
+    const text = textEl.value.trim();
+    if (!text) return 'Please enter some text.';
+    if (text.length > 100000) return 'Text is too long (max 100,000 characters).';
+    if (!voiceEl.value) return 'Please select a voice.';
+    const speed = parseInt(speedEl.value, 10);
+    if (isNaN(speed) || speed < -50 || speed > 100) return 'Invalid speed value.';
+    const pitch = parseInt(pitchEl.value, 10);
+    if (isNaN(pitch) || pitch < -50 || pitch > 50) return 'Invalid pitch value.';
+    return null;
+  }
+
+  // ---------- generate ----------
+  async function generate() {
+    // 1. Must be signed in
+    if (!currentUser) {
+      openAuthModal('signin');
+      return;
+    }
+
+    // 2. Free plan can only generate once
+    if (currentProfile && currentProfile.plan === 'free' && currentProfile.free_used) {
+      openUpgradeModal();
+      return;
+    }
+
+    const validationError = validateInputs();
+    if (validationError) {
+      statusLine.textContent = validationError;
+      return;
+    }
+
+    generateBtn.disabled = true;
+    generateLabel.textContent = 'Generating...';
+    statusLine.textContent = 'Generating speech… this can take up to 30–45s for longer text.';
+
+    try {
+      const rate = fmtSigned(speedEl.value, '%');
+      const pitch = fmtSigned(pitchEl.value, 'Hz');
+
+      const res = await fetch(`${API_BASE}/speak`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: textEl.value.trim(),
+          voice: voiceEl.value,
+          rate,
+          pitch
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || 'Generation failed');
+      }
+
+      const blob = await res.blob();
+      if (lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+
+      audioEl.src = lastUrl;
+      downloadBtn.href = lastUrl;
+      audioResult.classList.remove('hidden');
+      resetPlayerUI();
+      statusLine.textContent = 'Done.';
+
+      // Mark free generation as used
+      if (currentProfile && currentProfile.plan === 'free' && !currentProfile.free_used) {
+        currentProfile.free_used = true;
+        await supabaseClient.from('profiles').update({ free_used: true }).eq('id', currentUser.id);
+      }
+    } catch (err) {
+      statusLine.textContent = 'Error: ' + err.message;
+      console.error(err);
+    } finally {
+      generateBtn.disabled = false;
+      generateLabel.textContent = 'Generate Speech';
+    }
+  }
+  generateBtn.addEventListener('click', generate);
+
+  // ---------- custom audio player ----------
+  function resetPlayerUI() {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+    progressEl.value = 0;
+    currentTimeEl.textContent = '0:00';
+    durationEl.textContent = '0:00';
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audioEl.paused) {
+      audioEl.play();
+    } else {
+      audioEl.pause();
+    }
+  });
+
+  audioEl.addEventListener('play', () => {
+    playIcon.setAttribute('data-lucide', 'pause');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('pause', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('ended', () => {
+    playIcon.setAttribute('data-lucide', 'play');
+    lucide.createIcons();
+  });
+  audioEl.addEventListener('loadedmetadata', () => {
+    durationEl.textContent = formatTime(audioEl.duration);
+  });
+  audioEl.addEventListener('timeupdate', () => {
+    if (audioEl.duration) {
+      progressEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+      currentTimeEl.textContent = formatTime(audioEl.currentTime);
+    }
+  });
+  progressEl.addEventListener('input', () => {
+    if (audioEl.duration) {
+      audioEl.currentTime = (progressEl.value / 100) * audioEl.duration;
+    }
+  });
+
+  // ---------- init ----------
+  lucide.createIcons();
+  refreshAuthState();
+  loadVoices();
+</script>
+
+</body>
+</html>

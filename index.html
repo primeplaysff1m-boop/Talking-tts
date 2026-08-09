@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vocalis — Free Text to Speech</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23131629'/%3E%3Cg stroke='%2322d3ee' stroke-width='7' stroke-linecap='round'%3E%3Cline x1='20' y1='50' x2='20' y2='50'/%3E%3Cline x1='34' y1='38' x2='34' y2='62'/%3E%3Cline x1='48' y1='24' x2='48' y2='76'/%3E%3Cline x1='62' y1='34' x2='62' y2='66'/%3E%3Cline x1='76' y1='42' x2='76' y2='58'/%3E%3C/g%3E%3C/svg%3E">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -149,6 +150,45 @@
   }
   .stat-card:hover{ transform: translateY(-3px); border-color: rgba(34,211,238,0.35); }
 
+  .logo-mark{
+    width:34px; height:34px; border-radius:10px;
+    background: linear-gradient(145deg, #1c2140, #12152a);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(34,211,238,0.35);
+    display:flex; align-items:center; justify-content:center;
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+  @keyframes logoPulse{
+    0%,100%{ box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(34,211,238,0.35); }
+    50%{ box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 28px rgba(34,211,238,0.6); }
+  }
+  .hero-logo{
+    width:64px; height:64px; border-radius:18px; margin:0 auto 18px;
+    background: linear-gradient(145deg, #1c2140, #12152a);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 30px rgba(34,211,238,0.4);
+    display:flex; align-items:center; justify-content:center;
+    animation: logoPulse 3s ease-in-out infinite, floatY 6s ease-in-out infinite;
+  }
+
+  .bar-eq{ display:flex; align-items:center; gap:2px; height:14px; }
+  .bar-eq span{ width:3px; background:#22d3ee; border-radius:2px; animation: eqBounce 1.1s ease-in-out infinite; }
+  .bar-eq span:nth-child(1){ animation-delay:0s; }
+  .bar-eq span:nth-child(2){ animation-delay:.15s; }
+  .bar-eq span:nth-child(3){ animation-delay:.3s; }
+  .bar-eq span:nth-child(4){ animation-delay:.45s; }
+  .bar-eq span:nth-child(5){ animation-delay:.6s; }
+  @keyframes eqBounce{
+    0%,100%{ height:4px; }
+    50%{ height:14px; }
+  }
+
+  .shimmer{
+    background: linear-gradient(90deg, #eef0fb 0%, #22d3ee 25%, #a78bfa 50%, #f472b6 75%, #eef0fb 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmerMove 6s linear infinite;
+  }
+  @keyframes shimmerMove{ to{ background-position: 300% center; } }
+
   .history-item{
     background: rgba(255,255,255,0.02);
     border: 1px solid rgba(255,255,255,0.06);
@@ -167,8 +207,10 @@
   <!-- Navbar -->
   <nav class="relative z-20 w-full border-b border-line/60">
     <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="badge-icon"><i data-lucide="audio-lines" class="w-4 h-4 text-coral"></i></span>
+      <div class="flex items-center gap-2.5">
+        <span class="logo-mark">
+          <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
+        </span>
         <span class="font-serif font-semibold text-lg tracking-tight">Vocalis</span>
       </div>
       <div class="flex items-center gap-2">
@@ -183,7 +225,10 @@
   <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
 
     <header class="text-center mb-6 fade-up">
-      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight text-ink" style="text-shadow: 0 0 30px rgba(34,211,238,0.35), 0 0 60px rgba(167,139,250,0.2);">Vocalis</h1>
+      <div class="hero-logo">
+        <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight shimmer">Vocalis</h1>
       <p class="text-sm text-muted mt-2">Free, unlimited text to speech</p>
       <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
         <span class="chip"><i data-lucide="infinity" class="w-3.5 h-3.5"></i> Unlimited</span>
@@ -237,7 +282,7 @@
         </div>
         <textarea id="text" rows="6"
           class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
-          placeholder="Enter your text here...">Kindness is a language the deaf can hear and the blind can see.</textarea>
+          placeholder="Enter your text here..."></textarea>
       </div>
 
       <!-- Speed + Pitch -->

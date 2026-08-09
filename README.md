@@ -1,10 +1,24 @@
 # Vocalis
 
-Free, unlimited text-to-speech web app with natural-sounding voices in multiple languages and accents.
+A simple free text-to-speech website using Edge TTS.
+
+## Features
+
+- No sign-in
+- No sign-up
+- No Supabase
+- No account system
+- Language and voice selection
+- Live character counter
+- Adjustable speed (-50% to +100%)
+- Adjustable pitch (-50Hz to +50Hz)
+- Custom audio player
+- MP3 download
+- Responsive desktop/mobile UI
 
 ## Project Structure
 
-```
+```text
 vocalis-tts/
 ├── README.md
 ├── backend/
@@ -15,54 +29,39 @@ vocalis-tts/
     └── index.html
 ```
 
-## Features
-
-- Language and voice selection
-- Live character counter
-- Adjustable speed (-50% to +100%) and pitch (-50Hz to +50Hz)
-- Custom audio player with play/pause, progress bar, and download
-- Fully responsive (desktop + mobile)
-- No signup, no usage limits
-
 ## Local Development
 
-**Backend**
+### Backend
+
 ```bash
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-**Frontend**
+### Frontend
 
-Open `frontend/index.html` directly in a browser, or serve it with any static file server. Make sure `API_BASE` near the top of the `<script>` tag points to your backend URL.
+Open `frontend/index.html` directly in a browser, or serve the folder with a static file server.
 
-## Deployment (Vercel)
+Set the `API_BASE` value near the top of the script in `frontend/index.html` to your backend URL.
 
-This project deploys as **two separate Vercel projects** from the same GitHub repo:
-
-1. **Backend** — New Project → select this repo → Root Directory: `backend` → Deploy.
-   Vercel auto-detects the FastAPI app in `main.py`. No extra config file is needed.
-2. **Frontend** — New Project → select this repo again → Root Directory: `frontend` → Deploy.
-   Before deploying, set `API_BASE` in `frontend/index.html` to your backend's live URL.
-
-## API Reference
+## API
 
 | Method | Endpoint | Body | Description |
 |---|---|---|---|
 | GET | `/` | — | Health check |
-| GET | `/voices?lang=en-US` | — | List voices (optionally filtered by locale) |
-| GET | `/languages` | — | List all available locales |
-| POST | `/speak` | `{ text, voice, rate, pitch }` | Returns generated MP3 audio |
+| GET | `/voices?lang=en-US` | — | List voices |
+| GET | `/languages` | — | List available locales |
+| POST | `/speak` | `{ text, voice, rate, pitch }` | Generate MP3 |
 
 Example:
+
 ```bash
-curl -X POST https://your-backend.vercel.app/speak \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Hello world", "voice": "en-US-AnaNeural", "rate": "+0%", "pitch": "+0Hz"}' \
-  --output speech.mp3
+curl -X POST https://your-backend.example/speak   -H "Content-Type: application/json"   -d '{"text":"Hello world","voice":"en-US-AnaNeural","rate":"+0%","pitch":"+0Hz"}'   --output speech.mp3
 ```
 
-## License
+## Important
 
-MIT
+This project does not include authentication, user accounts, Supabase, subscriptions, or sign-in/sign-up flows.
+
+For a public deployment, add appropriate server-side rate limiting and abuse protection before allowing unrestricted traffic.

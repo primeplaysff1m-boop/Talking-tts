@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vocalis — Free Text to Speech</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23FFD23F' stroke='%23111' stroke-width='4'/%3E%3Cg stroke='%23111' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='24' y1='50' x2='24' y2='50'/%3E%3Cline x1='38' y1='36' x2='38' y2='64'/%3E%3Cline x1='52' y1='22' x2='52' y2='78'/%3E%3Cline x1='66' y1='34' x2='66' y2='66'/%3E%3Cline x1='80' y1='42' x2='80' y2='58'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='1' stop-color='%23A855F7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cg stroke='white' stroke-width='7' stroke-linecap='round'%3E%3Cline x1='24' y1='50' x2='24' y2='50'/%3E%3Cline x1='38' y1='38' x2='38' y2='62'/%3E%3Cline x1='52' y1='24' x2='52' y2='76'/%3E%3Cline x1='66' y1='34' x2='66' y2='66'/%3E%3Cline x1='80' y1='42' x2='80' y2='58'/%3E%3C/g%3E%3C/svg%3E">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -14,7 +14,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
@@ -22,19 +22,20 @@
     theme: {
       extend: {
         fontFamily: {
-          serif: ['Space Grotesk', 'system-ui', 'sans-serif'],
+          serif: ['Sora', 'system-ui', 'sans-serif'],
           sans: ['Inter', 'system-ui', 'sans-serif'],
         },
         colors: {
-          ink: '#111111',
-          paper: '#FFF7E8',
+          ink: '#1E1B3A',
+          muted: '#706B8A',
           card: '#FFFFFF',
-          muted: '#6b6558',
-          yellow: '#FFD23F',
-          pink: '#FF6B9D',
-          blue: '#4D96FF',
-          mint: '#3DDC97',
-          line: '#111111',
+          bezel: '#F6F6FC',
+          line: '#E9E8F5',
+          indigo: '#6366F1',
+          indigoDark: '#4F46E5',
+          violet: '#A855F7',
+          cyan: '#06B6D4',
+          rose: '#F43F5E',
         }
       }
     }
@@ -43,116 +44,132 @@
 <style>
   html, body { height:100%; }
   body{
-    background-color:#FFF7E8;
+    background-color:#F5F6FC;
     background-image:
-      radial-gradient(circle, #00000012 1.5px, transparent 1.5px);
-    background-size: 22px 22px;
+      radial-gradient(circle at 10% 10%, rgba(99,102,241,0.14), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(168,85,247,0.13), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(6,182,212,0.12), transparent 55%);
+    background-attachment: fixed;
   }
-  ::-webkit-scrollbar{ width:10px; }
-  ::-webkit-scrollbar-thumb{ background:#111; border-radius:0; }
-  input[type=range]{ accent-color:#111; }
+  ::-webkit-scrollbar{ width:9px; }
+  ::-webkit-scrollbar-thumb{ background:#d8d6ef; border-radius:8px; }
+  input[type=range]{ accent-color:#6366F1; }
 
-  .hard-card{
+  .card-elev{
     background:#fff;
-    border: 3px solid #111;
-    box-shadow: 8px 8px 0 #111;
+    border:1px solid #E9E8F5;
+    border-radius:28px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 20px 45px -12px rgba(99,102,241,0.18), 0 4px 12px rgba(30,27,58,0.04);
   }
-  .hard-card-sm{
+  .card-soft{
     background:#fff;
-    border: 3px solid #111;
-    box-shadow: 5px 5px 0 #111;
+    border:1px solid #E9E8F5;
+    border-radius:22px;
+    box-shadow: 0 14px 32px -12px rgba(99,102,241,0.16), 0 2px 8px rgba(30,27,58,0.04);
   }
 
-  .btn-brut{
-    border: 3px solid #111;
-    box-shadow: 5px 5px 0 #111;
-    transition: transform .08s ease, box-shadow .08s ease;
+  .btn-primary{
+    background: linear-gradient(135deg, #6366F1, #A855F7);
+    box-shadow: 0 10px 24px -6px rgba(99,102,241,0.55);
+    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
   }
-  .btn-brut:active:not(:disabled){ transform: translate(5px,5px); box-shadow: 0 0 0 #111; }
-  .btn-brut:hover:not(:disabled){ transform: translate(-1px,-1px); box-shadow: 6px 6px 0 #111; }
-  .btn-brut:disabled{ opacity:.45; cursor:not-allowed; }
+  .btn-primary:hover:not(:disabled){ transform: translateY(-2px); box-shadow: 0 16px 32px -6px rgba(99,102,241,0.6); filter: brightness(1.04); }
+  .btn-primary:active:not(:disabled){ transform: translateY(0); box-shadow: 0 6px 16px -6px rgba(99,102,241,0.5); }
+  .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
 
-  .fab-brut{
-    border: 3px solid #111;
-    box-shadow: 4px 4px 0 #111;
-    transition: transform .08s ease, box-shadow .08s ease;
+  .fab-soft{
+    background:#fff; border:1px solid #E9E8F5;
+    box-shadow: 0 8px 20px -6px rgba(30,27,58,0.12);
+    transition: transform .15s ease, box-shadow .15s ease;
   }
-  .fab-brut:active{ transform: translate(4px,4px); box-shadow: 0 0 0 #111; }
-  .fab-brut:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 #111; }
+  .fab-soft:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(30,27,58,0.16); }
+  .fab-soft:active{ transform: translateY(0); }
 
-  .field-brut{
-    border: 3px solid #111;
-    box-shadow: 3px 3px 0 #111;
+  .fab-grad{
+    background: linear-gradient(135deg, #6366F1, #A855F7);
+    box-shadow: 0 10px 22px -6px rgba(99,102,241,0.5);
+    transition: transform .15s ease, box-shadow .15s ease;
   }
-  .field-brut:focus{ outline:none; box-shadow: 3px 3px 0 #4D96FF; border-color:#4D96FF; }
+  .fab-grad:hover{ transform: translateY(-2px); box-shadow: 0 14px 28px -6px rgba(99,102,241,0.55); }
+  .fab-grad:active{ transform: translateY(0); }
 
-  .chip-brut{
+  .field-soft{
+    background:#F6F6FC; border:1.5px solid #E9E8F5;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .field-soft:focus{ outline:none; border-color:#6366F1; box-shadow: 0 0 0 4px rgba(99,102,241,0.12); background:#fff; }
+
+  .chip-soft{
     display:inline-flex; align-items:center; gap:6px;
-    padding:6px 12px; border-radius:9999px;
-    background:#fff; border:2.5px solid #111;
-    font-size:12px; font-weight:600; color:#111;
-    box-shadow: 3px 3px 0 #111;
+    padding:7px 14px; border-radius:9999px;
+    background:#fff; border:1px solid #E9E8F5;
+    font-size:12.5px; font-weight:600; color:#1E1B3A;
+    box-shadow: 0 4px 12px -4px rgba(30,27,58,0.1);
   }
 
-  .logo-brut{
-    width:36px; height:36px; border-radius:10px;
-    background:#FFD23F; border:3px solid #111;
-    box-shadow: 3px 3px 0 #111;
+  .icon-badge{
+    width:32px; height:32px; border-radius:11px;
     display:flex; align-items:center; justify-content:center;
   }
-  .hero-logo-brut{
-    width:76px; height:76px; border-radius:20px; margin:0 auto 18px;
-    background:#FFD23F; border:4px solid #111;
-    box-shadow: 6px 6px 0 #111;
-    display:flex; align-items:center; justify-content:center;
-    animation: bobY 3.5s ease-in-out infinite;
-  }
-  @keyframes bobY{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-8px) rotate(-2deg);} }
 
-  .bar-eq{ display:flex; align-items:center; gap:3px; height:16px; }
-  .bar-eq span{ width:4px; background:#111; border-radius:1px; animation: eqBounce 1.1s ease-in-out infinite; }
+  .logo-mark{
+    width:38px; height:38px; border-radius:12px;
+    background: linear-gradient(135deg, #6366F1, #A855F7);
+    box-shadow: 0 6px 16px -4px rgba(99,102,241,0.5);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hero-logo{
+    width:78px; height:78px; border-radius:24px; margin:0 auto 20px;
+    background: linear-gradient(135deg, #6366F1, #A855F7);
+    box-shadow: 0 16px 36px -8px rgba(99,102,241,0.55);
+    display:flex; align-items:center; justify-content:center;
+    animation: floatSlow 5s ease-in-out infinite;
+  }
+  @keyframes floatSlow{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
+
+  .bar-eq{ display:flex; align-items:center; gap:3px; height:18px; }
+  .bar-eq span{ width:4px; background:#fff; border-radius:2px; animation: eqBounce 1.1s ease-in-out infinite; }
   .bar-eq span:nth-child(1){ animation-delay:0s; }
   .bar-eq span:nth-child(2){ animation-delay:.15s; }
   .bar-eq span:nth-child(3){ animation-delay:.3s; }
   .bar-eq span:nth-child(4){ animation-delay:.45s; }
   .bar-eq span:nth-child(5){ animation-delay:.6s; }
-  @keyframes eqBounce{ 0%,100%{ height:4px; } 50%{ height:16px; } }
+  @keyframes eqBounce{ 0%,100%{ height:5px; } 50%{ height:18px; } }
 
-  .fade-up{ animation: fadeUp .5s ease both; }
-  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+  .fade-up{ animation: fadeUp .6s ease both; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(16px);} to{ opacity:1; transform:translateY(0);} }
 
-  .stat-brut{
-    background:#fff; border:3px solid #111; border-radius:14px;
-    box-shadow: 5px 5px 0 #111;
-    transition: transform .15s ease, box-shadow .15s ease;
+  .stat-card{
+    background:#fff; border:1px solid #E9E8F5; border-radius:18px;
+    box-shadow: 0 10px 26px -10px rgba(99,102,241,0.14);
+    transition: transform .2s ease, box-shadow .2s ease;
   }
-  .stat-brut:hover{ transform: translate(-2px,-2px); box-shadow: 7px 7px 0 #111; }
+  .stat-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 32px -10px rgba(99,102,241,0.2); }
 
-  .history-item-brut{
-    background:#fff; border:2.5px solid #111; border-radius:10px;
+  .history-item{
+    background:#F6F6FC; border:1px solid #E9E8F5; border-radius:14px;
+    transition: background .15s ease, border-color .15s ease;
   }
+  .history-item:hover{ background:#fff; border-color:#c7c4ee; }
 
-  .underline-squiggle{
-    position:relative; display:inline-block;
-  }
-  .underline-squiggle::after{
-    content:''; position:absolute; left:0; right:0; bottom:-6px; height:6px;
-    background: repeating-linear-gradient(115deg, #4D96FF 0 8px, transparent 8px 16px);
+  .gradient-text{
+    background: linear-gradient(135deg, #6366F1, #A855F7 55%, #06B6D4);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
   }
 </style>
 </head>
 <body class="text-ink font-sans min-h-screen flex flex-col relative">
 
   <!-- Navbar -->
-  <nav class="relative z-20 w-full border-b-3 border-ink" style="border-bottom-width:3px;">
+  <nav class="relative z-20 w-full">
     <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <span class="logo-brut">
+        <span class="logo-mark">
           <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
         </span>
-        <span class="font-serif font-extrabold text-lg tracking-tight">Vocalis</span>
+        <span class="font-serif font-bold text-lg tracking-tight">Vocalis</span>
       </div>
-      <a href="#dashboard" class="fab-brut bg-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5">
+      <a href="#dashboard" class="fab-soft text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-ink">
         <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
         <span class="hidden sm:inline">Dashboard</span>
       </a>
@@ -161,46 +178,44 @@
 
   <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
 
-    <header class="text-center mb-6 fade-up">
-      <div class="hero-logo-brut">
+    <header class="text-center mb-8 fade-up">
+      <div class="hero-logo">
         <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
-      <h1 class="font-serif text-4xl sm:text-5xl font-extrabold tracking-tight">
-        <span class="underline-squiggle">Vocalis</span>
-      </h1>
-      <p class="text-sm text-muted mt-3 font-medium">Free, unlimited text to speech</p>
-      <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-        <span class="chip-brut"><i data-lucide="infinity" class="w-3.5 h-3.5"></i> Unlimited</span>
-        <span class="chip-brut"><i data-lucide="lock-open" class="w-3.5 h-3.5"></i> No signup</span>
-        <span class="chip-brut"><i data-lucide="zap" class="w-3.5 h-3.5"></i> 300+ voices</span>
+      <h1 class="font-serif text-4xl sm:text-5xl font-extrabold tracking-tight gradient-text">Vocalis</h1>
+      <p class="text-[15px] text-muted mt-3 font-medium">Free, unlimited text to speech</p>
+      <div class="flex flex-wrap items-center justify-center gap-2.5 mt-5">
+        <span class="chip-soft"><i data-lucide="infinity" class="w-3.5 h-3.5 text-indigo"></i> Unlimited</span>
+        <span class="chip-soft"><i data-lucide="lock-open" class="w-3.5 h-3.5 text-violet"></i> No signup</span>
+        <span class="chip-soft"><i data-lucide="zap" class="w-3.5 h-3.5 text-cyan"></i> 300+ voices</span>
       </div>
     </header>
 
-    <section id="mainCard" class="hard-card rounded-2xl p-5 sm:p-8 space-y-6 fade-up" style="animation-delay:.08s;">
+    <section id="mainCard" class="card-elev p-6 sm:p-9 space-y-7 fade-up" style="animation-delay:.08s;">
 
       <!-- Language -->
       <div>
-        <label for="language" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink mb-2">
-          <span class="logo-brut" style="width:26px;height:26px;background:#4D96FF;"><i data-lucide="globe" class="w-3.5 h-3.5"></i></span>
+        <label for="language" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
+          <span class="icon-badge" style="background:#EEF2FF;"><i data-lucide="globe" class="w-4 h-4 text-indigo"></i></span>
           Language
         </label>
-        <select id="language" class="field-brut w-full bg-white rounded-lg px-3 py-2.5 text-sm text-ink font-medium">
+        <select id="language" class="field-soft w-full rounded-xl px-4 py-3 text-sm text-ink font-medium">
           <option>Loading…</option>
         </select>
       </div>
 
       <!-- Voice -->
       <div>
-        <label for="voice" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink mb-2">
-          <span class="logo-brut" style="width:26px;height:26px;background:#FF6B9D;"><i data-lucide="mic" class="w-3.5 h-3.5"></i></span>
+        <label for="voice" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
+          <span class="icon-badge" style="background:#FAF5FF;"><i data-lucide="mic" class="w-4 h-4 text-violet"></i></span>
           Voice
         </label>
         <div class="flex gap-2">
-          <select id="voice" class="field-brut flex-1 bg-white rounded-lg px-3 py-2.5 text-sm text-ink font-medium">
+          <select id="voice" class="field-soft flex-1 rounded-xl px-4 py-3 text-sm text-ink font-medium">
             <option>Loading…</option>
           </select>
           <button id="previewBtn" title="Preview this voice"
-            class="fab-brut shrink-0 w-11 h-11 rounded-lg bg-white flex items-center justify-center">
+            class="fab-soft shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-violet">
             <i data-lucide="ear" class="w-4 h-4"></i>
           </button>
         </div>
@@ -208,35 +223,35 @@
 
       <!-- Text -->
       <div>
-        <div class="flex items-center justify-between mb-2">
-          <label for="text" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink">
-            <span class="logo-brut" style="width:26px;height:26px;background:#3DDC97;"><i data-lucide="text" class="w-3.5 h-3.5"></i></span>
+        <div class="flex items-center justify-between mb-2.5">
+          <label for="text" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted">
+            <span class="icon-badge" style="background:#ECFEFF;"><i data-lucide="text" class="w-4 h-4 text-cyan"></i></span>
             Your text
           </label>
-          <div class="flex items-center gap-3">
-            <button id="copyBtn" title="Copy text" class="text-muted hover:text-ink transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
-            <button id="clearBtn" title="Clear text" class="text-muted hover:text-ink transition-colors"><i data-lucide="eraser" class="w-3.5 h-3.5"></i></button>
+          <div class="flex items-center gap-3.5">
+            <button id="copyBtn" title="Copy text" class="text-muted hover:text-indigo transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
+            <button id="clearBtn" title="Clear text" class="text-muted hover:text-indigo transition-colors"><i data-lucide="eraser" class="w-3.5 h-3.5"></i></button>
             <span class="text-xs text-muted font-semibold"><span id="charcount">0</span> characters</span>
           </div>
         </div>
         <textarea id="text" rows="6"
-          class="field-brut w-full bg-white rounded-lg px-3 py-3 text-[15px] text-ink resize-y placeholder:text-muted/70"
+          class="field-soft w-full rounded-xl px-4 py-3.5 text-[15px] text-ink resize-y placeholder:text-muted/60"
           placeholder="Enter your text here..."></textarea>
       </div>
 
       <!-- Speed + Pitch -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <label for="speed" class="block text-xs uppercase tracking-wider font-bold text-ink">Speed</label>
-            <span class="text-xs text-white font-mono font-bold bg-blue px-1.5 py-0.5 rounded border-2 border-ink" id="speedVal">0%</span>
+          <div class="flex items-center justify-between mb-2.5">
+            <label for="speed" class="block text-xs uppercase tracking-wider font-bold text-muted">Speed</label>
+            <span class="text-xs text-white font-mono font-bold px-2 py-0.5 rounded-md" style="background:linear-gradient(135deg,#6366F1,#A855F7);" id="speedVal">0%</span>
           </div>
           <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
         <div>
-          <div class="flex items-center justify-between mb-2">
-            <label for="pitch" class="block text-xs uppercase tracking-wider font-bold text-ink">Pitch</label>
-            <span class="text-xs text-white font-mono font-bold bg-pink px-1.5 py-0.5 rounded border-2 border-ink" id="pitchVal">0Hz</span>
+          <div class="flex items-center justify-between mb-2.5">
+            <label for="pitch" class="block text-xs uppercase tracking-wider font-bold text-muted">Pitch</label>
+            <span class="text-xs text-white font-mono font-bold px-2 py-0.5 rounded-md" style="background:linear-gradient(135deg,#A855F7,#06B6D4);" id="pitchVal">0Hz</span>
           </div>
           <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
@@ -244,60 +259,60 @@
 
       <!-- Generate button -->
       <button id="generateBtn" disabled
-        class="btn-brut w-full flex items-center justify-center gap-2 bg-yellow text-ink font-extrabold text-[15px] rounded-lg py-3.5">
+        class="btn-primary w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] rounded-xl py-4">
         <i data-lucide="play" class="w-4 h-4"></i>
         <span id="generateLabel">Generate Speech</span>
       </button>
 
-      <p id="statusLine" class="text-xs text-muted text-center -mt-2 font-medium">Connecting to voice server…</p>
+      <p id="statusLine" class="text-xs text-muted text-center -mt-3 font-medium">Connecting to voice server…</p>
     </section>
 
     <!-- Audio result -->
-    <section id="audioResult" class="hidden mt-6 hard-card-sm rounded-2xl p-5 sm:p-6 fade-up">
+    <section id="audioResult" class="hidden mt-6 card-soft p-5 sm:p-6 fade-up">
       <div class="flex items-center gap-4">
-        <button id="playBtn" class="fab-brut shrink-0 w-11 h-11 rounded-full bg-mint flex items-center justify-center">
+        <button id="playBtn" class="fab-grad shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
         </button>
         <div class="flex-1 min-w-0">
           <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
-          <div class="flex justify-between text-xs text-muted mt-1 font-mono font-semibold">
+          <div class="flex justify-between text-xs text-muted mt-1.5 font-mono font-semibold">
             <span id="currentTime">0:00</span>
             <span id="duration">0:00</span>
           </div>
         </div>
         <a id="downloadBtn" download="speech.mp3"
-          class="fab-brut shrink-0 w-11 h-11 rounded-full bg-white flex items-center justify-center">
+          class="fab-soft shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-indigo">
           <i data-lucide="download" class="w-5 h-5"></i>
         </a>
       </div>
     </section>
 
     <!-- Dashboard -->
-    <section id="dashboard" class="mt-14 scroll-mt-24 fade-up" style="animation-delay:.16s;">
-      <h2 class="font-serif text-2xl font-extrabold mb-1 flex items-center gap-2">
-        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+    <section id="dashboard" class="mt-16 scroll-mt-24 fade-up" style="animation-delay:.16s;">
+      <h2 class="font-serif text-2xl font-extrabold mb-1.5 flex items-center gap-2">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo"></i> Dashboard
       </h2>
-      <p class="text-sm text-muted mb-5 font-medium">Your usage on this device — stored locally, no account needed.</p>
+      <p class="text-sm text-muted mb-6 font-medium">Your usage on this device — stored locally, no account needed.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="stat-brut p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Generations</p>
-          <p class="font-serif text-3xl font-extrabold" id="statCount">0</p>
+        <div class="stat-card p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Generations</p>
+          <p class="font-serif text-3xl font-extrabold gradient-text" id="statCount">0</p>
         </div>
-        <div class="stat-brut p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Characters spoken</p>
-          <p class="font-serif text-3xl font-extrabold" id="statChars">0</p>
+        <div class="stat-card p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Characters spoken</p>
+          <p class="font-serif text-3xl font-extrabold gradient-text" id="statChars">0</p>
         </div>
-        <div class="stat-brut p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Favorite voice</p>
-          <p class="font-serif text-xl font-extrabold" id="statVoice">—</p>
+        <div class="stat-card p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Favorite voice</p>
+          <p class="font-serif text-xl font-extrabold text-ink" id="statVoice">—</p>
         </div>
       </div>
 
-      <div class="hard-card-sm rounded-2xl p-5 sm:p-6">
+      <div class="card-soft p-5 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold text-ink flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Recent generations</h3>
-          <button id="clearHistoryBtn" class="text-xs font-semibold text-muted hover:text-ink transition-colors">Clear history</button>
+          <h3 class="text-sm font-bold text-ink flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-muted"></i> Recent generations</h3>
+          <button id="clearHistoryBtn" class="text-xs font-semibold text-muted hover:text-rose transition-colors">Clear history</button>
         </div>
         <div id="historyList" class="space-y-2">
           <p class="text-xs text-muted font-medium" id="historyEmpty">No generations yet — try the box above.</p>
@@ -308,7 +323,7 @@
   </main>
 
   <footer class="text-center text-xs text-muted py-8 font-medium">
-    Made With <span class="text-pink">❤️</span> By ZEESHAN
+    Made With <span class="text-rose">❤️</span> By ZEESHAN
   </footer>
 
 <audio id="audioEl" class="hidden"></audio>
@@ -348,12 +363,8 @@
 
   let allVoices = [];
   let lastUrl = null;
-
-  // Single request only — no chunking. Realistic ceiling for one request
-  // to finish inside Vercel's 60s function limit.
   const MAX_CHARS = 45000;
 
-  // ---------- history / dashboard ----------
   const HISTORY_KEY = 'vocalis_history_v1';
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -380,7 +391,7 @@
     if (items.length === 0) { historyList.appendChild(historyEmpty); return; }
     for (const item of items) {
       const div = document.createElement('div');
-      div.className = 'history-item-brut px-4 py-3 flex items-center justify-between gap-3';
+      div.className = 'history-item px-4 py-3 flex items-center justify-between gap-3';
       div.innerHTML = `
         <div class="min-w-0">
           <p class="text-sm text-ink font-medium truncate">${item.text}</p>
@@ -391,7 +402,6 @@
   }
   clearHistoryBtn.addEventListener('click', () => { localStorage.removeItem(HISTORY_KEY); renderDashboard(); });
 
-  // ---------- helpers ----------
   const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
   const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
   function friendlyLocale(locale) {
@@ -517,7 +527,7 @@
     if (!voiceEl.value) return;
     previewBtn.disabled = true;
     const originalIcon = previewBtn.innerHTML;
-    previewBtn.innerHTML = '<div class="w-4 h-4 border-2 border-ink border-t-transparent rounded-full animate-spin"></div>';
+    previewBtn.innerHTML = '<div class="w-4 h-4 border-2 border-violet border-t-transparent rounded-full animate-spin"></div>';
     try {
       const blob = await requestSpeech('Hello! This is a preview of my voice.', voiceEl.value, '+0%', '+0Hz');
       const url = URL.createObjectURL(blob);

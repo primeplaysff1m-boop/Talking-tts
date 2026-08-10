@@ -108,7 +108,7 @@ async def speak(req: SpeakRequest):
         req_t0 = time.perf_counter()
         # 45s is generous for normal-length text; if it takes longer, something
         # upstream (network route to Microsoft's TTS service) is the bottleneck.
-        audio_bytes = await asyncio.wait_for(_synthesize(), timeout=45)
+        audio_bytes = await asyncio.wait_for(_synthesize(), timeout=55)
         print(f"[speak] total request time={time.perf_counter()-req_t0:.2f}s", flush=True)
     except asyncio.TimeoutError:
         print(f"[speak] TIMED OUT after 45s for voice={req.voice} chars={len(text)}", flush=True)

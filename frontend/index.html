@@ -552,7 +552,7 @@
   }
 
   // ---------- chunking for long scripts ----------
-  const CHUNK_SIZE = 2500; // characters per request — safely under serverless time limits
+  const CHUNK_SIZE = 15000; // characters per request — one connection handles this in ~20-40s, well under the 60s limit
 
   function splitIntoChunks(text, maxLen) {
     const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];

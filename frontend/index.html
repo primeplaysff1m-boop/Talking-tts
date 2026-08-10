@@ -363,7 +363,8 @@
 
   let allVoices = [];
   let lastUrl = null;
-  const MAX_CHARS = 45000;
+  const MAX_CHARS = 500000;
+  const CHUNK_SIZE = 8000; // internal only — kept under Vercel's time limit per request
 
   const HISTORY_KEY = 'vocalis_history_v1';
   function loadHistory() {
@@ -467,7 +468,7 @@
   function validateInputs(text) {
     const t = text.trim();
     if (!t) return 'Please enter some text.';
-    if (t.length > MAX_CHARS) return `Text is too long for a single generation (max ${MAX_CHARS.toLocaleString()} characters).`;
+    if (t.length > MAX_CHARS) return `Text is too long (max ${MAX_CHARS.toLocaleString()} characters).`;
     if (!voiceEl.value) return 'Please select a voice.';
     return null;
   }
@@ -485,6 +486,40 @@
     return res.blob();
   }
 
+  // Splits long text into safe-sized pieces at sentence boundaries.
+  function splitIntoChunks(text, maxLen) {
+    if (text.length <= maxLen) return [text];
+    const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+    const chunks = [];
+    let current = '';
+    for (const sentence of sentences) {
+      if ((current + sentence).length > maxLen && current.length > 0) {
+        chunks.push(current.trim());
+        current = sentence;
+      } else {
+        current += sentence;
+      }
+    }
+    if (current.trim()) chunks.push(current.trim());
+    return chunks;
+  }
+
+  // Generates chunks with limited concurrency for speed. Caller sees no
+  // per-chunk detail — just an overall in-progress state.
+  async function generateChunksParallel(chunks, voice, rate, pitch, concurrency) {
+    const results = new Array(chunks.length);
+    let nextIndex = 0;
+    async function worker() {
+      while (nextIndex < chunks.length) {
+        const i = nextIndex++;
+        results[i] = await requestSpeech(chunks[i], voice, rate, pitch);
+      }
+    }
+    const workerCount = Math.min(concurrency, chunks.length);
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+    return results;
+  }
+
   async function generate() {
     const validationError = validateInputs(textEl.value);
     if (validationError) { statusLine.textContent = validationError; return; }
@@ -497,8 +532,13 @@
       const rate = fmtSigned(speedEl.value, '%');
       const pitch = fmtSigned(pitchEl.value, 'Hz');
       const text = textEl.value.trim();
+      const chunks = splitIntoChunks(text, CHUNK_SIZE);
 
-      const blob = await requestSpeech(text, voiceEl.value, rate, pitch);
+      const blobs = chunks.length === 1
+        ? [await requestSpeech(chunks[0], voiceEl.value, rate, pitch)]
+        : await generateChunksParallel(chunks, voiceEl.value, rate, pitch, 6);
+
+      const blob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
       if (lastUrl) URL.revokeObjectURL(lastUrl);
       lastUrl = URL.createObjectURL(blob);
 

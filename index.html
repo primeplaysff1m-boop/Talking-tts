@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vocalis — Free Text to Speech</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23131629'/%3E%3Cg stroke='%2322d3ee' stroke-width='7' stroke-linecap='round'%3E%3Cline x1='20' y1='50' x2='20' y2='50'/%3E%3Cline x1='34' y1='38' x2='34' y2='62'/%3E%3Cline x1='48' y1='24' x2='48' y2='76'/%3E%3Cline x1='62' y1='34' x2='62' y2='66'/%3E%3Cline x1='76' y1='42' x2='76' y2='58'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%23FFD23F' stroke='%23111' stroke-width='4'/%3E%3Cg stroke='%23111' stroke-width='8' stroke-linecap='round'%3E%3Cline x1='24' y1='50' x2='24' y2='50'/%3E%3Cline x1='38' y1='36' x2='38' y2='64'/%3E%3Cline x1='52' y1='22' x2='52' y2='78'/%3E%3Cline x1='66' y1='34' x2='66' y2='66'/%3E%3Cline x1='80' y1='42' x2='80' y2='58'/%3E%3C/g%3E%3C/svg%3E">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -14,7 +14,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <script>
@@ -26,17 +26,15 @@
           sans: ['Inter', 'system-ui', 'sans-serif'],
         },
         colors: {
-          surface: '#131629',
-          surfaceRaised: '#161a30',
-          bezel: '#171b30',
-          coral: '#22d3ee',
-          coralDark: '#0e9fbd',
-          sage: '#f472b6',
-          gold: '#a78bfa',
-          violet: '#a78bfa',
-          line: '#2a2f52',
-          ink: '#eef0fb',
-          muted: '#8b93b8',
+          ink: '#111111',
+          paper: '#FFF7E8',
+          card: '#FFFFFF',
+          muted: '#6b6558',
+          yellow: '#FFD23F',
+          pink: '#FF6B9D',
+          blue: '#4D96FF',
+          mint: '#3DDC97',
+          line: '#111111',
         }
       }
     }
@@ -44,224 +42,165 @@
 </script>
 <style>
   html, body { height:100%; }
-  body {
-    background-color:#090b16;
+  body{
+    background-color:#FFF7E8;
     background-image:
-      radial-gradient(circle at 12% 20%, rgba(34,211,238,0.28), transparent 42%),
-      radial-gradient(circle at 88% 15%, rgba(244,114,182,0.24), transparent 44%),
-      radial-gradient(circle at 50% 105%, rgba(167,139,250,0.30), transparent 55%),
-      radial-gradient(circle at 100% 90%, rgba(34,211,238,0.16), transparent 48%);
-    background-size: 180% 180%;
-    background-attachment: fixed;
-    animation: driftBg 22s ease-in-out infinite alternate;
-    overflow-x: hidden;
+      radial-gradient(circle, #00000012 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
   }
-  @keyframes driftBg {
-    0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 100% 100%; }
-    100% { background-position: 10% 10%, 90% 5%, 45% 95%, 90% 85%; }
+  ::-webkit-scrollbar{ width:10px; }
+  ::-webkit-scrollbar-thumb{ background:#111; border-radius:0; }
+  input[type=range]{ accent-color:#111; }
+
+  .hard-card{
+    background:#fff;
+    border: 3px solid #111;
+    box-shadow: 8px 8px 0 #111;
+  }
+  .hard-card-sm{
+    background:#fff;
+    border: 3px solid #111;
+    box-shadow: 5px 5px 0 #111;
   }
 
-  .orb{ position:fixed; border-radius:9999px; filter: blur(60px); opacity:.45; pointer-events:none; z-index:0; }
-  .orb1{ width:280px; height:280px; background:#22d3ee; top:-70px; left:-70px; animation: floatY 9s ease-in-out infinite; }
-  .orb2{ width:240px; height:240px; background:#f472b6; bottom:-40px; right:-40px; animation: floatY 11s ease-in-out infinite reverse; }
-  .orb3{ width:200px; height:200px; background:#a78bfa; top:40%; right:5%; animation: floatY 13s ease-in-out infinite; }
-  @keyframes floatY {
-    0%,100% { transform: translateY(0px); }
-    50% { transform: translateY(-24px); }
-  }
-
-  input[type=range]{ accent-color:#22d3ee; }
-  ::-webkit-scrollbar{ width:8px; }
-  ::-webkit-scrollbar-thumb{ background:#2a2f52; border-radius:8px; }
-
-  .glass-3d{
-    position: relative;
-    background: rgba(19,22,41,0.72);
-    backdrop-filter: blur(18px) saturate(160%);
-    -webkit-backdrop-filter: blur(18px) saturate(160%);
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.06) inset,
-      0 2px 4px rgba(0,0,0,0.3),
-      0 20px 40px -8px rgba(34,211,238,0.15),
-      0 40px 90px -20px rgba(0,0,0,0.6);
-    transform-style: preserve-3d;
-    will-change: transform;
-    transition: transform .15s ease-out, box-shadow .3s ease;
-  }
-  .glass-raised{
-    background: rgba(22,26,48,0.78);
-    backdrop-filter: blur(14px) saturate(150%);
-    -webkit-backdrop-filter: blur(14px) saturate(150%);
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.06) inset,
-      0 12px 24px rgba(0,0,0,0.35),
-      0 28px 56px -14px rgba(167,139,250,0.18);
-  }
-
-  .btn-3d{
-    box-shadow: 0 4px 0 #0e9fbd, 0 12px 30px rgba(34,211,238,0.45);
-    transform: translateY(0);
+  .btn-brut{
+    border: 3px solid #111;
+    box-shadow: 5px 5px 0 #111;
     transition: transform .08s ease, box-shadow .08s ease;
   }
-  .btn-3d:active:not(:disabled){ transform: translateY(4px); box-shadow: 0 0 0 #0e9fbd, 0 4px 12px rgba(34,211,238,0.35); }
-  .btn-3d:disabled{ box-shadow: 0 4px 0 rgba(14,159,189,0.35), 0 10px 22px rgba(34,211,238,0.12); }
-  .btn-3d:hover:not(:disabled){ transform: translateY(-1px); box-shadow: 0 5px 0 #0e9fbd, 0 16px 36px rgba(34,211,238,0.5); }
+  .btn-brut:active:not(:disabled){ transform: translate(5px,5px); box-shadow: 0 0 0 #111; }
+  .btn-brut:hover:not(:disabled){ transform: translate(-1px,-1px); box-shadow: 6px 6px 0 #111; }
+  .btn-brut:disabled{ opacity:.45; cursor:not-allowed; }
 
-  .fab-3d{
-    box-shadow: 0 3px 0 #0e9fbd, 0 10px 22px rgba(34,211,238,0.45);
-    transform: translateY(0);
+  .fab-brut{
+    border: 3px solid #111;
+    box-shadow: 4px 4px 0 #111;
     transition: transform .08s ease, box-shadow .08s ease;
   }
-  .fab-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #0e9fbd, 0 3px 8px rgba(34,211,238,0.3); }
-  .fab-outline-3d{
-    box-shadow: 0 3px 0 #3a3f66, 0 10px 22px rgba(0,0,0,0.25);
-    transform: translateY(0);
-    transition: transform .08s ease, box-shadow .08s ease;
+  .fab-brut:active{ transform: translate(4px,4px); box-shadow: 0 0 0 #111; }
+  .fab-brut:hover{ transform: translate(-1px,-1px); box-shadow: 5px 5px 0 #111; }
+
+  .field-brut{
+    border: 3px solid #111;
+    box-shadow: 3px 3px 0 #111;
   }
-  .fab-outline-3d:active{ transform: translateY(3px); box-shadow: 0 0 0 #3a3f66, 0 3px 8px rgba(0,0,0,0.2); }
+  .field-brut:focus{ outline:none; box-shadow: 3px 3px 0 #4D96FF; border-color:#4D96FF; }
 
-  .field-inset{ box-shadow: inset 0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03); }
-
-  .badge-icon{
-    width:30px; height:30px; border-radius:9px;
-    display:flex; align-items:center; justify-content:center;
-    background: linear-gradient(145deg, #1c2140, #12152a);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
-  }
-
-  .chip{
+  .chip-brut{
     display:inline-flex; align-items:center; gap:6px;
     padding:6px 12px; border-radius:9999px;
-    background: rgba(255,255,255,0.04);
-    border:1px solid rgba(255,255,255,0.08);
-    font-size:12px; color:#8b93b8;
+    background:#fff; border:2.5px solid #111;
+    font-size:12px; font-weight:600; color:#111;
+    box-shadow: 3px 3px 0 #111;
   }
 
-  .fade-up{ animation: fadeUp .6s ease both; }
-  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
-
-  .stat-card{
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    transition: transform .2s ease, border-color .2s ease;
-  }
-  .stat-card:hover{ transform: translateY(-3px); border-color: rgba(34,211,238,0.35); }
-
-  .logo-mark{
-    width:34px; height:34px; border-radius:10px;
-    background: linear-gradient(145deg, #1c2140, #12152a);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(34,211,238,0.35);
+  .logo-brut{
+    width:36px; height:36px; border-radius:10px;
+    background:#FFD23F; border:3px solid #111;
+    box-shadow: 3px 3px 0 #111;
     display:flex; align-items:center; justify-content:center;
-    animation: logoPulse 3s ease-in-out infinite;
   }
-  @keyframes logoPulse{
-    0%,100%{ box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(34,211,238,0.35); }
-    50%{ box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 28px rgba(34,211,238,0.6); }
-  }
-  .hero-logo{
-    width:64px; height:64px; border-radius:18px; margin:0 auto 18px;
-    background: linear-gradient(145deg, #1c2140, #12152a);
-    box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 30px rgba(34,211,238,0.4);
+  .hero-logo-brut{
+    width:76px; height:76px; border-radius:20px; margin:0 auto 18px;
+    background:#FFD23F; border:4px solid #111;
+    box-shadow: 6px 6px 0 #111;
     display:flex; align-items:center; justify-content:center;
-    animation: logoPulse 3s ease-in-out infinite, floatY 6s ease-in-out infinite;
+    animation: bobY 3.5s ease-in-out infinite;
   }
+  @keyframes bobY{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-8px) rotate(-2deg);} }
 
-  .bar-eq{ display:flex; align-items:center; gap:2px; height:14px; }
-  .bar-eq span{ width:3px; background:#22d3ee; border-radius:2px; animation: eqBounce 1.1s ease-in-out infinite; }
+  .bar-eq{ display:flex; align-items:center; gap:3px; height:16px; }
+  .bar-eq span{ width:4px; background:#111; border-radius:1px; animation: eqBounce 1.1s ease-in-out infinite; }
   .bar-eq span:nth-child(1){ animation-delay:0s; }
   .bar-eq span:nth-child(2){ animation-delay:.15s; }
   .bar-eq span:nth-child(3){ animation-delay:.3s; }
   .bar-eq span:nth-child(4){ animation-delay:.45s; }
   .bar-eq span:nth-child(5){ animation-delay:.6s; }
-  @keyframes eqBounce{
-    0%,100%{ height:4px; }
-    50%{ height:14px; }
+  @keyframes eqBounce{ 0%,100%{ height:4px; } 50%{ height:16px; } }
+
+  .fade-up{ animation: fadeUp .5s ease both; }
+  @keyframes fadeUp{ from{ opacity:0; transform:translateY(14px);} to{ opacity:1; transform:translateY(0);} }
+
+  .stat-brut{
+    background:#fff; border:3px solid #111; border-radius:14px;
+    box-shadow: 5px 5px 0 #111;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .stat-brut:hover{ transform: translate(-2px,-2px); box-shadow: 7px 7px 0 #111; }
+
+  .history-item-brut{
+    background:#fff; border:2.5px solid #111; border-radius:10px;
   }
 
-  .shimmer{
-    background: linear-gradient(90deg, #eef0fb 0%, #22d3ee 25%, #a78bfa 50%, #f472b6 75%, #eef0fb 100%);
-    background-size: 300% auto;
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: shimmerMove 6s linear infinite;
+  .underline-squiggle{
+    position:relative; display:inline-block;
   }
-  @keyframes shimmerMove{ to{ background-position: 300% center; } }
-
-  .history-item{
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    transition: border-color .2s ease, background .2s ease;
+  .underline-squiggle::after{
+    content:''; position:absolute; left:0; right:0; bottom:-6px; height:6px;
+    background: repeating-linear-gradient(115deg, #4D96FF 0 8px, transparent 8px 16px);
   }
-  .history-item:hover{ border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
 </style>
 </head>
 <body class="text-ink font-sans min-h-screen flex flex-col relative">
 
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-
   <!-- Navbar -->
-  <nav class="relative z-20 w-full border-b border-line/60">
+  <nav class="relative z-20 w-full border-b-3 border-ink" style="border-bottom-width:3px;">
     <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <span class="logo-mark">
+        <span class="logo-brut">
           <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
         </span>
-        <span class="font-serif font-semibold text-lg tracking-tight">Vocalis</span>
+        <span class="font-serif font-extrabold text-lg tracking-tight">Vocalis</span>
       </div>
-      <div class="flex items-center gap-2">
-        <a href="#dashboard" class="fab-outline-3d border border-line text-sm font-medium px-4 py-2 rounded-lg hover:border-sage transition-colors flex items-center gap-1.5">
-          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Dashboard</span>
-        </a>
-      </div>
+      <a href="#dashboard" class="fab-brut bg-white text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5">
+        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">Dashboard</span>
+      </a>
     </div>
   </nav>
 
   <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
 
     <header class="text-center mb-6 fade-up">
-      <div class="hero-logo">
+      <div class="hero-logo-brut">
         <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
       </div>
-      <h1 class="font-serif text-4xl sm:text-5xl font-bold tracking-tight shimmer">Vocalis</h1>
-      <p class="text-sm text-muted mt-2">Free, unlimited text to speech</p>
+      <h1 class="font-serif text-4xl sm:text-5xl font-extrabold tracking-tight">
+        <span class="underline-squiggle">Vocalis</span>
+      </h1>
+      <p class="text-sm text-muted mt-3 font-medium">Free, unlimited text to speech</p>
       <div class="flex flex-wrap items-center justify-center gap-2 mt-4">
-        <span class="chip"><i data-lucide="infinity" class="w-3.5 h-3.5"></i> Unlimited</span>
-        <span class="chip"><i data-lucide="lock-open" class="w-3.5 h-3.5"></i> No signup</span>
-        <span class="chip"><i data-lucide="zap" class="w-3.5 h-3.5"></i> 300+ voices</span>
+        <span class="chip-brut"><i data-lucide="infinity" class="w-3.5 h-3.5"></i> Unlimited</span>
+        <span class="chip-brut"><i data-lucide="lock-open" class="w-3.5 h-3.5"></i> No signup</span>
+        <span class="chip-brut"><i data-lucide="zap" class="w-3.5 h-3.5"></i> 300+ voices</span>
       </div>
     </header>
 
-    <section id="mainCard" class="glass-3d rounded-3xl p-5 sm:p-8 space-y-6 fade-up" style="animation-delay:.08s;">
+    <section id="mainCard" class="hard-card rounded-2xl p-5 sm:p-8 space-y-6 fade-up" style="animation-delay:.08s;">
 
       <!-- Language -->
       <div>
-        <label for="language" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
-          <span class="badge-icon"><i data-lucide="globe" class="w-3.5 h-3.5 text-coral"></i></span>
+        <label for="language" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink mb-2">
+          <span class="logo-brut" style="width:26px;height:26px;background:#4D96FF;"><i data-lucide="globe" class="w-3.5 h-3.5"></i></span>
           Language
         </label>
-        <select id="language" class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+        <select id="language" class="field-brut w-full bg-white rounded-lg px-3 py-2.5 text-sm text-ink font-medium">
           <option>Loading…</option>
         </select>
       </div>
 
       <!-- Voice -->
       <div>
-        <label for="voice" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted mb-2">
-          <span class="badge-icon"><i data-lucide="mic" class="w-3.5 h-3.5 text-sage"></i></span>
+        <label for="voice" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink mb-2">
+          <span class="logo-brut" style="width:26px;height:26px;background:#FF6B9D;"><i data-lucide="mic" class="w-3.5 h-3.5"></i></span>
           Voice
         </label>
         <div class="flex gap-2">
-          <select id="voice" class="field-inset flex-1 bg-bezel border border-line rounded-xl px-3 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-sage">
+          <select id="voice" class="field-brut flex-1 bg-white rounded-lg px-3 py-2.5 text-sm text-ink font-medium">
             <option>Loading…</option>
           </select>
           <button id="previewBtn" title="Preview this voice"
-            class="fab-outline-3d shrink-0 w-11 h-11 rounded-xl border border-line hover:border-sage flex items-center justify-center text-sage transition-colors">
+            class="fab-brut shrink-0 w-11 h-11 rounded-lg bg-white flex items-center justify-center">
             <i data-lucide="ear" class="w-4 h-4"></i>
           </button>
         </div>
@@ -270,18 +209,18 @@
       <!-- Text -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label for="text" class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted">
-            <span class="badge-icon"><i data-lucide="text" class="w-3.5 h-3.5 text-gold"></i></span>
+          <label for="text" class="flex items-center gap-2 text-xs uppercase tracking-wider font-bold text-ink">
+            <span class="logo-brut" style="width:26px;height:26px;background:#3DDC97;"><i data-lucide="text" class="w-3.5 h-3.5"></i></span>
             Your text
           </label>
           <div class="flex items-center gap-3">
             <button id="copyBtn" title="Copy text" class="text-muted hover:text-ink transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
             <button id="clearBtn" title="Clear text" class="text-muted hover:text-ink transition-colors"><i data-lucide="eraser" class="w-3.5 h-3.5"></i></button>
-            <span class="text-xs text-muted"><span id="charcount">0</span> characters</span>
+            <span class="text-xs text-muted font-semibold"><span id="charcount">0</span> characters</span>
           </div>
         </div>
         <textarea id="text" rows="6"
-          class="field-inset w-full bg-bezel border border-line rounded-xl px-3 py-3 text-[15px] text-ink resize-y focus:outline-none focus:ring-2 focus:ring-sage placeholder:text-muted/70"
+          class="field-brut w-full bg-white rounded-lg px-3 py-3 text-[15px] text-ink resize-y placeholder:text-muted/70"
           placeholder="Enter your text here..."></textarea>
       </div>
 
@@ -289,15 +228,15 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label for="speed" class="block text-xs uppercase tracking-wider text-muted">Speed</label>
-            <span class="text-xs text-coral font-mono font-medium" id="speedVal">0%</span>
+            <label for="speed" class="block text-xs uppercase tracking-wider font-bold text-ink">Speed</label>
+            <span class="text-xs text-white font-mono font-bold bg-blue px-1.5 py-0.5 rounded border-2 border-ink" id="speedVal">0%</span>
           </div>
           <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
-            <label for="pitch" class="block text-xs uppercase tracking-wider text-muted">Pitch</label>
-            <span class="text-xs text-coral font-mono font-medium" id="pitchVal">0Hz</span>
+            <label for="pitch" class="block text-xs uppercase tracking-wider font-bold text-ink">Pitch</label>
+            <span class="text-xs text-white font-mono font-bold bg-pink px-1.5 py-0.5 rounded border-2 border-ink" id="pitchVal">0Hz</span>
           </div>
           <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
         </div>
@@ -305,29 +244,29 @@
 
       <!-- Generate button -->
       <button id="generateBtn" disabled
-        class="btn-3d w-full flex items-center justify-center gap-2 bg-coral hover:bg-coralDark disabled:opacity-40 disabled:cursor-not-allowed text-[#06131a] font-semibold text-[15px] rounded-xl py-3.5 transition-colors">
+        class="btn-brut w-full flex items-center justify-center gap-2 bg-yellow text-ink font-extrabold text-[15px] rounded-lg py-3.5">
         <i data-lucide="play" class="w-4 h-4"></i>
         <span id="generateLabel">Generate Speech</span>
       </button>
 
-      <p id="statusLine" class="text-xs text-muted text-center -mt-2">Connecting to voice server…</p>
+      <p id="statusLine" class="text-xs text-muted text-center -mt-2 font-medium">Connecting to voice server…</p>
     </section>
 
     <!-- Audio result -->
-    <section id="audioResult" class="hidden mt-6 glass-raised rounded-3xl p-5 sm:p-6 fade-up">
+    <section id="audioResult" class="hidden mt-6 hard-card-sm rounded-2xl p-5 sm:p-6 fade-up">
       <div class="flex items-center gap-4">
-        <button id="playBtn" class="fab-3d shrink-0 w-11 h-11 rounded-full bg-coral hover:bg-coralDark flex items-center justify-center text-[#06131a] transition-colors">
+        <button id="playBtn" class="fab-brut shrink-0 w-11 h-11 rounded-full bg-mint flex items-center justify-center">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
         </button>
         <div class="flex-1 min-w-0">
           <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
-          <div class="flex justify-between text-xs text-muted mt-1 font-mono">
+          <div class="flex justify-between text-xs text-muted mt-1 font-mono font-semibold">
             <span id="currentTime">0:00</span>
             <span id="duration">0:00</span>
           </div>
         </div>
         <a id="downloadBtn" download="speech.mp3"
-          class="fab-outline-3d shrink-0 w-11 h-11 rounded-full border border-line hover:border-sage hover:bg-sage/5 flex items-center justify-center text-sage transition-colors">
+          class="fab-brut shrink-0 w-11 h-11 rounded-full bg-white flex items-center justify-center">
           <i data-lucide="download" class="w-5 h-5"></i>
         </a>
       </div>
@@ -335,41 +274,41 @@
 
     <!-- Dashboard -->
     <section id="dashboard" class="mt-14 scroll-mt-24 fade-up" style="animation-delay:.16s;">
-      <h2 class="font-serif text-2xl font-semibold mb-1 flex items-center gap-2">
-        <i data-lucide="layout-dashboard" class="w-5 h-5 text-coral"></i> Dashboard
+      <h2 class="font-serif text-2xl font-extrabold mb-1 flex items-center gap-2">
+        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
       </h2>
-      <p class="text-sm text-muted mb-5">Your usage on this device — stored locally, no account needed.</p>
+      <p class="text-sm text-muted mb-5 font-medium">Your usage on this device — stored locally, no account needed.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider text-muted mb-1">Generations</p>
-          <p class="font-serif text-3xl font-semibold" id="statCount">0</p>
+        <div class="stat-brut p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Generations</p>
+          <p class="font-serif text-3xl font-extrabold" id="statCount">0</p>
         </div>
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider text-muted mb-1">Characters spoken</p>
-          <p class="font-serif text-3xl font-semibold" id="statChars">0</p>
+        <div class="stat-brut p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Characters spoken</p>
+          <p class="font-serif text-3xl font-extrabold" id="statChars">0</p>
         </div>
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider text-muted mb-1">Favorite voice</p>
-          <p class="font-serif text-xl font-semibold" id="statVoice">—</p>
+        <div class="stat-brut p-5">
+          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1">Favorite voice</p>
+          <p class="font-serif text-xl font-extrabold" id="statVoice">—</p>
         </div>
       </div>
 
-      <div class="glass-raised rounded-2xl p-5 sm:p-6">
+      <div class="hard-card-sm rounded-2xl p-5 sm:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-semibold text-ink flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-muted"></i> Recent generations</h3>
-          <button id="clearHistoryBtn" class="text-xs text-muted hover:text-sage transition-colors">Clear history</button>
+          <h3 class="text-sm font-bold text-ink flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Recent generations</h3>
+          <button id="clearHistoryBtn" class="text-xs font-semibold text-muted hover:text-ink transition-colors">Clear history</button>
         </div>
         <div id="historyList" class="space-y-2">
-          <p class="text-xs text-muted" id="historyEmpty">No generations yet — try the box above.</p>
+          <p class="text-xs text-muted font-medium" id="historyEmpty">No generations yet — try the box above.</p>
         </div>
       </div>
     </section>
 
   </main>
 
-  <footer class="text-center text-xs text-muted py-8">
-    Made With <span class="text-coral">❤️</span> By ZEESHAN
+  <footer class="text-center text-xs text-muted py-8 font-medium">
+    Made With <span class="text-pink">❤️</span> By ZEESHAN
   </footer>
 
 <audio id="audioEl" class="hidden"></audio>
@@ -410,15 +349,17 @@
   let allVoices = [];
   let lastUrl = null;
 
-  // ---------- history / dashboard (localStorage, no account) ----------
+  // Single request only — no chunking. Realistic ceiling for one request
+  // to finish inside Vercel's 60s function limit.
+  const MAX_CHARS = 45000;
+
+  // ---------- history / dashboard ----------
   const HISTORY_KEY = 'vocalis_history_v1';
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
     catch (e) { return []; }
   }
-  function saveHistory(items) {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 20)));
-  }
+  function saveHistory(items) { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 20))); }
   function addToHistory(entry) {
     const items = loadHistory();
     items.unshift(entry);
@@ -429,41 +370,30 @@
     const items = loadHistory();
     statCount.textContent = items.length;
     statChars.textContent = items.reduce((sum, i) => sum + (i.chars || 0), 0);
-
-    if (items.length === 0) {
-      statVoice.textContent = '—';
-    } else {
+    if (items.length === 0) { statVoice.textContent = '—'; }
+    else {
       const counts = {};
       items.forEach(i => { counts[i.voiceName] = (counts[i.voiceName] || 0) + 1; });
       statVoice.textContent = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
     }
-
     historyList.innerHTML = '';
-    if (items.length === 0) {
-      historyList.appendChild(historyEmpty);
-      return;
-    }
+    if (items.length === 0) { historyList.appendChild(historyEmpty); return; }
     for (const item of items) {
       const div = document.createElement('div');
-      div.className = 'history-item px-4 py-3 flex items-center justify-between gap-3';
+      div.className = 'history-item-brut px-4 py-3 flex items-center justify-between gap-3';
       div.innerHTML = `
         <div class="min-w-0">
-          <p class="text-sm text-ink truncate">${item.text}</p>
+          <p class="text-sm text-ink font-medium truncate">${item.text}</p>
           <p class="text-xs text-muted mt-0.5">${item.voiceName} · ${item.chars} chars · ${item.date}</p>
-        </div>
-      `;
+        </div>`;
       historyList.appendChild(div);
     }
   }
-  clearHistoryBtn.addEventListener('click', () => {
-    localStorage.removeItem(HISTORY_KEY);
-    renderDashboard();
-  });
+  clearHistoryBtn.addEventListener('click', () => { localStorage.removeItem(HISTORY_KEY); renderDashboard(); });
 
   // ---------- helpers ----------
   const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
   const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
-
   function friendlyLocale(locale) {
     try {
       const [lang, region] = locale.split('-');
@@ -483,43 +413,26 @@
     return (n >= 0 ? '+' : '') + n + suffix;
   }
 
-  // ---------- text counter / copy / clear ----------
   textEl.addEventListener('input', () => { charcountEl.textContent = textEl.value.length; });
-  charcountEl.textContent = textEl.value.length;
-
-  copyBtn.addEventListener('click', async () => {
-    await navigator.clipboard.writeText(textEl.value);
-    statusLine.textContent = 'Text copied to clipboard.';
-  });
-  clearBtn.addEventListener('click', () => {
-    textEl.value = '';
-    charcountEl.textContent = 0;
-    textEl.focus();
-  });
-
-  // ---------- sliders ----------
+  copyBtn.addEventListener('click', async () => { await navigator.clipboard.writeText(textEl.value); statusLine.textContent = 'Text copied to clipboard.'; });
+  clearBtn.addEventListener('click', () => { textEl.value = ''; charcountEl.textContent = 0; textEl.focus(); });
   speedEl.addEventListener('input', () => { speedValEl.textContent = fmtSigned(speedEl.value, '%'); });
   pitchEl.addEventListener('input', () => { pitchValEl.textContent = fmtSigned(pitchEl.value, 'Hz'); });
 
-  // ---------- load languages + voices ----------
   async function loadVoices() {
     try {
       const res = await fetch(`${API_BASE}/voices`);
       if (!res.ok) throw new Error('Server error');
       allVoices = await res.json();
-
       const locales = [...new Set(allVoices.map(v => v.locale))].sort();
       languageEl.innerHTML = '';
       for (const loc of locales) {
         const opt = document.createElement('option');
-        opt.value = loc;
-        opt.textContent = friendlyLocale(loc);
+        opt.value = loc; opt.textContent = friendlyLocale(loc);
         languageEl.appendChild(opt);
       }
-      const defaultLoc = locales.find(l => l === 'en-US') || locales[0];
-      languageEl.value = defaultLoc;
+      languageEl.value = locales.find(l => l === 'en-US') || locales[0];
       populateVoicesForLanguage();
-
       statusLine.textContent = `Ready — ${allVoices.length} voices available.`;
       generateBtn.disabled = false;
     } catch (err) {
@@ -533,8 +446,7 @@
     const filtered = allVoices.filter(v => v.locale === loc);
     for (const v of filtered) {
       const opt = document.createElement('option');
-      opt.value = v.id;
-      opt.textContent = `${v.name} — ${v.gender}`;
+      opt.value = v.id; opt.textContent = `${v.name} — ${v.gender}`;
       voiceEl.appendChild(opt);
     }
     const anaOpt = [...voiceEl.options].find(o => o.textContent.startsWith('Ana —'));
@@ -542,35 +454,14 @@
   }
   languageEl.addEventListener('change', populateVoicesForLanguage);
 
-  // ---------- validation ----------
-  function validateInputs(sourceText) {
-    const text = sourceText.trim();
-    if (!text) return 'Please enter some text.';
-    if (text.length > 2000000) return 'Text is too long (max 2,000,000 characters).';
+  function validateInputs(text) {
+    const t = text.trim();
+    if (!t) return 'Please enter some text.';
+    if (t.length > MAX_CHARS) return `Text is too long for a single generation (max ${MAX_CHARS.toLocaleString()} characters).`;
     if (!voiceEl.value) return 'Please select a voice.';
     return null;
   }
 
-  // ---------- chunking for long scripts ----------
-  const CHUNK_SIZE = 15000; // characters per request — one connection handles this in ~20-40s, well under the 60s limit
-
-  function splitIntoChunks(text, maxLen) {
-    const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
-    const chunks = [];
-    let current = '';
-    for (const sentence of sentences) {
-      if ((current + sentence).length > maxLen && current.length > 0) {
-        chunks.push(current.trim());
-        current = sentence;
-      } else {
-        current += sentence;
-      }
-    }
-    if (current.trim()) chunks.push(current.trim());
-    return chunks;
-  }
-
-  // ---------- core speech call ----------
   async function requestSpeech(text, voice, rate, pitch) {
     const res = await fetch(`${API_BASE}/speak`, {
       method: 'POST',
@@ -584,72 +475,33 @@
     return res.blob();
   }
 
-  // Generate multiple chunks in parallel (limited concurrency) instead of
-  // one-at-a-time — this is what makes long scripts fast, matching sites
-  // like TalkTTS which also fan requests out concurrently.
-  async function generateChunksParallel(chunks, voice, rate, pitch, concurrency, onProgress) {
-    const results = new Array(chunks.length);
-    let nextIndex = 0;
-    let completed = 0;
-
-    async function worker() {
-      while (nextIndex < chunks.length) {
-        const i = nextIndex++;
-        results[i] = await requestSpeech(chunks[i], voice, rate, pitch);
-        completed++;
-        onProgress(completed, chunks.length);
-      }
-    }
-
-    const workerCount = Math.min(concurrency, chunks.length);
-    await Promise.all(Array.from({ length: workerCount }, () => worker()));
-    return results;
-  }
-
-  // ---------- generate ----------
   async function generate() {
     const validationError = validateInputs(textEl.value);
     if (validationError) { statusLine.textContent = validationError; return; }
 
     generateBtn.disabled = true;
     generateLabel.textContent = 'Generating...';
+    statusLine.textContent = 'Generating speech…';
 
     try {
       const rate = fmtSigned(speedEl.value, '%');
       const pitch = fmtSigned(pitchEl.value, 'Hz');
       const text = textEl.value.trim();
-      const chunks = splitIntoChunks(text, CHUNK_SIZE);
-      const CONCURRENCY = 6; // how many chunks generate at the same time
 
-      let blobs;
-      if (chunks.length === 1) {
-        statusLine.textContent = 'Generating speech…';
-        blobs = [await requestSpeech(chunks[0], voiceEl.value, rate, pitch)];
-      } else {
-        blobs = await generateChunksParallel(
-          chunks, voiceEl.value, rate, pitch, CONCURRENCY,
-          (done, total) => { statusLine.textContent = `Generating… ${done} of ${total} parts done.`; }
-        );
-      }
-
-      const finalBlob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
+      const blob = await requestSpeech(text, voiceEl.value, rate, pitch);
       if (lastUrl) URL.revokeObjectURL(lastUrl);
-      lastUrl = URL.createObjectURL(finalBlob);
+      lastUrl = URL.createObjectURL(blob);
 
       audioEl.src = lastUrl;
       downloadBtn.href = lastUrl;
       audioResult.classList.remove('hidden');
       resetPlayerUI();
-      statusLine.textContent = chunks.length > 1
-        ? `Done — generated in ${chunks.length} parts and combined.`
-        : 'Done.';
+      statusLine.textContent = 'Done.';
 
       const voiceLabel = voiceEl.options[voiceEl.selectedIndex]?.textContent || voiceEl.value;
       addToHistory({
         text: text.length > 80 ? text.slice(0, 80) + '…' : text,
-        voiceName: voiceLabel,
-        chars: text.length,
-        date: new Date().toLocaleString()
+        voiceName: voiceLabel, chars: text.length, date: new Date().toLocaleString()
       });
     } catch (err) {
       statusLine.textContent = 'Error: ' + err.message;
@@ -661,17 +513,15 @@
   }
   generateBtn.addEventListener('click', generate);
 
-  // ---------- voice preview ----------
   previewBtn.addEventListener('click', async () => {
     if (!voiceEl.value) return;
     previewBtn.disabled = true;
     const originalIcon = previewBtn.innerHTML;
-    previewBtn.innerHTML = '<div class="w-4 h-4 border-2 border-sage border-t-transparent rounded-full animate-spin"></div>';
+    previewBtn.innerHTML = '<div class="w-4 h-4 border-2 border-ink border-t-transparent rounded-full animate-spin"></div>';
     try {
       const blob = await requestSpeech('Hello! This is a preview of my voice.', voiceEl.value, '+0%', '+0Hz');
       const url = URL.createObjectURL(blob);
-      const previewAudio = new Audio(url);
-      previewAudio.play();
+      new Audio(url).play();
     } catch (err) {
       statusLine.textContent = 'Preview failed: ' + err.message;
     } finally {
@@ -681,13 +531,9 @@
     }
   });
 
-  // ---------- custom audio player ----------
   function resetPlayerUI() {
-    playIcon.setAttribute('data-lucide', 'play');
-    lucide.createIcons();
-    progressEl.value = 0;
-    currentTimeEl.textContent = '0:00';
-    durationEl.textContent = '0:00';
+    playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons();
+    progressEl.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
   }
   playBtn.addEventListener('click', () => { audioEl.paused ? audioEl.play() : audioEl.pause(); });
   audioEl.addEventListener('play', () => { playIcon.setAttribute('data-lucide', 'pause'); lucide.createIcons(); });
@@ -700,21 +546,8 @@
       currentTimeEl.textContent = formatTime(audioEl.currentTime);
     }
   });
-  progressEl.addEventListener('input', () => {
-    if (audioEl.duration) audioEl.currentTime = (progressEl.value / 100) * audioEl.duration;
-  });
+  progressEl.addEventListener('input', () => { if (audioEl.duration) audioEl.currentTime = (progressEl.value / 100) * audioEl.duration; });
 
-  // ---------- subtle 3D tilt on main card ----------
-  const mainCard = document.getElementById('mainCard');
-  mainCard.addEventListener('mousemove', (e) => {
-    const rect = mainCard.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    mainCard.style.transform = `perspective(1200px) rotateY(${x * 3}deg) rotateX(${-y * 3}deg)`;
-  });
-  mainCard.addEventListener('mouseleave', () => { mainCard.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)'; });
-
-  // ---------- init ----------
   lucide.createIcons();
   loadVoices();
   renderDashboard();

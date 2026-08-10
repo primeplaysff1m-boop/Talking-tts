@@ -546,9 +546,28 @@
   function validateInputs(sourceText) {
     const text = sourceText.trim();
     if (!text) return 'Please enter some text.';
-    if (text.length > 100000) return 'Text is too long (max 100,000 characters).';
+    if (text.length > 2000000) return 'Text is too long (max 2,000,000 characters).';
     if (!voiceEl.value) return 'Please select a voice.';
     return null;
+  }
+
+  // ---------- chunking for long scripts ----------
+  const CHUNK_SIZE = 2500; // characters per request — safely under serverless time limits
+
+  function splitIntoChunks(text, maxLen) {
+    const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+    const chunks = [];
+    let current = '';
+    for (const sentence of sentences) {
+      if ((current + sentence).length > maxLen && current.length > 0) {
+        chunks.push(current.trim());
+        current = sentence;
+      } else {
+        current += sentence;
+      }
+    }
+    if (current.trim()) chunks.push(current.trim());
+    return chunks;
   }
 
   // ---------- core speech call ----------
@@ -572,22 +591,35 @@
 
     generateBtn.disabled = true;
     generateLabel.textContent = 'Generating...';
-    statusLine.textContent = 'Generating speech… this can take up to 30–45s for longer text.';
 
     try {
       const rate = fmtSigned(speedEl.value, '%');
       const pitch = fmtSigned(pitchEl.value, 'Hz');
       const text = textEl.value.trim();
+      const chunks = splitIntoChunks(text, CHUNK_SIZE);
 
-      const blob = await requestSpeech(text, voiceEl.value, rate, pitch);
+      const blobs = [];
+      for (let i = 0; i < chunks.length; i++) {
+        if (chunks.length > 1) {
+          statusLine.textContent = `Generating part ${i + 1} of ${chunks.length}…`;
+        } else {
+          statusLine.textContent = 'Generating speech…';
+        }
+        const blob = await requestSpeech(chunks[i], voiceEl.value, rate, pitch);
+        blobs.push(blob);
+      }
+
+      const finalBlob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
       if (lastUrl) URL.revokeObjectURL(lastUrl);
-      lastUrl = URL.createObjectURL(blob);
+      lastUrl = URL.createObjectURL(finalBlob);
 
       audioEl.src = lastUrl;
       downloadBtn.href = lastUrl;
       audioResult.classList.remove('hidden');
       resetPlayerUI();
-      statusLine.textContent = 'Done.';
+      statusLine.textContent = chunks.length > 1
+        ? `Done — generated in ${chunks.length} parts and combined.`
+        : 'Done.';
 
       const voiceLabel = voiceEl.options[voiceEl.selectedIndex]?.textContent || voiceEl.value;
       addToHistory({

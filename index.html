@@ -584,6 +584,28 @@
     return res.blob();
   }
 
+  // Generate multiple chunks in parallel (limited concurrency) instead of
+  // one-at-a-time — this is what makes long scripts fast, matching sites
+  // like TalkTTS which also fan requests out concurrently.
+  async function generateChunksParallel(chunks, voice, rate, pitch, concurrency, onProgress) {
+    const results = new Array(chunks.length);
+    let nextIndex = 0;
+    let completed = 0;
+
+    async function worker() {
+      while (nextIndex < chunks.length) {
+        const i = nextIndex++;
+        results[i] = await requestSpeech(chunks[i], voice, rate, pitch);
+        completed++;
+        onProgress(completed, chunks.length);
+      }
+    }
+
+    const workerCount = Math.min(concurrency, chunks.length);
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+    return results;
+  }
+
   // ---------- generate ----------
   async function generate() {
     const validationError = validateInputs(textEl.value);
@@ -597,16 +619,17 @@
       const pitch = fmtSigned(pitchEl.value, 'Hz');
       const text = textEl.value.trim();
       const chunks = splitIntoChunks(text, CHUNK_SIZE);
+      const CONCURRENCY = 6; // how many chunks generate at the same time
 
-      const blobs = [];
-      for (let i = 0; i < chunks.length; i++) {
-        if (chunks.length > 1) {
-          statusLine.textContent = `Generating part ${i + 1} of ${chunks.length}…`;
-        } else {
-          statusLine.textContent = 'Generating speech…';
-        }
-        const blob = await requestSpeech(chunks[i], voiceEl.value, rate, pitch);
-        blobs.push(blob);
+      let blobs;
+      if (chunks.length === 1) {
+        statusLine.textContent = 'Generating speech…';
+        blobs = [await requestSpeech(chunks[0], voiceEl.value, rate, pitch)];
+      } else {
+        blobs = await generateChunksParallel(
+          chunks, voiceEl.value, rate, pitch, CONCURRENCY,
+          (done, total) => { statusLine.textContent = `Generating… ${done} of ${total} parts done.`; }
+        );
       }
 
       const finalBlob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });

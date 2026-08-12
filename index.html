@@ -56,22 +56,6 @@
   ::-webkit-scrollbar-thumb{ background:#d8d6ef; border-radius:8px; }
   input[type=range]{ accent-color:#6366F1; }
 
-  @media (pointer: fine){ * { cursor: none !important; } }
-
-  /* ---------- custom 3D cursor ---------- */
-  #cursorDot, #cursorRing{
-    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
-    border-radius:9999px; transform:translate(-50%,-50%);
-  }
-  #cursorDot{ width:8px; height:8px; background:#6366F1; }
-  #cursorRing{
-    width:34px; height:34px; border:2px solid rgba(99,102,241,0.5);
-    transition: width .18s ease, height .18s ease, border-color .18s ease, background .18s ease;
-  }
-  #cursorRing.hovering{
-    width:54px; height:54px; background: rgba(99,102,241,0.08); border-color:#A855F7;
-  }
-
   /* ---------- 3D intro splash ---------- */
   #introScreen{
     position:fixed; inset:0; z-index:10000;
@@ -227,10 +211,7 @@
     <div class="intro-bar"><div class="intro-bar-fill"></div></div>
   </div>
 
-  <!-- custom cursor -->
-  <div id="cursorDot"></div>
-  <div id="cursorRing"></div>
-
+  <!-- appRoot -->
   <div id="appRoot">
 
   <!-- Navbar -->
@@ -416,46 +397,6 @@
       setTimeout(() => { intro.style.display = 'none'; }, 650);
     }, 1700);
   });
-
-  // ---------- custom 3D cursor (works across entire page) ----------
-  if (window.matchMedia('(pointer: fine)').matches) {
-    const dot = document.getElementById('cursorDot');
-    const ring = document.getElementById('cursorRing');
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
-
-    document.addEventListener('mousemove', (e) => {
-      mx = e.clientX; my = e.clientY;
-      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-    }, { passive: true });
-
-    function animateRing() {
-      rx += (mx - rx) * 0.2; ry += (my - ry) * 0.2;
-      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-      requestAnimationFrame(animateRing);
-    }
-    animateRing();
-
-    // Delegated listeners so the cursor reacts even to elements added later
-    document.addEventListener('mouseover', (e) => {
-      if (e.target.closest('button, a, select, input, textarea, [role="button"], .quickfill')) {
-        ring.classList.add('hovering');
-      }
-    }, true);
-    document.addEventListener('mouseout', (e) => {
-      if (e.target.closest('button, a, select, input, textarea, [role="button"], .quickfill')) {
-        ring.classList.remove('hovering');
-      }
-    }, true);
-
-    document.addEventListener('mousedown', () => ring.style.transform = 'translate(-50%,-50%) scale(0.85)');
-    document.addEventListener('mouseup', () => ring.style.transform = 'translate(-50%,-50%) scale(1)');
-
-    document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
-    document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
-  } else {
-    document.getElementById('cursorDot').style.display = 'none';
-    document.getElementById('cursorRing').style.display = 'none';
-  }
 
   const languageEl = document.getElementById('language');
   const voiceEl = document.getElementById('voice');

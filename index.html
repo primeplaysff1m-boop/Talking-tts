@@ -50,21 +50,72 @@
       radial-gradient(circle at 90% 15%, rgba(168,85,247,0.13), transparent 45%),
       radial-gradient(circle at 50% 100%, rgba(6,182,212,0.12), transparent 55%);
     background-attachment: fixed;
+    perspective: 1600px;
   }
   ::-webkit-scrollbar{ width:9px; }
   ::-webkit-scrollbar-thumb{ background:#d8d6ef; border-radius:8px; }
   input[type=range]{ accent-color:#6366F1; }
 
+  @media (pointer: fine){ * { cursor: none !important; } }
+
+  /* ---------- custom 3D cursor ---------- */
+  #cursorDot, #cursorRing{
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    border-radius:9999px; transform:translate(-50%,-50%);
+  }
+  #cursorDot{ width:8px; height:8px; background:#6366F1; }
+  #cursorRing{
+    width:34px; height:34px; border:2px solid rgba(99,102,241,0.5);
+    transition: width .18s ease, height .18s ease, border-color .18s ease, background .18s ease;
+  }
+  #cursorRing.hovering{
+    width:54px; height:54px; background: rgba(99,102,241,0.08); border-color:#A855F7;
+  }
+
+  /* ---------- 3D intro splash ---------- */
+  #introScreen{
+    position:fixed; inset:0; z-index:10000;
+    background: linear-gradient(135deg,#6366F1,#A855F7 55%,#06B6D4);
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  #introScreen.hide{ opacity:0; transform: scale(1.08); pointer-events:none; }
+
+  .intro-cube-wrap{ perspective:600px; margin-bottom:28px; }
+  .intro-cube{
+    width:64px; height:64px; position:relative; transform-style:preserve-3d;
+    animation: cubeSpin 1.6s linear infinite;
+  }
+  .intro-cube .face{
+    position:absolute; width:64px; height:64px; background:rgba(255,255,255,0.18);
+    border:2px solid rgba(255,255,255,0.5); border-radius:12px;
+  }
+  .intro-cube .front{ transform: translateZ(32px); }
+  .intro-cube .back{ transform: rotateY(180deg) translateZ(32px); }
+  .intro-cube .right{ transform: rotateY(90deg) translateZ(32px); }
+  .intro-cube .left{ transform: rotateY(-90deg) translateZ(32px); }
+  .intro-cube .top{ transform: rotateX(90deg) translateZ(32px); }
+  .intro-cube .bottom{ transform: rotateX(-90deg) translateZ(32px); }
+  @keyframes cubeSpin{
+    0%{ transform: rotateX(0deg) rotateY(0deg); }
+    100%{ transform: rotateX(360deg) rotateY(360deg); }
+  }
+  .intro-bar{ width:180px; height:4px; border-radius:4px; background:rgba(255,255,255,0.25); overflow:hidden; margin-top:22px; }
+  .intro-bar-fill{ height:100%; width:0%; background:#fff; border-radius:4px; animation: introFill 1.7s ease forwards; }
+  @keyframes introFill{ to{ width:100%; } }
+
+  /* ---------- main content reveal ---------- */
+  #appRoot{ opacity:0; transform: translateY(24px) scale(0.98); }
+  #appRoot.revealed{ opacity:1; transform: translateY(0) scale(1); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+
   .card-elev{
-    background:#fff;
-    border:1px solid #E9E8F5;
-    border-radius:28px;
+    background:#fff; border:1px solid #E9E8F5; border-radius:28px;
     box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 20px 45px -12px rgba(99,102,241,0.18), 0 4px 12px rgba(30,27,58,0.04);
+    transform-style: preserve-3d; will-change: transform;
+    transition: transform .15s ease-out;
   }
   .card-soft{
-    background:#fff;
-    border:1px solid #E9E8F5;
-    border-radius:22px;
+    background:#fff; border:1px solid #E9E8F5; border-radius:22px;
     box-shadow: 0 14px 32px -12px rgba(99,102,241,0.16), 0 2px 8px rgba(30,27,58,0.04);
   }
 
@@ -72,9 +123,10 @@
     background: linear-gradient(135deg, #6366F1, #A855F7);
     box-shadow: 0 10px 24px -6px rgba(99,102,241,0.55);
     transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    transform-style: preserve-3d;
   }
-  .btn-primary:hover:not(:disabled){ transform: translateY(-2px); box-shadow: 0 16px 32px -6px rgba(99,102,241,0.6); filter: brightness(1.04); }
-  .btn-primary:active:not(:disabled){ transform: translateY(0); box-shadow: 0 6px 16px -6px rgba(99,102,241,0.5); }
+  .btn-primary:hover:not(:disabled){ transform: translateY(-2px) rotateX(4deg); box-shadow: 0 18px 34px -6px rgba(99,102,241,0.6); filter: brightness(1.04); }
+  .btn-primary:active:not(:disabled){ transform: translateY(0) rotateX(0deg); box-shadow: 0 6px 16px -6px rgba(99,102,241,0.5); }
   .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
 
   .fab-soft{
@@ -107,10 +159,7 @@
     box-shadow: 0 4px 12px -4px rgba(30,27,58,0.1);
   }
 
-  .icon-badge{
-    width:32px; height:32px; border-radius:11px;
-    display:flex; align-items:center; justify-content:center;
-  }
+  .icon-badge{ width:32px; height:32px; border-radius:11px; display:flex; align-items:center; justify-content:center; }
 
   .logo-mark{
     width:38px; height:38px; border-radius:12px;
@@ -125,7 +174,7 @@
     display:flex; align-items:center; justify-content:center;
     animation: floatSlow 5s ease-in-out infinite;
   }
-  @keyframes floatSlow{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
+  @keyframes floatSlow{ 0%,100%{ transform:translateY(0) rotateY(0deg);} 50%{ transform:translateY(-10px) rotateY(8deg);} }
 
   .bar-eq{ display:flex; align-items:center; gap:3px; height:18px; }
   .bar-eq span{ width:4px; background:#fff; border-radius:2px; animation: eqBounce 1.1s ease-in-out infinite; }
@@ -156,9 +205,33 @@
     background: linear-gradient(135deg, #6366F1, #A855F7 55%, #06B6D4);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
+
+  #waveCanvas{ width:100%; height:44px; display:block; border-radius:10px; }
 </style>
 </head>
 <body class="text-ink font-sans min-h-screen flex flex-col relative">
+
+  <!-- 3D Intro -->
+  <div id="introScreen">
+    <div class="intro-cube-wrap">
+      <div class="intro-cube">
+        <div class="face front"></div>
+        <div class="face back"></div>
+        <div class="face right"></div>
+        <div class="face left"></div>
+        <div class="face top"></div>
+        <div class="face bottom"></div>
+      </div>
+    </div>
+    <p class="text-white font-serif font-bold text-xl tracking-tight">Vocalis</p>
+    <div class="intro-bar"><div class="intro-bar-fill"></div></div>
+  </div>
+
+  <!-- custom cursor -->
+  <div id="cursorDot"></div>
+  <div id="cursorRing"></div>
+
+  <div id="appRoot">
 
   <!-- Navbar -->
   <nav class="relative z-20 w-full">
@@ -193,7 +266,6 @@
 
     <section id="mainCard" class="card-elev p-6 sm:p-9 space-y-7 fade-up" style="animation-delay:.08s;">
 
-      <!-- Language -->
       <div>
         <label for="language" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
           <span class="icon-badge" style="background:#EEF2FF;"><i data-lucide="globe" class="w-4 h-4 text-indigo"></i></span>
@@ -204,7 +276,6 @@
         </select>
       </div>
 
-      <!-- Voice -->
       <div>
         <label for="voice" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
           <span class="icon-badge" style="background:#FAF5FF;"><i data-lucide="mic" class="w-4 h-4 text-violet"></i></span>
@@ -221,7 +292,6 @@
         </div>
       </div>
 
-      <!-- Text -->
       <div>
         <div class="flex items-center justify-between mb-2.5">
           <label for="text" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted">
@@ -237,9 +307,13 @@
         <textarea id="text" rows="6"
           class="field-soft w-full rounded-xl px-4 py-3.5 text-[15px] text-ink resize-y placeholder:text-muted/60"
           placeholder="Enter your text here..."></textarea>
+        <div class="flex flex-wrap gap-2 mt-2.5">
+          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Kindness is a language the deaf can hear and the blind can see.">✨ Quote</button>
+          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Welcome! Thank you for calling. Please hold while we connect you to the next available representative.">📞 Voicemail</button>
+          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Breaking news: scientists have made a remarkable discovery that could change how we understand the universe.">📰 News</button>
+        </div>
       </div>
 
-      <!-- Speed + Pitch -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
           <div class="flex items-center justify-between mb-2.5">
@@ -257,7 +331,6 @@
         </div>
       </div>
 
-      <!-- Generate button -->
       <button id="generateBtn" disabled
         class="btn-primary w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] rounded-xl py-4">
         <i data-lucide="play" class="w-4 h-4"></i>
@@ -267,8 +340,9 @@
       <p id="statusLine" class="text-xs text-muted text-center -mt-3 font-medium">Connecting to voice server…</p>
     </section>
 
-    <!-- Audio result -->
+    <!-- Audio result with live waveform -->
     <section id="audioResult" class="hidden mt-6 card-soft p-5 sm:p-6 fade-up">
+      <canvas id="waveCanvas" class="mb-3"></canvas>
       <div class="flex items-center gap-4">
         <button id="playBtn" class="fab-grad shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white">
           <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
@@ -326,10 +400,48 @@
     Made With <span class="text-rose">❤️</span> By ZEESHAN
   </footer>
 
+  </div><!-- /#appRoot -->
+
 <audio id="audioEl" class="hidden"></audio>
 
 <script>
   const API_BASE = "https://talking-tts-38rr.vercel.app"; // backend URL
+
+  // ---------- 3D intro ----------
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const intro = document.getElementById('introScreen');
+      intro.classList.add('hide');
+      document.getElementById('appRoot').classList.add('revealed');
+      setTimeout(() => { intro.style.display = 'none'; }, 650);
+    }, 1700);
+  });
+
+  // ---------- custom 3D cursor ----------
+  if (window.matchMedia('(pointer: fine)').matches) {
+    const dot = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    });
+    function animateRing() {
+      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest('button, a, select, input, textarea')) ring.classList.add('hovering');
+    });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest('button, a, select, input, textarea')) ring.classList.remove('hovering');
+    });
+  } else {
+    document.getElementById('cursorDot').style.display = 'none';
+    document.getElementById('cursorRing').style.display = 'none';
+  }
 
   const languageEl = document.getElementById('language');
   const voiceEl = document.getElementById('voice');
@@ -353,6 +465,8 @@
   const previewBtn = document.getElementById('previewBtn');
   const copyBtn = document.getElementById('copyBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const waveCanvas = document.getElementById('waveCanvas');
+  const waveCtx = waveCanvas.getContext('2d');
 
   const statCount = document.getElementById('statCount');
   const statChars = document.getElementById('statChars');
@@ -364,8 +478,29 @@
   let allVoices = [];
   let lastUrl = null;
   const MAX_CHARS = 500000;
-  const CHUNK_SIZE = 8000; // internal only — kept under Vercel's time limit per request
+  const CHUNK_SIZE = 8000;
+  const CONCURRENCY = 8;
 
+  // ---------- quick-fill examples ----------
+  document.querySelectorAll('.quickfill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      textEl.value = btn.dataset.text;
+      charcountEl.textContent = textEl.value.length;
+      textEl.focus();
+    });
+  });
+
+  // ---------- 3D tilt on main card ----------
+  const mainCard = document.getElementById('mainCard');
+  mainCard.addEventListener('mousemove', (e) => {
+    const rect = mainCard.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mainCard.style.transform = `rotateY(${x * 2.5}deg) rotateX(${-y * 2.5}deg)`;
+  });
+  mainCard.addEventListener('mouseleave', () => { mainCard.style.transform = 'rotateY(0deg) rotateX(0deg)'; });
+
+  // ---------- history / dashboard ----------
   const HISTORY_KEY = 'vocalis_history_v1';
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -403,6 +538,7 @@
   }
   clearHistoryBtn.addEventListener('click', () => { localStorage.removeItem(HISTORY_KEY); renderDashboard(); });
 
+  // ---------- helpers ----------
   const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
   const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
   function friendlyLocale(locale) {
@@ -486,7 +622,6 @@
     return res.blob();
   }
 
-  // Splits long text into safe-sized pieces at sentence boundaries.
   function splitIntoChunks(text, maxLen) {
     if (text.length <= maxLen) return [text];
     const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
@@ -504,8 +639,6 @@
     return chunks;
   }
 
-  // Generates chunks with limited concurrency for speed. Caller sees no
-  // per-chunk detail — just an overall in-progress state.
   async function generateChunksParallel(chunks, voice, rate, pitch, concurrency) {
     const results = new Array(chunks.length);
     let nextIndex = 0;
@@ -536,7 +669,7 @@
 
       const blobs = chunks.length === 1
         ? [await requestSpeech(chunks[0], voiceEl.value, rate, pitch)]
-        : await generateChunksParallel(chunks, voiceEl.value, rate, pitch, 6);
+        : await generateChunksParallel(chunks, voiceEl.value, rate, pitch, CONCURRENCY);
 
       const blob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
       if (lastUrl) URL.revokeObjectURL(lastUrl);
@@ -581,12 +714,74 @@
     }
   });
 
+  // ---------- audio player + live waveform ----------
+  let audioCtx, analyser, sourceNode, waveDataArray, waveRAF;
+
   function resetPlayerUI() {
     playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons();
     progressEl.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
+    setupWaveform();
   }
-  playBtn.addEventListener('click', () => { audioEl.paused ? audioEl.play() : audioEl.pause(); });
-  audioEl.addEventListener('play', () => { playIcon.setAttribute('data-lucide', 'pause'); lucide.createIcons(); });
+
+  function setupWaveform() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sourceNode = audioCtx.createMediaElementSource(audioEl);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      sourceNode.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      waveDataArray = new Uint8Array(analyser.frequencyBinCount);
+    }
+    waveCanvas.width = waveCanvas.clientWidth * devicePixelRatio;
+    waveCanvas.height = waveCanvas.clientHeight * devicePixelRatio;
+  }
+
+  function drawWaveIdle() {
+    const w = waveCanvas.width, h = waveCanvas.height;
+    waveCtx.clearRect(0, 0, w, h);
+    const bars = 40;
+    for (let i = 0; i < bars; i++) {
+      const bw = w / bars;
+      const bh = h * 0.08;
+      const grad = waveCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#6366F1'); grad.addColorStop(1, '#A855F7');
+      waveCtx.fillStyle = grad;
+      waveCtx.fillRect(i * bw + bw * 0.2, h / 2 - bh / 2, bw * 0.6, bh);
+    }
+  }
+
+  function drawWaveLive() {
+    analyser.getByteFrequencyData(waveDataArray);
+    const w = waveCanvas.width, h = waveCanvas.height;
+    waveCtx.clearRect(0, 0, w, h);
+    const bars = 40;
+    const step = Math.floor(waveDataArray.length / bars);
+    for (let i = 0; i < bars; i++) {
+      const val = waveDataArray[i * step] / 255;
+      const bw = w / bars;
+      const bh = Math.max(h * 0.08, val * h);
+      const grad = waveCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#6366F1'); grad.addColorStop(1, '#06B6D4');
+      waveCtx.fillStyle = grad;
+      waveCtx.fillRect(i * bw + bw * 0.2, h - bh, bw * 0.6, bh);
+    }
+    if (!audioEl.paused && !audioEl.ended) {
+      waveRAF = requestAnimationFrame(drawWaveLive);
+    } else {
+      cancelAnimationFrame(waveRAF);
+      drawWaveIdle();
+    }
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    audioEl.paused ? audioEl.play() : audioEl.pause();
+  });
+  audioEl.addEventListener('play', () => {
+    playIcon.setAttribute('data-lucide', 'pause'); lucide.createIcons();
+    drawWaveLive();
+  });
   audioEl.addEventListener('pause', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
   audioEl.addEventListener('ended', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
   audioEl.addEventListener('loadedmetadata', () => { durationEl.textContent = formatTime(audioEl.duration); });
@@ -598,9 +793,15 @@
   });
   progressEl.addEventListener('input', () => { if (audioEl.duration) audioEl.currentTime = (progressEl.value / 100) * audioEl.duration; });
 
+  // ---------- keyboard shortcut ----------
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { generate(); }
+  });
+
   lucide.createIcons();
   loadVoices();
   renderDashboard();
+  window.addEventListener('resize', () => { if (audioCtx) setupWaveform(); });
 </script>
 
 </body>

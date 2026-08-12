@@ -417,27 +417,41 @@
     }, 1700);
   });
 
-  // ---------- custom 3D cursor ----------
+  // ---------- custom 3D cursor (works across entire page) ----------
   if (window.matchMedia('(pointer: fine)').matches) {
     const dot = document.getElementById('cursorDot');
     const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    window.addEventListener('mousemove', (e) => {
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2, rx = mx, ry = my;
+
+    document.addEventListener('mousemove', (e) => {
       mx = e.clientX; my = e.clientY;
       dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-    });
+    }, { passive: true });
+
     function animateRing() {
-      rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+      rx += (mx - rx) * 0.2; ry += (my - ry) * 0.2;
       ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
       requestAnimationFrame(animateRing);
     }
     animateRing();
+
+    // Delegated listeners so the cursor reacts even to elements added later
     document.addEventListener('mouseover', (e) => {
-      if (e.target.closest('button, a, select, input, textarea')) ring.classList.add('hovering');
-    });
+      if (e.target.closest('button, a, select, input, textarea, [role="button"], .quickfill')) {
+        ring.classList.add('hovering');
+      }
+    }, true);
     document.addEventListener('mouseout', (e) => {
-      if (e.target.closest('button, a, select, input, textarea')) ring.classList.remove('hovering');
-    });
+      if (e.target.closest('button, a, select, input, textarea, [role="button"], .quickfill')) {
+        ring.classList.remove('hovering');
+      }
+    }, true);
+
+    document.addEventListener('mousedown', () => ring.style.transform = 'translate(-50%,-50%) scale(0.85)');
+    document.addEventListener('mouseup', () => ring.style.transform = 'translate(-50%,-50%) scale(1)');
+
+    document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
+    document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
   } else {
     document.getElementById('cursorDot').style.display = 'none';
     document.getElementById('cursorRing').style.display = 'none';
@@ -478,8 +492,8 @@
   let allVoices = [];
   let lastUrl = null;
   const MAX_CHARS = 500000;
-  const CHUNK_SIZE = 8000;
-  const CONCURRENCY = 8;
+  const CHUNK_SIZE = 4000;
+  const CONCURRENCY = 12;
 
   // ---------- quick-fill examples ----------
   document.querySelectorAll('.quickfill').forEach(btn => {

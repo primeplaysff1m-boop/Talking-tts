@@ -669,27 +669,15 @@
     }
   });
 
-  // ---------- audio player + live waveform ----------
-  let audioCtx, analyser, sourceNode, waveDataArray, waveRAF;
+  // ---------- audio player + decorative waveform (no audio routing — playback stays direct/reliable) ----------
+  let waveAnimRAF;
 
   function resetPlayerUI() {
     playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons();
     progressEl.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
-    setupWaveform();
-  }
-
-  function setupWaveform() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      sourceNode = audioCtx.createMediaElementSource(audioEl);
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
-      sourceNode.connect(analyser);
-      analyser.connect(audioCtx.destination);
-      waveDataArray = new Uint8Array(analyser.frequencyBinCount);
-    }
     waveCanvas.width = waveCanvas.clientWidth * devicePixelRatio;
     waveCanvas.height = waveCanvas.clientHeight * devicePixelRatio;
+    drawWaveIdle();
   }
 
   function drawWaveIdle() {
@@ -706,36 +694,36 @@
     }
   }
 
-  function drawWaveLive() {
-    analyser.getByteFrequencyData(waveDataArray);
+  // Purely visual — driven by playback progress, not routed through Web Audio,
+  // so it can never interfere with actual audio output.
+  function drawWaveAnimated() {
     const w = waveCanvas.width, h = waveCanvas.height;
     waveCtx.clearRect(0, 0, w, h);
     const bars = 40;
-    const step = Math.floor(waveDataArray.length / bars);
+    const progressFrac = audioEl.duration ? audioEl.currentTime / audioEl.duration : 0;
+    const activeBar = Math.floor(progressFrac * bars);
     for (let i = 0; i < bars; i++) {
-      const val = waveDataArray[i * step] / 255;
       const bw = w / bars;
-      const bh = Math.max(h * 0.08, val * h);
+      const distFromActive = Math.abs(i - activeBar);
+      const pulse = Math.max(0.15, 1 - distFromActive / 6) * (0.5 + 0.5 * Math.sin(Date.now() / 120 + i));
+      const bh = Math.max(h * 0.08, h * 0.75 * Math.max(0, pulse));
       const grad = waveCtx.createLinearGradient(0, 0, 0, h);
       grad.addColorStop(0, '#6366F1'); grad.addColorStop(1, '#06B6D4');
       waveCtx.fillStyle = grad;
       waveCtx.fillRect(i * bw + bw * 0.2, h - bh, bw * 0.6, bh);
     }
     if (!audioEl.paused && !audioEl.ended) {
-      waveRAF = requestAnimationFrame(drawWaveLive);
+      waveAnimRAF = requestAnimationFrame(drawWaveAnimated);
     } else {
-      cancelAnimationFrame(waveRAF);
+      cancelAnimationFrame(waveAnimRAF);
       drawWaveIdle();
     }
   }
 
-  playBtn.addEventListener('click', () => {
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    audioEl.paused ? audioEl.play() : audioEl.pause();
-  });
+  playBtn.addEventListener('click', () => { audioEl.paused ? audioEl.play() : audioEl.pause(); });
   audioEl.addEventListener('play', () => {
     playIcon.setAttribute('data-lucide', 'pause'); lucide.createIcons();
-    drawWaveLive();
+    drawWaveAnimated();
   });
   audioEl.addEventListener('pause', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
   audioEl.addEventListener('ended', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
@@ -756,7 +744,10 @@
   lucide.createIcons();
   loadVoices();
   renderDashboard();
-  window.addEventListener('resize', () => { if (audioCtx) setupWaveform(); });
+  window.addEventListener('resize', () => {
+    waveCanvas.width = waveCanvas.clientWidth * devicePixelRatio;
+    waveCanvas.height = waveCanvas.clientHeight * devicePixelRatio;
+  });
 </script>
 
 </body>

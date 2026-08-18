@@ -1,78 +1,57 @@
-# VoxReel + credit system
+# Vocalis — Script to Video upgrade
 
-This package upgrades your existing Vocalis backend and adds VoxReel
-(script-to-narrated-video) with a **free daily credit system per device**
-— no login required.
+This replaces two files in your existing repo to add a **Script to Video**
+tab directly into your live site (`talking-tts.vercel.app`), right next
+to the existing Dashboard tab — same design, same site, one deployment.
 
-- Voice-only generation: **1 credit**
-- Video generation: **5 credits** (heavier — narration + scene analysis)
-- Every device gets **30 free credits**, resetting at midnight (UTC)
+Your original Text-to-Speech box is **untouched and still unlimited** —
+credits only apply to the new Script to Video tab (video generation is
+heavier, so it gets a free daily limit instead of being unlimited).
 
-If you skip the Supabase setup below, everything still works exactly as
-before — credits just won't be enforced (unlimited, like today).
+## What changed
 
-## 1. Replace files in your existing repo
+- `frontend/index.html` — added a "Script to Video" nav link + a new
+  section with script input, real-voice narration, synced captions,
+  optional AI scene detection, and animated background templates.
+- `backend/main.py` — added an optional daily credit system. It only
+  activates for requests that send an `X-Device-Id` header (the new
+  video tab does this). Your original TTS box doesn't send that header,
+  so it keeps working exactly as before — unlimited.
+- `backend/requirements.txt` — added the `supabase` package.
+- `backend/credits_schema.sql` — new, run once in Supabase.
 
-```
-your-repo/
-├── backend/
-│   ├── main.py              <- replace with the one in this package
-│   ├── requirements.txt      <- replace (adds the supabase package)
-│   └── credits_schema.sql    <- add this new file
-└── voxreel/                  <- add this whole new folder
-    └── index.html
-```
+## 1. Replace files in your GitHub repo (browser, no coding needed)
 
-Your existing `backend/Dockerfile`, `backend/vercel.json`, and the
-original `frontend/` folder don't need to change.
+In your repo:
+- Open `frontend/index.html` → pencil (edit) icon → select all, delete,
+  paste in the new version → Commit changes.
+- Same for `backend/main.py` and `backend/requirements.txt`.
+- Add `backend/credits_schema.sql` as a new file.
 
-## 2. Create a free Supabase project (5 minutes)
+Vercel will redeploy automatically after each commit (both your existing
+backend and frontend Vercel projects, since you're only editing files
+already inside them — no new project needed this time).
 
-1. Go to supabase.com → sign up free → "New project"
-2. Once it's ready, open **SQL Editor** → paste the contents of
-   `backend/credits_schema.sql` → Run
-3. Go to **Project Settings → API** and copy:
-   - `Project URL`
-   - `service_role` secret key (NOT the `anon` key — this one must stay
-     secret, so it only ever goes in your backend's environment variables,
-     never in frontend code)
+## 2. Turn on credits (optional, 5 minutes)
 
-## 3. Add environment variables in Vercel
+Skip this and everything still works — the video tab just won't be
+credit-limited yet (unlimited, like today).
 
-On your backend's Vercel project → **Settings → Environment Variables**:
+1. supabase.com → sign up free → New project
+2. SQL Editor → paste `backend/credits_schema.sql` → Run
+3. Project Settings → API → copy the Project URL and the `service_role`
+   secret key (never the `anon` key — this one is secret)
+4. In Vercel, your **backend** project → Settings → Environment Variables:
+   - `SUPABASE_URL` = the Project URL
+   - `SUPABASE_SERVICE_KEY` = the service_role key
+5. Redeploy the backend
 
-| Name | Value |
-|---|---|
-| `SUPABASE_URL` | the Project URL from step 2 |
-| `SUPABASE_SERVICE_KEY` | the service_role secret key from step 2 |
-
-Redeploy the backend after adding these.
-
-## 4. Deploy VoxReel
-
-Deploy the `voxreel/` folder as its own static site (new Vercel project
-with Root Directory: `voxreel`, or GitHub Pages, or Netlify — no build
-step needed). It already points at your live backend
-(`https://talking-tts-38rr.vercel.app`).
-
-## How it works
-
-- The browser generates a random device id on first visit and stores it
-  in `localStorage` — no account needed.
-- Every request to `/speak` sends that id in an `X-Device-Id` header.
-- The backend checks/deducts credits in Supabase before generating audio,
-  and returns the remaining balance in an `X-Credits-Remaining` header.
-- VoxReel shows the live balance next to the server status, and disables
-  the Generate button once credits hit 0 for the day.
-
-## Adjusting the numbers
+## Adjusting the limits
 
 In `backend/main.py`:
 
 ```python
-DAILY_FREE_CREDITS = 30
-COST_AUDIO = 1
-COST_VIDEO = 5
+DAILY_FREE_CREDITS = 30   # per device, per day
+COST_AUDIO = 1             # not used by the main unlimited box
+COST_VIDEO = 5             # per video generated in the new tab
 ```
-
-Change these and redeploy the backend any time.

@@ -195,11 +195,15 @@ async def speak(
         raise HTTPException(status_code=400, detail="Text is required")
     if len(text) > 100000:
         raise HTTPException(status_code=400, detail="Text too long (max 100,000 characters)")
-    if not x_device_id:
-        raise HTTPException(status_code=400, detail="X-Device-Id header is required")
 
-    cost = COST_VIDEO if x_usage_type == "video" else COST_AUDIO
-    remaining = _check_and_deduct_credits(x_device_id, cost)
+    # Credits are only enforced when a caller sends X-Device-Id (the new
+    # Script to Video tab does this). Calls without it — like the original
+    # unlimited text-to-speech box — are never rate-limited, so nothing
+    # about the existing site changes.
+    remaining = -1
+    if x_device_id:
+        cost = COST_VIDEO if x_usage_type == "video" else COST_AUDIO
+        remaining = _check_and_deduct_credits(x_device_id, cost)
 
     async def _synthesize() -> bytes:
         t0 = time.perf_counter()
@@ -229,11 +233,12 @@ async def speak(
     if not audio_bytes:
         raise HTTPException(status_code=502, detail="No audio was generated. Try again.")
 
+    headers = {"Content-Disposition": "inline; filename=speech.mp3"}
+    if remaining >= 0:
+        headers["X-Credits-Remaining"] = str(remaining)
+
     return Response(
         content=audio_bytes,
         media_type="audio/mpeg",
-        headers={
-            "Content-Disposition": "inline; filename=speech.mp3",
-            "X-Credits-Remaining": str(remaining),
-        },
+        headers=headers,
     )

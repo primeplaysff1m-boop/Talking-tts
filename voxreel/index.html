@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voxreel — script to narrated video</title>
+<meta name="description" content="Turn a script into a narrated video preview with real voices, synced captions and AI scene detection.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23120f0b'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%23e8a545' stroke-width='6'/%3E%3Ccircle cx='50' cy='50' r='7' fill='%23e8a545'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#120f0b;
+    --panel:#1b1610;
+    --panel-2:#221b13;
+    --gold:#e8a545;
+    --gold-soft:#f0c179;
+    --gold-dim:#8a662b;
+    --red:#c1443c;
+    --text:#f5ecd9;
+    --text-muted:#a89c88;
+    --border:#382d21;
+    --border-soft:#2a2117;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:radial-gradient(ellipse at top, rgba(232,165,69,0.06), transparent 60%);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 18px 70px;opacity:0;transform:translateY(10px);animation:pageIn .6s ease forwards;}
+  @keyframes pageIn{to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .wrap{animation:none;opacity:1;transform:none;}
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important;}
+  }
+
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:10px;position:relative;flex-shrink:0;
+    background:radial-gradient(circle at 35% 30%, var(--gold-soft), var(--gold) 60%, var(--gold-dim));
+  }
+  .brand-mark::after{
+    content:'';position:absolute;inset:9px;border-radius:50%;border:2px solid var(--bg);
+  }
+  .brand h1{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:0.5px;margin:0;color:var(--gold-soft);line-height:1;}
+  .brand .tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
+  .status-pill{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.5px;color:var(--text-muted);
+    border:1px solid var(--border);border-radius:20px;padding:6px 14px;display:flex;align-items:center;gap:7px;
+  }
+  .status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--text-muted);transition:background .3s ease;}
+  .status-pill.ready .dot{background:#5fbf7c;}
+  .status-pill.error .dot{background:var(--red);}
+
+  .subhead{color:var(--text-muted);font-size:14.5px;margin:14px 0 26px;max-width:640px;line-height:1.6;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:22px;border-bottom:1px solid var(--border-soft);}
+  .tab{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    padding:11px 4px;margin-right:22px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text-muted);cursor:pointer;
+    transition:color .2s ease, border-color .2s ease;
+  }
+  .tab.active{color:var(--gold-soft);border-color:var(--gold);}
+  .tab:not(.active):hover{color:var(--text);}
+
+  .grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:22px;align-items:start;}
+  @media (max-width:860px){.grid{grid-template-columns:1fr;}}
+
+  .panel{
+    background:var(--panel);border:1px solid var(--border-soft);border-radius:10px;padding:22px;
+    transition:border-color .25s ease;
+  }
+  .field{margin-bottom:18px;}
+  .field label{
+    display:flex;align-items:center;justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;
+  }
+  textarea, select, input[type=password], input[type=text]{
+    width:100%;background:var(--panel-2);border:1px solid var(--border);color:var(--text);
+    font-family:'Inter',sans-serif;font-size:14px;padding:11px 12px;border-radius:var(--radius);
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  textarea{min-height:150px;resize:vertical;line-height:1.55;}
+  textarea:focus, select:focus, input:focus{
+    outline:none;border-color:var(--gold-dim);box-shadow:0 0 0 3px rgba(232,165,69,0.12);
+  }
+  select{cursor:pointer;}
+  .rate-row{display:flex;align-items:center;gap:10px;}
+  input[type=range]{flex:1;accent-color:var(--gold);}
+  .rate-val{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);min-width:38px;text-align:right;}
+
+  .controls{display:flex;gap:10px;margin-top:6px;}
+  button{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;
+    padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text);
+    cursor:pointer;flex:1;transition:transform .12s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+  }
+  button.primary{background:var(--gold);border-color:var(--gold);color:#1c1610;font-weight:600;}
+  button.primary:hover:not(:disabled){background:var(--gold-soft);}
+  button:not(.primary):hover:not(:disabled){border-color:var(--gold-dim);}
+  button:active:not(:disabled){transform:scale(0.97);}
+  button:disabled{opacity:.35;cursor:not-allowed;}
+
+  .error{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--red);margin-top:10px;
+    display:none;padding:10px 12px;background:rgba(193,68,60,0.08);border:1px solid rgba(193,68,60,0.3);border-radius:var(--radius);
+    animation:shakeIn .3s ease;
+  }
+  @keyframes shakeIn{0%{opacity:0;transform:translateY(-4px);}100%{opacity:1;transform:translateY(0);}}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .switch{position:relative;width:38px;height:22px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .switch-track{
+    position:absolute;inset:0;background:var(--panel-2);border:1px solid var(--border);border-radius:20px;transition:background .2s ease;
+  }
+  .switch-thumb{
+    position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-muted);
+    transition:transform .2s ease, background .2s ease;
+  }
+  .switch input:checked + .switch-track{background:rgba(232,165,69,0.18);border-color:var(--gold-dim);}
+  .switch input:checked + .switch-track .switch-thumb{transform:translateX(16px);background:var(--gold);}
+  .ai-key-wrap{margin-top:10px;}
+  .hint{font-size:11.5px;color:var(--text-muted);margin-top:7px;line-height:1.5;}
+  .hint b{color:var(--gold);}
+
+  .stage-panel{display:flex;flex-direction:column;}
+  .reel{display:flex;justify-content:space-between;padding:0 4px;overflow:hidden;}
+  .reel div{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s ease;}
+  .reel.spinning div{animation:holeGlow 1.2s ease-in-out infinite;}
+  .reel div:nth-child(2n){animation-delay:.15s;}
+  @keyframes holeGlow{0%,100%{background:var(--border);}50%{background:var(--gold-dim);}}
+
+  .screen{
+    position:relative;aspect-ratio:16/9;margin:10px 0;border-radius:8px;overflow:hidden;background:#0a0806;
+    display:flex;align-items:flex-end;justify-content:center;border:1px solid var(--border-soft);
+  }
+  .bg{position:absolute;inset:0;transition:background 1.4s ease;background-size:200% 200%;}
+  .bg.ocean{background:linear-gradient(160deg,#0d3b4f,#1c6e7d,#0a2a38);}
+  .bg.sunset{background:linear-gradient(160deg,#7a2e1f,#c1443c,#e8a545);}
+  .bg.forest{background:linear-gradient(160deg,#1a2e17,#355e2a,#0e1c0c);}
+  .bg.night{background:linear-gradient(160deg,#0c0c1a,#26264a,#0a0a14);}
+  .bg.animate{animation:bgShift 12s ease-in-out infinite;}
+  @keyframes bgShift{0%,100%{background-position:0% 0%;}50%{background-position:100% 100%;}}
+  .pulse{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(255,255,255,0.10), transparent 60%);opacity:0;}
+  .pulse.active{animation:pulseAnim 1.4s ease-in-out infinite;}
+  @keyframes pulseAnim{0%,100%{opacity:0;}50%{opacity:1;}}
+  .caption-wrap{position:relative;z-index:2;width:100%;padding:20px 22px 26px;text-align:center;background:linear-gradient(to top, rgba(0,0,0,0.6), transparent);}
+  .caption{font-family:'IBM Plex Mono',monospace;font-size:clamp(13px,2.1vw,19px);line-height:1.5;color:#fff;}
+  .caption .current{color:var(--gold-soft);font-weight:600;}
+  .placeholder-caption{color:rgba(255,255,255,0.35);font-size:12.5px;}
+
+  .meta-row{display:flex;justify-content:space-between;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.5px;margin-top:6px;flex-wrap:wrap;gap:6px;}
+  .rec-dot{width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;margin-right:6px;}
+  .rec-dot.live{background:var(--red);animation:blink 1s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+  .scene-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;min-height:0;}
+  .scene-tag{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;
+    padding:4px 10px;border-radius:20px;border:1px solid var(--gold-dim);color:var(--gold-soft);
+    animation:tagIn .25s ease both;
+  }
+  @keyframes tagIn{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+
+  .note{margin-top:18px;padding:13px 15px;background:var(--panel-2);border:1px solid var(--border-soft);border-radius:var(--radius);font-size:12.5px;color:var(--text-muted);line-height:1.6;}
+  .note b{color:var(--gold);}
+
+  .voice-panel-content{display:flex;flex-direction:column;height:100%;}
+  .audio-card{background:var(--panel-2);border:1px solid var(--border-soft);border-radius:8px;padding:30px 24px;text-align:center;}
+  .disc{
+    width:100px;height:100px;border-radius:50%;margin:0 auto 20px;
+    background:conic-gradient(var(--gold) 0deg, var(--panel) 0deg);
+    display:flex;align-items:center;justify-content:center;border:2px solid var(--border);
+    transition:box-shadow .3s ease;
+  }
+  .disc.spin{animation:spin 3s linear infinite;box-shadow:0 0 20px rgba(232,165,69,0.25);}
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .disc-inner{width:36px;height:36px;border-radius:50%;background:var(--panel);}
+  .audio-controls{display:flex;align-items:center;gap:10px;margin-top:18px;}
+  .audio-controls input[type=range]{flex:1;}
+  .time-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);min-width:36px;}
+  .hidden{display:none !important;}
+
+  footer{margin-top:40px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.5px;}
+  footer a{color:var(--gold-dim);text-decoration:none;}
+  footer a:hover{color:var(--gold);}
+
+  @media (max-width:480px){
+    .wrap{padding:20px 14px 50px;}
+    .brand h1{font-size:26px;}
+    .panel{padding:16px;}
+    .controls{flex-direction:column;}
+    .caption{font-size:13px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <h1>Voxreel</h1>
+        <span class="tag">Script to narrated video</span>
+      </div>
+    </div>
+    <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusPillText">Connecting to voice server…</span></div>
+  </header>
+
+  <p class="subhead">Type a script, pick a real voice, and preview a narrated video with synced captions — or export plain narration audio. Free, no signup.</p>
+
+  <div class="tabs">
+    <button class="tab active" id="tabVideo">Video preview</button>
+    <button class="tab" id="tabVoice">Voice only</button>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="field">
+        <label for="script">Script</label>
+        <textarea id="script" placeholder="Paste or type your script here...">The ocean stretched endlessly before her, calm and golden under the setting sun. Every wave carried a quiet promise of tomorrow.</textarea>
+      </div>
+      <div class="field">
+        <label for="voice">Voice</label>
+        <select id="voice"><option>Loading voices…</option></select>
+      </div>
+      <div class="field" id="templateRow">
+        <label for="template">Template <span id="templateHint" style="color:var(--text-muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;">used when AI scenes are off</span></label>
+        <select id="template">
+          <option value="ocean">Ocean calm</option>
+          <option value="sunset">Sunset energy</option>
+          <option value="forest">Forest focus</option>
+          <option value="night">Night pulse</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="rate">Speaking rate</label>
+        <div class="rate-row">
+          <input type="range" id="rate" min="-30" max="30" step="5" value="0">
+          <span class="rate-val" id="rateVal">0%</span>
+        </div>
+      </div>
+      <div class="field" id="aiSceneField">
+        <label class="toggle-row" for="aiSceneToggle" style="text-transform:none;letter-spacing:0;font-size:13px;color:var(--text);">
+          AI scene detection
+          <span class="switch"><input type="checkbox" id="aiSceneToggle"><span class="switch-track"><span class="switch-thumb"></span></span></span>
+        </label>
+        <div id="aiKeyWrap" class="ai-key-wrap hidden">
+          <input type="password" id="qwenKey" placeholder="Paste your tokenrouter.com API key">
+          <div class="hint">Stays in this tab only, never saved. Use a fresh key — never one you've shared elsewhere.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="primary" id="generateBtn">Generate</button>
+        <button id="stopBtn" disabled>Stop</button>
+      </div>
+      <div class="error" id="errorMsg"></div>
+    </div>
+
+    <div class="panel stage-panel" id="videoStage">
+      <div class="reel" id="reelTop"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <div class="screen">
+        <div class="bg ocean" id="bgLayer"></div>
+        <div class="pulse" id="pulseLayer"></div>
+        <div class="caption-wrap">
+          <div class="caption" id="captionText"><span class="placeholder-caption">Captions will appear here, synced to the narration.</span></div>
+        </div>
+      </div>
+      <div class="reel" id="reelBottom"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+      <div class="meta-row">
+        <span><span class="rec-dot" id="recDot"></span><span id="statusText">Idle</span></span>
+        <span id="voiceLabel">—</span>
+      </div>
+      <div class="scene-tags" id="sceneTags"></div>
+      <div class="note">
+        Background is a color template for now, not real footage. Next step: real matching stock clips via a free API — <b>just ask when you're ready for that.</b>
+      </div>
+    </div>
+
+    <div class="panel stage-panel hidden" id="voicePanel">
+      <div class="voice-panel-content">
+        <div class="audio-card">
+          <div class="disc" id="disc"><div class="disc-inner"></div></div>
+          <div id="voiceStatus" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-muted);">No audio generated yet</div>
+          <div class="audio-controls hidden" id="audioControls">
+            <span class="time-label" id="curTime">0:00</span>
+            <input type="range" id="progress" min="0" max="100" value="0">
+            <span class="time-label" id="durTime">0:00</span>
+          </div>
+          <div class="controls" style="margin-top:20px;">
+            <button id="playPauseBtn" class="hidden">Play</button>
+            <a id="downloadBtn" class="hidden" href="#" download="narration.mp3" style="flex:1;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:12px 16px;border-radius:6px;border:1px solid var(--border);color:var(--text);text-decoration:none;transition:border-color .2s ease;">Download MP3</a>
+          </div>
+        </div>
+      </div>
+      <div class="note">Plain narration audio, no captions or background — just the voice, downloadable as MP3.</div>
+    </div>
+  </div>
+
+  <footer>Voxreel · voices via Microsoft Edge Neural TTS</footer>
+</div>
+
+<audio id="audioEl" class="hidden"></audio>
+
+<script>
+  const API_BASE = "https://talking-tts-38rr.vercel.app";
+
+  const scriptEl = document.getElementById('script');
+  const voiceEl = document.getElementById('voice');
+  const templateEl = document.getElementById('template');
+  const templateRow = document.getElementById('templateRow');
+  const rateEl = document.getElementById('rate');
+  const rateVal = document.getElementById('rateVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const bgLayer = document.getElementById('bgLayer');
+  const pulseLayer = document.getElementById('pulseLayer');
+  const captionText = document.getElementById('captionText');
+  const statusText = document.getElementById('statusText');
+  const recDot = document.getElementById('recDot');
+  const voiceLabel = document.getElementById('voiceLabel');
+  const statusPill = document.getElementById('statusPill');
+  const statusPillText = document.getElementById('statusPillText');
+  const tabVideo = document.getElementById('tabVideo');
+  const tabVoice = document.getElementById('tabVoice');
+  const videoStage = document.getElementById('videoStage');
+  const voicePanel = document.getElementById('voicePanel');
+  const voiceStatus = document.getElementById('voiceStatus');
+  const audioControls = document.getElementById('audioControls');
+  const playPauseBtn = document.getElementById('playPauseBtn');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const progressEl = document.getElementById('progress');
+  const curTimeEl = document.getElementById('curTime');
+  const durTimeEl = document.getElementById('durTime');
+  const audioEl = document.getElementById('audioEl');
+  const disc = document.getElementById('disc');
+  const reelTop = document.getElementById('reelTop');
+  const reelBottom = document.getElementById('reelBottom');
+  const aiSceneToggle = document.getElementById('aiSceneToggle');
+  const aiKeyWrap = document.getElementById('aiKeyWrap');
+  const qwenKeyEl = document.getElementById('qwenKey');
+  const sceneTagsEl = document.getElementById('sceneTags');
+
+  let mode = 'video';
+  let apiVoices = [];
+  let voicesReady = false;
+  let words = [];
+  let lastUrl = null;
+  let activeScenes = null;
+
+  function fmtTime(s){
+    if(!isFinite(s)) return '0:00';
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return m + ':' + sec;
+  }
+  function setError(msg){
+    if(msg){ errorMsg.textContent = msg; errorMsg.style.display = 'block'; }
+    else { errorMsg.style.display = 'none'; }
+  }
+  function setStatusPill(state, text){
+    statusPill.className = 'status-pill' + (state ? ' ' + state : '');
+    statusPillText.textContent = text;
+  }
+  function setReels(spinning){
+    reelTop.classList.toggle('spinning', spinning);
+    reelBottom.classList.toggle('spinning', spinning);
+  }
+
+  rateEl.addEventListener('input', () => {
+    const v = parseInt(rateEl.value, 10);
+    rateVal.textContent = (v >= 0 ? '+' : '') + v + '%';
+  });
+
+  // ---------- tabs ----------
+  function switchTab(next){
+    mode = next;
+    tabVideo.classList.toggle('active', next === 'video');
+    tabVoice.classList.toggle('active', next === 'voice');
+    videoStage.classList.toggle('hidden', next !== 'video');
+    voicePanel.classList.toggle('hidden', next !== 'voice');
+    templateRow.style.display = next === 'video' ? 'block' : 'none';
+    document.getElementById('aiSceneField').style.display = next === 'video' ? 'block' : 'none';
+    setError('');
+  }
+  tabVideo.addEventListener('click', () => switchTab('video'));
+  tabVoice.addEventListener('click', () => switchTab('voice'));
+
+  // ---------- real Edge TTS voices only ----------
+  function friendlyName(v){
+    return v.name + ' — ' + v.locale + (v.gender ? ' · ' + v.gender : '');
+  }
+
+  async function loadVoices(){
+    setStatusPill('', 'Connecting to voice server…');
+    try{
+      const res = await fetch(API_BASE + '/voices');
+      if(!res.ok) throw new Error('bad response');
+      const data = await res.json();
+      if(!Array.isArray(data) || !data.length) throw new Error('empty');
+      apiVoices = data;
+      voicesReady = true;
+      populateVoices();
+      setStatusPill('ready', apiVoices.length + ' voices ready');
+    } catch(err){
+      voicesReady = false;
+      voiceEl.innerHTML = '<option>Voice server unavailable</option>';
+      voiceLabel.textContent = '—';
+      setStatusPill('error', 'Voice server unreachable — retrying');
+      setTimeout(loadVoices, 6000);
+    }
+  }
+
+  function populateVoices(){
+    voiceEl.innerHTML = '';
+    const preferredOrder = ['en-US', 'en-GB'];
+    const sorted = [...apiVoices].sort((a, b) => {
+      const aP = preferredOrder.indexOf(a.locale);
+      const bP = preferredOrder.indexOf(b.locale);
+      const aScore = aP === -1 ? 99 : aP;
+      const bScore = bP === -1 ? 99 : bP;
+      if(aScore !== bScore) return aScore - bScore;
+      return a.name.localeCompare(b.name);
+    });
+    let lastLocale = null;
+    sorted.forEach((v) => {
+      if(v.locale !== lastLocale){
+        const grp = document.createElement('optgroup');
+        grp.label = v.locale;
+        voiceEl.appendChild(grp);
+        lastLocale = v.locale;
+      }
+      const opt = document.createElement('option');
+      opt.value = v.id;
+      opt.textContent = friendlyName(v);
+      voiceEl.lastChild.appendChild(opt);
+    });
+    voiceLabel.textContent = sorted[0] ? sorted[0].name : '—';
+  }
+
+  voiceEl.addEventListener('change', () => {
+    const opt = voiceEl.options[voiceEl.selectedIndex];
+    if(opt) voiceLabel.textContent = opt.textContent.split(' — ')[0];
+  });
+
+  loadVoices();
+  templateEl.addEventListener('change', () => { bgLayer.className = 'bg ' + templateEl.value; });
+
+  // ---------- AI scene detection ----------
+  aiSceneToggle.addEventListener('change', () => {
+    aiKeyWrap.classList.toggle('hidden', !aiSceneToggle.checked);
+  });
+
+  const TEMPLATE_KEYWORDS = {
+    ocean: ['ocean','sea','water','wave','beach','river','lake','rain','calm','blue'],
+    sunset: ['sunset','fire','love','passion','warm','desert','energy','sun','romance','heat'],
+    forest: ['forest','nature','tree','green','peace','earth','growth','quiet','garden','wood'],
+    night: ['night','city','dark','mystery','stars','urban','dream','shadow','moon','sky']
+  };
+  function keywordToTemplate(keyword){
+    const k = keyword.toLowerCase();
+    for(const [tpl, list] of Object.entries(TEMPLATE_KEYWORDS)){
+      if(list.some(w => k.includes(w))) return tpl;
+    }
+    return null;
+  }
+
+  async function splitIntoScenes(text, apiKey){
+    const prompt = 'Split the following video narration script into short scenes. ' +
+      'Reply with ONLY a JSON array, no other text, no markdown fences. ' +
+      'Each item: {"text": "<exact substring from the script for this scene>", "keyword": "<one or two word visual keyword for background footage>"}. ' +
+      'Scenes together must cover the whole script in order, exact wording preserved.\n\nScript:\n' + text;
+
+    const res = await fetch('https://api.tokenrouter.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+      body: JSON.stringify({
+        model: 'qwen/qwen3.8-max-free',
+        messages: [
+          { role: 'system', content: 'You only output valid JSON arrays, nothing else.' },
+          { role: 'user', content: prompt }
+        ],
+        stream: false
+      })
+    });
+    if(!res.ok) throw new Error('Scene AI request failed (status ' + res.status + ')');
+    const data = await res.json();
+    const raw = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if(!raw) throw new Error('Scene AI returned no content');
+    const cleaned = raw.trim().replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+    const scenes = JSON.parse(cleaned);
+    if(!Array.isArray(scenes) || !scenes.length) throw new Error('Scene AI returned no scenes');
+    return scenes;
+  }
+
+  function renderSceneTags(scenes){
+    sceneTagsEl.innerHTML = '';
+    scenes.forEach((s, i) => {
+      const tag = document.createElement('span');
+      tag.className = 'scene-tag';
+      tag.style.animationDelay = (i * 0.05) + 's';
+      tag.textContent = s.keyword;
+      sceneTagsEl.appendChild(tag);
+    });
+  }
+
+  function buildSceneTimeRanges(scenes, fullText, duration){
+    let searchFrom = 0;
+    const ranges = [];
+    for(const s of scenes){
+      const idx = fullText.indexOf(s.text, searchFrom);
+      const start = idx === -1 ? searchFrom : idx;
+      ranges.push({ charStart: start, keyword: s.keyword });
+      searchFrom = idx === -1 ? searchFrom : idx + s.text.length;
+    }
+    return ranges.map(r => ({ keyword: r.keyword, timeStart: (r.charStart / fullText.length) * duration }));
+  }
+
+  // ---------- shared TTS request ----------
+  async function requestSpeech(text, voiceId, ratePercent){
+    const rateStr = (ratePercent >= 0 ? '+' : '') + ratePercent + '%';
+    const res = await fetch(API_BASE + '/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice: voiceId, rate: rateStr, pitch: '+0Hz' })
+    });
+    if(!res.ok){
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Generation failed');
+    }
+    return res.blob();
+  }
+
+  function renderCaption(activeIndex){
+    captionText.innerHTML = words.map((w, i) => i === activeIndex ? '<span class="current">' + w + '</span>' : w).join(' ');
+  }
+  function computeWordTimings(text, duration){
+    const w = text.split(/\s+/);
+    const weights = w.map(x => x.length + 1);
+    const total = weights.reduce((a, b) => a + b, 0);
+    let acc = 0;
+    return w.map((word, i) => {
+      const start = (acc / total) * duration;
+      acc += weights[i];
+      const end = (acc / total) * duration;
+      return { word, start, end };
+    });
+  }
+
+  function resetVideoUI(){
+    statusText.textContent = 'Idle';
+    recDot.classList.remove('live');
+    pulseLayer.classList.remove('active');
+    setReels(false);
+    generateBtn.disabled = false;
+    stopBtn.disabled = true;
+  }
+
+  async function generateVideo(){
+    const text = scriptEl.value.trim();
+    if(!text){ setError('Add a script first.'); scriptEl.focus(); return; }
+    if(!voicesReady){ setError('Voice server is not ready yet — wait a moment and try again.'); return; }
+    setError('');
+    generateBtn.disabled = true;
+    bgLayer.className = 'bg ' + templateEl.value;
+    words = text.split(/\s+/);
+    renderCaption(-1);
+    sceneTagsEl.innerHTML = '';
+    activeScenes = null;
+
+    try{
+      let sceneRanges = null;
+      if(aiSceneToggle.checked){
+        const key = qwenKeyEl.value.trim();
+        if(!key){ throw new Error('Paste your tokenrouter.com API key, or turn off AI scene detection.'); }
+        statusText.textContent = 'Analyzing script...';
+        const scenes = await splitIntoScenes(text, key);
+        renderSceneTags(scenes);
+        activeScenes = scenes;
+      }
+
+      statusText.textContent = 'Generating voice...';
+      const blob = await requestSpeech(text, voiceEl.value, parseInt(rateEl.value, 10));
+      if(lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+      audioEl.src = lastUrl;
+      await new Promise((resolve, reject) => {
+        audioEl.onloadedmetadata = resolve;
+        audioEl.onerror = () => reject(new Error('Could not load generated audio'));
+      });
+      const timings = computeWordTimings(text, audioEl.duration);
+      if(activeScenes) sceneRanges = buildSceneTimeRanges(activeScenes, text, audioEl.duration);
+
+      statusText.textContent = 'Speaking';
+      recDot.classList.add('live');
+      pulseLayer.classList.add('active');
+      setReels(true);
+      stopBtn.disabled = false;
+      if(sceneRanges && sceneRanges.length) bgLayer.className = 'bg ' + (keywordToTemplate(sceneRanges[0].keyword) || templateEl.value) + ' animate';
+      else bgLayer.classList.add('animate');
+
+      audioEl.ontimeupdate = () => {
+        const t = audioEl.currentTime;
+        const idx = timings.findIndex(tm => t >= tm.start && t < tm.end);
+        if(idx !== -1) renderCaption(idx);
+        if(sceneRanges){
+          let current = sceneRanges[0];
+          for(const r of sceneRanges){ if(t >= r.timeStart) current = r; }
+          const tpl = keywordToTemplate(current.keyword);
+          if(tpl && !bgLayer.className.includes(tpl)) bgLayer.className = 'bg ' + tpl + ' animate';
+        }
+      };
+      audioEl.onended = () => { resetVideoUI(); renderCaption(-1); };
+      await audioEl.play();
+    } catch(err){
+      let msg = err.message || 'Generation failed.';
+      if(msg === 'Failed to fetch'){
+        msg = 'Could not reach the scene AI service — this can happen if tokenrouter.com blocks direct browser requests (CORS). Try again, or turn off AI scene detection.';
+      }
+      setError(msg);
+      resetVideoUI();
+    }
+  }
+
+  async function generateVoiceOnly(){
+    const text = scriptEl.value.trim();
+    if(!text){ setError('Add a script first.'); scriptEl.focus(); return; }
+    if(!voicesReady){ setError('Voice server is not ready yet — wait a moment and try again.'); return; }
+    setError('');
+    generateBtn.disabled = true;
+    voiceStatus.textContent = 'Generating narration...';
+
+    try{
+      const blob = await requestSpeech(text, voiceEl.value, parseInt(rateEl.value, 10));
+      if(lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+      audioEl.src = lastUrl;
+      downloadBtn.href = lastUrl;
+      await new Promise((resolve) => { audioEl.onloadedmetadata = resolve; });
+
+      voiceStatus.textContent = 'Ready';
+      audioControls.classList.remove('hidden');
+      playPauseBtn.classList.remove('hidden');
+      downloadBtn.classList.remove('hidden');
+      progressEl.value = 0;
+      curTimeEl.textContent = '0:00';
+      durTimeEl.textContent = fmtTime(audioEl.duration);
+      playPauseBtn.textContent = 'Play';
+    } catch(err){
+      voiceStatus.textContent = 'Error: ' + err.message;
+    } finally {
+      generateBtn.disabled = false;
+    }
+  }
+
+  playPauseBtn.addEventListener('click', () => {
+    if(audioEl.paused){ audioEl.play(); playPauseBtn.textContent = 'Pause'; disc.classList.add('spin'); }
+    else { audioEl.pause(); playPauseBtn.textContent = 'Play'; disc.classList.remove('spin'); }
+  });
+  audioEl.addEventListener('timeupdate', () => {
+    if(mode === 'voice' && audioEl.duration){
+      progressEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+      curTimeEl.textContent = fmtTime(audioEl.currentTime);
+    }
+  });
+  audioEl.addEventListener('ended', () => {
+    if(mode === 'voice'){ playPauseBtn.textContent = 'Play'; disc.classList.remove('spin'); }
+  });
+  progressEl.addEventListener('input', () => {
+    if(audioEl.duration) audioEl.currentTime = (progressEl.value / 100) * audioEl.duration;
+  });
+
+  generateBtn.addEventListener('click', () => { mode === 'video' ? generateVideo() : generateVoiceOnly(); });
+  stopBtn.addEventListener('click', () => {
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    resetVideoUI();
+    renderCaption(-1);
+  });
+  scriptEl.addEventListener('input', () => setError(''));
+</script>
+</body>
+</html>

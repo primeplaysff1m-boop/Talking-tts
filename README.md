@@ -1,67 +1,36 @@
-# Vocalis
+# Voxreel
 
-Free, unlimited text-to-speech web app with natural-sounding voices in multiple languages and accents.
+Script to narrated video preview — free, no signup. Type a script, pick a real voice, get synced captions over an animated background, or export plain narration audio.
 
-## Project Structure
+## How it works
+
+Voxreel is a single static page (`index.html`) — no build step, no server of its own. It calls your existing **Vocalis** TTS backend (already deployed on Vercel) directly from the browser for real Microsoft Edge Neural voices.
+
+Because the voice backend is already live on the internet, voices show up automatically the moment you open `index.html` — nothing needs to be run locally.
+
+## Adding to your existing GitHub repo
+
+Drop this folder in alongside your Vocalis project, e.g.:
 
 ```
-vocalis-tts/
-├── README.md
-├── backend/
-│   ├── main.py
-│   ├── requirements.txt
-│   └── Dockerfile
-└── frontend/
-    └── index.html
+your-repo/
+├── backend/          (existing Vocalis backend)
+├── frontend/          (existing Vocalis frontend)
+└── voxreel/            <- add this folder
+    ├── index.html
+    └── README.md
 ```
 
-## Features
+Then deploy `voxreel/` as its own Vercel project (Root Directory: `voxreel`) or any static host (GitHub Pages, Netlify) — it needs no environment variables or backend of its own.
 
-- Language and voice selection
-- Live character counter
-- Adjustable speed (-50% to +100%) and pitch (-50Hz to +50Hz)
-- Custom audio player with play/pause, progress bar, and download
-- Fully responsive (desktop + mobile)
-- No signup, no usage limits
+## Optional: AI scene detection
 
-## Local Development
+Toggle "AI scene detection" in the video tab and paste a tokenrouter.com API key to have Qwen3.8-Max split your script into scenes with visual keywords, which switch the background template automatically as the narration plays. The key is only kept in memory for that browser tab and is never stored or sent anywhere except tokenrouter.com.
 
-**Backend**
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
+## Roadmap
 
-**Frontend**
-
-Open `frontend/index.html` directly in a browser, or serve it with any static file server. Make sure `API_BASE` near the top of the `<script>` tag points to your backend URL.
-
-## Deployment (Vercel)
-
-This project deploys as **two separate Vercel projects** from the same GitHub repo:
-
-1. **Backend** — New Project → select this repo → Root Directory: `backend` → Deploy.
-   Vercel auto-detects the FastAPI app in `main.py`. No extra config file is needed.
-2. **Frontend** — New Project → select this repo again → Root Directory: `frontend` → Deploy.
-   Before deploying, set `API_BASE` in `frontend/index.html` to your backend's live URL.
-
-## API Reference
-
-| Method | Endpoint | Body | Description |
-|---|---|---|---|
-| GET | `/` | — | Health check |
-| GET | `/voices?lang=en-US` | — | List voices (optionally filtered by locale) |
-| GET | `/languages` | — | List all available locales |
-| POST | `/speak` | `{ text, voice, rate, pitch }` | Returns generated MP3 audio |
-
-Example:
-```bash
-curl -X POST https://your-backend.vercel.app/speak \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Hello world", "voice": "en-US-AnaNeural", "rate": "+0%", "pitch": "+0Hz"}' \
-  --output speech.mp3
-```
+- Real stock-footage backgrounds (free via Pexels API) instead of color templates
+- Downloadable final video export (via ffmpeg.wasm, fully client-side, no paid rendering server)
 
 ## License
 

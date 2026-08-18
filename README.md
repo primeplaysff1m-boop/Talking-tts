@@ -1,37 +1,78 @@
-# Voxreel
+# VoxReel + credit system
 
-Script to narrated video preview — free, no signup. Type a script, pick a real voice, get synced captions over an animated background, or export plain narration audio.
+This package upgrades your existing Vocalis backend and adds VoxReel
+(script-to-narrated-video) with a **free daily credit system per device**
+— no login required.
 
-## How it works
+- Voice-only generation: **1 credit**
+- Video generation: **5 credits** (heavier — narration + scene analysis)
+- Every device gets **30 free credits**, resetting at midnight (UTC)
 
-Voxreel is a single static page (`index.html`) — no build step, no server of its own. It calls your existing **Vocalis** TTS backend (already deployed on Vercel) directly from the browser for real Microsoft Edge Neural voices.
+If you skip the Supabase setup below, everything still works exactly as
+before — credits just won't be enforced (unlimited, like today).
 
-Because the voice backend is already live on the internet, voices show up automatically the moment you open `index.html` — nothing needs to be run locally.
-
-## Adding to your existing GitHub repo
-
-Drop this folder in alongside your Vocalis project, e.g.:
+## 1. Replace files in your existing repo
 
 ```
 your-repo/
-├── backend/          (existing Vocalis backend)
-├── frontend/          (existing Vocalis frontend)
-└── voxreel/            <- add this folder
-    ├── index.html
-    └── README.md
+├── backend/
+│   ├── main.py              <- replace with the one in this package
+│   ├── requirements.txt      <- replace (adds the supabase package)
+│   └── credits_schema.sql    <- add this new file
+└── voxreel/                  <- add this whole new folder
+    └── index.html
 ```
 
-Then deploy `voxreel/` as its own Vercel project (Root Directory: `voxreel`) or any static host (GitHub Pages, Netlify) — it needs no environment variables or backend of its own.
+Your existing `backend/Dockerfile`, `backend/vercel.json`, and the
+original `frontend/` folder don't need to change.
 
-## Optional: AI scene detection
+## 2. Create a free Supabase project (5 minutes)
 
-Toggle "AI scene detection" in the video tab and paste a tokenrouter.com API key to have Qwen3.8-Max split your script into scenes with visual keywords, which switch the background template automatically as the narration plays. The key is only kept in memory for that browser tab and is never stored or sent anywhere except tokenrouter.com.
+1. Go to supabase.com → sign up free → "New project"
+2. Once it's ready, open **SQL Editor** → paste the contents of
+   `backend/credits_schema.sql` → Run
+3. Go to **Project Settings → API** and copy:
+   - `Project URL`
+   - `service_role` secret key (NOT the `anon` key — this one must stay
+     secret, so it only ever goes in your backend's environment variables,
+     never in frontend code)
 
-## Roadmap
+## 3. Add environment variables in Vercel
 
-- Real stock-footage backgrounds (free via Pexels API) instead of color templates
-- Downloadable final video export (via ffmpeg.wasm, fully client-side, no paid rendering server)
+On your backend's Vercel project → **Settings → Environment Variables**:
 
-## License
+| Name | Value |
+|---|---|
+| `SUPABASE_URL` | the Project URL from step 2 |
+| `SUPABASE_SERVICE_KEY` | the service_role secret key from step 2 |
 
-MIT
+Redeploy the backend after adding these.
+
+## 4. Deploy VoxReel
+
+Deploy the `voxreel/` folder as its own static site (new Vercel project
+with Root Directory: `voxreel`, or GitHub Pages, or Netlify — no build
+step needed). It already points at your live backend
+(`https://talking-tts-38rr.vercel.app`).
+
+## How it works
+
+- The browser generates a random device id on first visit and stores it
+  in `localStorage` — no account needed.
+- Every request to `/speak` sends that id in an `X-Device-Id` header.
+- The backend checks/deducts credits in Supabase before generating audio,
+  and returns the remaining balance in an `X-Credits-Remaining` header.
+- VoxReel shows the live balance next to the server status, and disables
+  the Generate button once credits hit 0 for the day.
+
+## Adjusting the numbers
+
+In `backend/main.py`:
+
+```python
+DAILY_FREE_CREDITS = 30
+COST_AUDIO = 1
+COST_VIDEO = 5
+```
+
+Change these and redeploy the backend any time.

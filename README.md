@@ -20,7 +20,10 @@ vocalis-tts/
 - Language and voice selection
 - Live character counter
 - Adjustable speed (-50% to +100%) and pitch (-50Hz to +50Hz)
-- Custom audio player with play/pause, progress bar, and download
+- Premium dark-first voice studio with language, voice, script, speed, and pitch controls
+- Voice previews, custom audio player with play/pause, progress bar, and download
+- Progressive MP3 playback where the browser and server support it, with a complete-audio fallback
+- Local usage dashboard and recent generation history
 - Fully responsive (desktop + mobile)
 - No signup, no usage limits
 
@@ -53,7 +56,10 @@ This project deploys as **two separate Vercel projects** from the same GitHub re
 | GET | `/` | — | Health check |
 | GET | `/voices?lang=en-US` | — | List voices (optionally filtered by locale) |
 | GET | `/languages` | — | List all available locales |
-| POST | `/speak` | `{ text, voice, rate, pitch }` | Returns generated MP3 audio |
+| POST | `/speak` | `{ text, voice, rate, pitch }` | Returns complete generated MP3 audio |
+| POST | `/speak/stream` | `{ text, voice, rate, pitch }` | Streams MP3 chunks for progressive playback; clients can fall back to `/speak` |
+
+The studio caches the voice catalog locally for a faster repeat visit, refreshes it in the background, and only uses progressive playback when the browser supports Media Source MP3 playback. The complete `/speak` route remains available for full compatibility.
 
 Example:
 ```bash

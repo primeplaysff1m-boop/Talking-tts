@@ -1,754 +1,2323 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vocalis — Free Text to Speech</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='1' stop-color='%23A855F7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cg stroke='white' stroke-width='7' stroke-linecap='round'%3E%3Cline x1='24' y1='50' x2='24' y2='50'/%3E%3Cline x1='38' y1='38' x2='38' y2='62'/%3E%3Cline x1='52' y1='24' x2='52' y2='76'/%3E%3Cline x1='66' y1='34' x2='66' y2='66'/%3E%3Cline x1='80' y1='42' x2='80' y2='58'/%3E%3C/g%3E%3C/svg%3E">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-9K7V2BCFHD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-9K7V2BCFHD');
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: {
-          serif: ['Sora', 'system-ui', 'sans-serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-        },
-        colors: {
-          ink: '#1E1B3A',
-          muted: '#706B8A',
-          card: '#FFFFFF',
-          bezel: '#F6F6FC',
-          line: '#E9E8F5',
-          indigo: '#6366F1',
-          indigoDark: '#4F46E5',
-          violet: '#A855F7',
-          cyan: '#06B6D4',
-          rose: '#F43F5E',
-        }
-      }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070b13">
+  <meta name="description" content="Vocalis is a fast, free AI voice studio for turning text into natural-sounding speech.">
+  <title>Vocalis — AI Voice Studio</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%23070B13'/%3E%3Cg fill='none' stroke='%2381F4C1' stroke-linecap='round' stroke-width='9'%3E%3Cpath d='M22 52v-6'/%3E%3Cpath d='M38 64V40'/%3E%3Cpath d='M54 76V28'/%3E%3Cpath d='M70 62V42'/%3E%3Cpath d='M86 56v-8'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>document.documentElement.classList.add('js');</script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b13;
+      --bg-deep: #05080e;
+      --surface: #0c1422;
+      --surface-raised: #101b2d;
+      --surface-quiet: #0a111d;
+      --surface-soft: #131f33;
+      --line: rgba(160, 185, 218, 0.15);
+      --line-strong: rgba(160, 185, 218, 0.25);
+      --text: #f4f7fb;
+      --muted: #9baabe;
+      --subtle: #6d7d91;
+      --accent: #82efbe;
+      --accent-bright: #b5ffd9;
+      --accent-deep: #37bb7c;
+      --blue: #7caeff;
+      --blue-soft: rgba(124, 174, 255, 0.14);
+      --danger: #fb7185;
+      --danger-soft: rgba(251, 113, 133, 0.12);
+      --warning: #f8c86b;
+      --warning-soft: rgba(248, 200, 107, 0.12);
+      --success-soft: rgba(130, 239, 190, 0.12);
+      --shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+      --shadow-soft: 0 14px 35px rgba(0, 0, 0, 0.2);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 13px;
+      --content-width: 1200px;
     }
-  }
-</script>
-<style>
-  html, body { height:100%; }
-  body{
-    background-color:#F5F6FC;
-    background-image:
-      radial-gradient(circle at 10% 10%, rgba(99,102,241,0.14), transparent 45%),
-      radial-gradient(circle at 90% 15%, rgba(168,85,247,0.13), transparent 45%),
-      radial-gradient(circle at 50% 100%, rgba(6,182,212,0.12), transparent 55%);
-    background-attachment: fixed;
-    perspective: 1600px;
-  }
-  ::-webkit-scrollbar{ width:9px; }
-  ::-webkit-scrollbar-thumb{ background:#d8d6ef; border-radius:8px; }
-  input[type=range]{ accent-color:#6366F1; }
 
-  /* ---------- 3D intro splash ---------- */
-  #introScreen{
-    position:fixed; inset:0; z-index:10000;
-    background: linear-gradient(135deg,#6366F1,#A855F7 55%,#06B6D4);
-    display:flex; align-items:center; justify-content:center; flex-direction:column;
-    transition: opacity .6s ease, transform .6s ease;
-  }
-  #introScreen.hide{ opacity:0; transform: scale(1.08); pointer-events:none; }
+    * { box-sizing: border-box; }
+    html { min-width: 320px; scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(720px 420px at 8% -6%, rgba(64, 135, 112, 0.16), transparent 65%),
+        radial-gradient(800px 540px at 96% 10%, rgba(61, 102, 164, 0.14), transparent 66%),
+        var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    body::before {
+      position: fixed;
+      z-index: -2;
+      inset: 0;
+      pointer-events: none;
+      content: "";
+      opacity: 0.28;
+      background-image: linear-gradient(rgba(161, 188, 224, 0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(161, 188, 224, 0.035) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent 70%);
+    }
+    button, input, select, textarea { font: inherit; }
+    button, select, input[type="range"] { -webkit-tap-highlight-color: transparent; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+    a { color: inherit; }
+    svg { display: block; }
+    [hidden] { display: none !important; }
 
-  .intro-cube-wrap{ perspective:600px; margin-bottom:28px; }
-  .intro-cube{
-    width:64px; height:64px; position:relative; transform-style:preserve-3d;
-    animation: cubeSpin 1.6s linear infinite;
-  }
-  .intro-cube .face{
-    position:absolute; width:64px; height:64px; background:rgba(255,255,255,0.18);
-    border:2px solid rgba(255,255,255,0.5); border-radius:12px;
-  }
-  .intro-cube .front{ transform: translateZ(32px); }
-  .intro-cube .back{ transform: rotateY(180deg) translateZ(32px); }
-  .intro-cube .right{ transform: rotateY(90deg) translateZ(32px); }
-  .intro-cube .left{ transform: rotateY(-90deg) translateZ(32px); }
-  .intro-cube .top{ transform: rotateX(90deg) translateZ(32px); }
-  .intro-cube .bottom{ transform: rotateX(-90deg) translateZ(32px); }
-  @keyframes cubeSpin{
-    0%{ transform: rotateX(0deg) rotateY(0deg); }
-    100%{ transform: rotateX(360deg) rotateY(360deg); }
-  }
-  .intro-bar{ width:180px; height:4px; border-radius:4px; background:rgba(255,255,255,0.25); overflow:hidden; margin-top:22px; }
-  .intro-bar-fill{ height:100%; width:0%; background:#fff; border-radius:4px; animation: introFill 1.7s ease forwards; }
-  @keyframes introFill{ to{ width:100%; } }
+    ::selection { background: rgba(130, 239, 190, 0.26); color: var(--text); }
+    ::-webkit-scrollbar { width: 11px; height: 11px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { border: 3px solid var(--bg-deep); border-radius: 999px; background: #2a3950; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a4d68; }
 
-  /* ---------- main content reveal ---------- */
-  #appRoot{ opacity:0; transform: translateY(24px) scale(0.98); }
-  #appRoot.revealed{ opacity:1; transform: translateY(0) scale(1); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1); }
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 12px;
+      left: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #062112;
+      font-weight: 700;
+      text-decoration: none;
+      transform: translateY(-150%);
+      transition: transform 160ms ease;
+    }
+    .skip-link:focus { transform: translateY(0); }
 
-  .card-elev{
-    background:#fff; border:1px solid #E9E8F5; border-radius:28px;
-    box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset, 0 20px 45px -12px rgba(99,102,241,0.18), 0 4px 12px rgba(30,27,58,0.04);
-    transform-style: preserve-3d; will-change: transform;
-    transition: transform .15s ease-out;
-  }
-  .card-soft{
-    background:#fff; border:1px solid #E9E8F5; border-radius:22px;
-    box-shadow: 0 14px 32px -12px rgba(99,102,241,0.16), 0 2px 8px rgba(30,27,58,0.04);
-  }
+    .container {
+      width: min(calc(100% - 40px), var(--content-width));
+      margin-inline: auto;
+    }
+    .screen-reader-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .icon { width: 18px; height: 18px; flex: 0 0 auto; }
+    .icon-sm { width: 15px; height: 15px; }
+    .icon-lg { width: 21px; height: 21px; }
 
-  .btn-primary{
-    background: linear-gradient(135deg, #6366F1, #A855F7);
-    box-shadow: 0 10px 24px -6px rgba(99,102,241,0.55);
-    transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    transform-style: preserve-3d;
-  }
-  .btn-primary:hover:not(:disabled){ transform: translateY(-2px) rotateX(4deg); box-shadow: 0 18px 34px -6px rgba(99,102,241,0.6); filter: brightness(1.04); }
-  .btn-primary:active:not(:disabled){ transform: translateY(0) rotateX(0deg); box-shadow: 0 6px 16px -6px rgba(99,102,241,0.5); }
-  .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
+    .site-header {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      border-bottom: 1px solid rgba(160, 185, 218, 0.09);
+      background: rgba(7, 11, 19, 0.78);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .nav-shell {
+      display: flex;
+      min-height: 70px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      font-family: "Space Grotesk", "DM Sans", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.045em;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border: 1px solid rgba(130, 239, 190, 0.25);
+      border-radius: 11px;
+      background: #0d211c;
+      color: var(--accent);
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.04), 0 6px 18px rgba(0, 0, 0, 0.22);
+    }
+    .brand-mark svg { width: 20px; height: 20px; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: auto;
+    }
+    .nav-links a {
+      padding: 8px 11px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 150ms ease, background 150ms ease;
+    }
+    .nav-links a:hover,
+    .nav-links a:focus-visible { background: rgba(255, 255, 255, 0.045); color: var(--text); }
+    .nav-cta,
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgba(181, 255, 217, 0.58);
+      border-radius: 11px;
+      background: var(--accent);
+      color: #052113;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      box-shadow: 0 8px 25px rgba(67, 190, 126, 0.17);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+    .nav-cta { min-height: 40px; padding: 0 13px; }
+    .nav-cta:hover,
+    .primary-button:hover:not(:disabled) {
+      background: var(--accent-bright);
+      box-shadow: 0 12px 30px rgba(67, 190, 126, 0.23);
+      transform: translateY(-1px);
+    }
+    .nav-cta:active,
+    .primary-button:active:not(:disabled) { transform: translateY(0); }
 
-  .fab-soft{
-    background:#fff; border:1px solid #E9E8F5;
-    box-shadow: 0 8px 20px -6px rgba(30,27,58,0.12);
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .fab-soft:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(30,27,58,0.16); }
-  .fab-soft:active{ transform: translateY(0); }
+    main { position: relative; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.75fr);
+      align-items: center;
+      gap: clamp(32px, 7vw, 92px);
+      min-height: 405px;
+      padding: clamp(58px, 8vw, 100px) 0 clamp(44px, 6vw, 68px);
+    }
+    .eyebrow,
+    .section-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 17px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.115em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before,
+    .section-eyebrow::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+      box-shadow: 0 0 0 4px rgba(130, 239, 190, 0.09);
+    }
+    .hero h1,
+    .section-heading,
+    .closing-copy h2 {
+      margin: 0;
+      font-family: "Space Grotesk", "DM Sans", sans-serif;
+      font-weight: 600;
+      letter-spacing: -0.062em;
+    }
+    .hero h1 {
+      max-width: 700px;
+      font-size: clamp(42px, 6.1vw, 76px);
+      line-height: 0.98;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero-description {
+      max-width: 590px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: clamp(17px, 1.7vw, 19px);
+      line-height: 1.6;
+    }
+    .hero-proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 26px;
+    }
+    .proof-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(14, 24, 39, 0.72);
+      color: #c7d2e0;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .proof-item svg { color: var(--accent); }
 
-  .fab-grad{
-    background: linear-gradient(135deg, #6366F1, #A855F7);
-    box-shadow: 0 10px 22px -6px rgba(99,102,241,0.5);
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .fab-grad:hover{ transform: translateY(-2px); box-shadow: 0 14px 28px -6px rgba(99,102,241,0.55); }
-  .fab-grad:active{ transform: translateY(0); }
+    .hero-visual {
+      position: relative;
+      min-height: 268px;
+    }
+    .hero-visual::before {
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      right: 3%;
+      width: 255px;
+      height: 255px;
+      border-radius: 50%;
+      background: rgba(77, 181, 132, 0.12);
+      filter: blur(32px);
+      content: "";
+    }
+    .signal-card {
+      position: absolute;
+      top: 15px;
+      right: 0;
+      left: 0;
+      overflow: hidden;
+      padding: 25px;
+      border: 1px solid rgba(165, 196, 232, 0.17);
+      border-radius: var(--radius-xl);
+      background: rgba(13, 23, 38, 0.86);
+      box-shadow: var(--shadow);
+    }
+    .signal-card::after {
+      position: absolute;
+      right: -25%;
+      bottom: -72%;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 1px solid rgba(130, 239, 190, 0.09);
+      content: "";
+      box-shadow: 0 0 0 30px rgba(130, 239, 190, 0.025), 0 0 0 60px rgba(130, 239, 190, 0.018);
+    }
+    .signal-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .signal-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .signal-status { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); font-size: 12px; font-weight: 700; }
+    .signal-status i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px rgba(130, 239, 190, 0.09); }
+    .hero-wave {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 92px;
+      margin: 28px 0 19px;
+      padding: 0 3px;
+    }
+    .hero-wave span {
+      width: 8px;
+      min-height: 12px;
+      border-radius: 100px;
+      background: #315c52;
+      transform-origin: center;
+    }
+    .hero-wave span:nth-child(1), .hero-wave span:nth-child(10) { height: 21%; }
+    .hero-wave span:nth-child(2), .hero-wave span:nth-child(9) { height: 45%; }
+    .hero-wave span:nth-child(3), .hero-wave span:nth-child(8) { height: 65%; }
+    .hero-wave span:nth-child(4), .hero-wave span:nth-child(7) { height: 38%; }
+    .hero-wave span:nth-child(5), .hero-wave span:nth-child(6) { height: 87%; background: var(--accent); box-shadow: 0 0 20px rgba(130, 239, 190, 0.24); }
+    .signal-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--subtle); font-size: 13px; }
+    .signal-footer strong { color: #dbe6f2; font-weight: 600; }
+    .visual-float {
+      position: absolute;
+      z-index: 1;
+      right: -28px;
+      bottom: -18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      border: 1px solid rgba(164, 191, 228, 0.19);
+      border-radius: 14px;
+      background: #111d30;
+      box-shadow: var(--shadow-soft);
+      color: #cfdbeb;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .visual-float .float-icon {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--success-soft);
+      color: var(--accent);
+    }
 
-  .field-soft{
-    background:#F6F6FC; border:1.5px solid #E9E8F5;
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
-  .field-soft:focus{ outline:none; border-color:#6366F1; box-shadow: 0 0 0 4px rgba(99,102,241,0.12); background:#fff; }
+    .studio-section { scroll-margin-top: 96px; padding-bottom: clamp(72px, 10vw, 124px); }
+    .section-heading-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 20px;
+    }
+    .section-heading { font-size: clamp(29px, 3.1vw, 40px); line-height: 1.04; }
+    .section-support {
+      max-width: 435px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .server-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      max-width: 390px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(11, 20, 33, 0.73);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+    }
+    .server-pill::before {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--warning);
+      content: "";
+      box-shadow: 0 0 0 4px rgba(248, 200, 107, 0.09);
+    }
+    .server-pill[data-state="ready"]::before { background: var(--accent); box-shadow: 0 0 0 4px rgba(130, 239, 190, 0.09); }
+    .server-pill[data-state="warning"]::before { background: var(--warning); }
+    .server-pill[data-state="offline"]::before { background: var(--danger); box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.09); }
+    .retry-connection {
+      flex: 0 0 auto;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
 
-  .chip-soft{
-    display:inline-flex; align-items:center; gap:6px;
-    padding:7px 14px; border-radius:9999px;
-    background:#fff; border:1px solid #E9E8F5;
-    font-size:12.5px; font-weight:600; color:#1E1B3A;
-    box-shadow: 0 4px 12px -4px rgba(30,27,58,0.1);
-  }
+    .studio-card {
+      overflow: hidden;
+      border: 1px solid rgba(162, 192, 231, 0.18);
+      border-radius: 26px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .studio-topbar {
+      display: flex;
+      min-height: 49px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(6, 12, 21, 0.33);
+    }
+    .studio-topbar-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #cbd8e7;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .studio-topbar-label::before { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); content: ""; box-shadow: 0 0 0 4px rgba(130, 239, 190, 0.08); }
+    .shortcut-hint { color: var(--subtle); font-size: 12px; font-weight: 500; }
+    kbd {
+      display: inline-block;
+      min-width: 18px;
+      padding: 1px 5px;
+      border: 1px solid rgba(163, 189, 223, 0.2);
+      border-bottom-color: rgba(163, 189, 223, 0.31);
+      border-radius: 5px;
+      background: #101c2e;
+      color: #cbd8e7;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .studio-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.74fr);
+      align-items: stretch;
+    }
+    .editor-column { min-width: 0; padding: clamp(20px, 3.2vw, 34px); }
+    .controls-column {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 20px;
+      padding: clamp(20px, 3vw, 31px);
+      border-left: 1px solid var(--line);
+      background: rgba(8, 15, 26, 0.38);
+    }
+    .panel-title-row { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
+    .panel-title {
+      margin: 0;
+      font-family: "Space Grotesk", "DM Sans", sans-serif;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.035em;
+    }
+    .panel-description { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
 
-  .icon-badge{ width:32px; height:32px; border-radius:11px; display:flex; align-items:center; justify-content:center; }
+    .editor-shell {
+      overflow: hidden;
+      border: 1px solid rgba(161, 190, 228, 0.18);
+      border-radius: var(--radius-lg);
+      background: #09121f;
+      box-shadow: inset 0 1px rgba(255, 255, 255, 0.018);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .editor-shell:focus-within {
+      border-color: rgba(130, 239, 190, 0.72);
+      box-shadow: 0 0 0 4px rgba(130, 239, 190, 0.09), inset 0 1px rgba(255, 255, 255, 0.018);
+    }
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 50px;
+      padding: 0 14px 0 16px;
+      border-bottom: 1px solid rgba(161, 190, 228, 0.11);
+    }
+    .editor-label { display: inline-flex; align-items: center; gap: 8px; color: #dce6f2; font-size: 13px; font-weight: 700; }
+    .editor-label .label-icon { color: var(--accent); }
+    .editor-utilities { display: flex; align-items: center; gap: 4px; }
+    .icon-button {
+      display: grid;
+      width: 31px;
+      height: 31px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--subtle);
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+    .icon-button:hover:not(:disabled),
+    .icon-button:focus-visible { border-color: var(--line-strong); background: rgba(255, 255, 255, 0.045); color: var(--text); }
+    .icon-button:disabled { opacity: 0.45; }
+    .character-count { margin-left: 7px; color: var(--subtle); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .character-count.is-near-limit { color: var(--warning); }
+    .character-count.is-at-limit { color: var(--danger); }
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 239px;
+      padding: 18px;
+      resize: vertical;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.68;
+    }
+    textarea::placeholder { color: #62738a; opacity: 1; }
+    .editor-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 13px;
+      padding: 13px 14px 14px;
+      border-top: 1px solid rgba(161, 190, 228, 0.11);
+      background: rgba(3, 8, 15, 0.18);
+    }
+    .template-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .template-label { align-self: center; margin-right: 2px; color: var(--subtle); font-size: 11px; font-weight: 600; }
+    .template-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 29px;
+      padding: 0 9px;
+      border: 1px solid rgba(158, 187, 224, 0.18);
+      border-radius: 8px;
+      background: #0e1a2b;
+      color: #c8d5e5;
+      font-size: 11px;
+      font-weight: 700;
+      transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+    }
+    .template-button:hover,
+    .template-button:focus-visible { border-color: rgba(130, 239, 190, 0.53); background: #10251f; color: var(--accent-bright); }
+    .editor-hint { flex: 0 0 auto; color: var(--subtle); font-size: 11px; white-space: nowrap; }
 
-  .logo-mark{
-    width:38px; height:38px; border-radius:12px;
-    background: linear-gradient(135deg, #6366F1, #A855F7);
-    box-shadow: 0 6px 16px -4px rgba(99,102,241,0.5);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .hero-logo{
-    width:78px; height:78px; border-radius:24px; margin:0 auto 20px;
-    background: linear-gradient(135deg, #6366F1, #A855F7);
-    box-shadow: 0 16px 36px -8px rgba(99,102,241,0.55);
-    display:flex; align-items:center; justify-content:center;
-    animation: floatSlow 5s ease-in-out infinite;
-  }
-  @keyframes floatSlow{ 0%,100%{ transform:translateY(0) rotateY(0deg);} 50%{ transform:translateY(-10px) rotateY(8deg);} }
+    .control-group { display: grid; gap: 7px; }
+    .field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .field-label {
+      color: #dbe5f1;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .field-note { color: var(--subtle); font-size: 11px; font-weight: 600; }
+    select {
+      width: 100%;
+      min-height: 47px;
+      padding: 0 42px 0 13px;
+      border: 1px solid rgba(161, 190, 228, 0.18);
+      border-radius: 11px;
+      outline: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: #0b1422;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239BAABE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    }
+    select:hover:not(:disabled) { border-color: rgba(161, 190, 228, 0.34); background-color: #0e1929; }
+    select:focus-visible { border-color: rgba(130, 239, 190, 0.75); box-shadow: 0 0 0 4px rgba(130, 239, 190, 0.09); }
+    select:disabled { opacity: 0.52; }
+    select option { background: #101b2d; color: var(--text); }
+    .field-help { min-height: 17px; margin: 0; color: var(--subtle); font-size: 11px; }
 
-  .bar-eq{ display:flex; align-items:center; gap:3px; height:18px; }
-  .bar-eq span{ width:4px; background:#fff; border-radius:2px; animation: eqBounce 1.1s ease-in-out infinite; }
-  .bar-eq span:nth-child(1){ animation-delay:0s; }
-  .bar-eq span:nth-child(2){ animation-delay:.15s; }
-  .bar-eq span:nth-child(3){ animation-delay:.3s; }
-  .bar-eq span:nth-child(4){ animation-delay:.45s; }
-  .bar-eq span:nth-child(5){ animation-delay:.6s; }
-  @keyframes eqBounce{ 0%,100%{ height:5px; } 50%{ height:18px; } }
+    .voice-profile {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+      padding: 13px;
+      border: 1px solid rgba(130, 239, 190, 0.15);
+      border-radius: 14px;
+      background: rgba(15, 37, 31, 0.43);
+    }
+    .voice-avatar {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border: 1px solid rgba(130, 239, 190, 0.19);
+      border-radius: 12px;
+      background: #102b22;
+      color: var(--accent);
+    }
+    .voice-profile-main { min-width: 0; }
+    .voice-profile-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .voice-name { overflow: hidden; margin: 0; color: #edf8f2; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .voice-detail { margin: 2px 0 0; color: #90aa9f; font-size: 11px; font-weight: 600; }
+    .preview-button {
+      display: inline-flex;
+      min-height: 31px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 9px;
+      border: 1px solid rgba(130, 239, 190, 0.25);
+      border-radius: 8px;
+      background: rgba(130, 239, 190, 0.08);
+      color: var(--accent-bright);
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
+    }
+    .preview-button:hover:not(:disabled),
+    .preview-button:focus-visible { border-color: rgba(181, 255, 217, 0.52); background: rgba(130, 239, 190, 0.16); transform: translateY(-1px); }
+    .preview-button:disabled { opacity: 0.5; }
+    .preview-button .spinner { display: none; }
+    .preview-button[data-loading="true"] .preview-icon { display: none; }
+    .preview-button[data-loading="true"] .spinner { display: inline-block; }
+    .voice-facts { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 0 0; }
+    .voice-fact { padding: 3px 6px; border-radius: 5px; background: rgba(255, 255, 255, 0.048); color: #a7c4b4; font-size: 10px; font-weight: 700; }
 
-  .fade-up{ animation: fadeUp .6s ease both; }
-  @keyframes fadeUp{ from{ opacity:0; transform:translateY(16px);} to{ opacity:1; transform:translateY(0);} }
+    .tuning-card { padding-top: 2px; }
+    .tuning-heading { display: flex; align-items: center; gap: 8px; margin: 0 0 13px; color: #dbe5f1; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .tuning-heading svg { color: var(--blue); }
+    .tuning-stack { display: grid; gap: 17px; }
+    .range-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+    .range-label { color: #cbd8e7; font-size: 13px; font-weight: 700; }
+    output.range-value {
+      min-width: 45px;
+      padding: 3px 6px;
+      border: 1px solid rgba(124, 174, 255, 0.18);
+      border-radius: 6px;
+      background: var(--blue-soft);
+      color: #b9d3ff;
+      font-family: "Space Grotesk", "DM Sans", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    input[type="range"] {
+      --range-progress: 50%;
+      width: 100%;
+      height: 18px;
+      margin: 0;
+      padding: 0;
+      outline: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--blue) 0%, var(--blue) var(--range-progress), #26354a var(--range-progress), #26354a 100%);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 16px;
+      height: 16px;
+      margin-top: -5.5px;
+      border: 3px solid #dfffea;
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--accent-deep);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.1); box-shadow: 0 0 0 5px rgba(130, 239, 190, 0.1), 0 2px 8px rgba(0, 0, 0, 0.4); }
+    input[type="range"]::-moz-range-track { height: 5px; border-radius: 999px; background: #26354a; }
+    input[type="range"]::-moz-range-progress { height: 5px; border-radius: 999px; background: var(--blue); }
+    input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; border: 3px solid #dfffea; border-radius: 50%; background: var(--accent-deep); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
+    input[type="range"]:focus-visible { outline: 3px solid rgba(130, 239, 190, 0.18); outline-offset: 5px; border-radius: 4px; }
+    .range-scale { display: flex; justify-content: space-between; margin-top: 4px; color: var(--subtle); font-size: 10px; font-weight: 600; }
 
-  .stat-card{
-    background:#fff; border:1px solid #E9E8F5; border-radius:18px;
-    box-shadow: 0 10px 26px -10px rgba(99,102,241,0.14);
-    transition: transform .2s ease, box-shadow .2s ease;
-  }
-  .stat-card:hover{ transform: translateY(-3px); box-shadow: 0 16px 32px -10px rgba(99,102,241,0.2); }
+    .studio-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 17px clamp(20px, 3.2vw, 34px);
+      border-top: 1px solid var(--line);
+      background: rgba(5, 10, 18, 0.32);
+    }
+    .feedback {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .feedback::before { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #63778f; content: ""; }
+    .feedback[data-tone="success"] { color: #bdebd3; }
+    .feedback[data-tone="success"]::before { background: var(--accent); }
+    .feedback[data-tone="working"] { color: #c9d6e5; }
+    .feedback[data-tone="working"]::before { background: var(--blue); animation: statusPulse 1.4s ease-in-out infinite; }
+    .feedback[data-tone="warning"] { color: #f4d59a; }
+    .feedback[data-tone="warning"]::before { background: var(--warning); }
+    .feedback[data-tone="error"] { color: #fec2cc; }
+    .feedback[data-tone="error"]::before { background: var(--danger); }
+    .action-buttons { display: flex; flex: 0 0 auto; align-items: center; gap: 9px; }
+    .cancel-button {
+      min-height: 45px;
+      padding: 0 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 11px;
+      background: transparent;
+      color: #c6d1df;
+      font-size: 13px;
+      font-weight: 700;
+      transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+    }
+    .cancel-button:hover,
+    .cancel-button:focus-visible { border-color: rgba(251, 113, 133, 0.46); background: var(--danger-soft); color: #ffd2d9; }
+    .primary-button { min-height: 46px; min-width: 181px; padding: 0 17px; border-radius: 12px; }
+    .primary-button:disabled { border-color: rgba(147, 167, 193, 0.25); background: #26364a; color: #8391a3; box-shadow: none; }
+    .primary-button .spinner { display: none; }
+    .primary-button[data-loading="true"] .generate-icon { display: none; }
+    .primary-button[data-loading="true"] .spinner { display: inline-block; }
+    .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 650ms linear infinite; }
 
-  .history-item{
-    background:#F6F6FC; border:1px solid #E9E8F5; border-radius:14px;
-    transition: background .15s ease, border-color .15s ease;
-  }
-  .history-item:hover{ background:#fff; border-color:#c7c4ee; }
+    .audio-result {
+      margin-top: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(130, 239, 190, 0.26);
+      border-radius: var(--radius-xl);
+      background: #0d1b20;
+      box-shadow: var(--shadow-soft);
+      scroll-margin-top: 96px;
+    }
+    .audio-result-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 19px 22px 0;
+    }
+    .result-kicker { display: inline-flex; align-items: center; gap: 7px; color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; }
+    .result-kicker svg { width: 15px; height: 15px; }
+    .audio-result h3 { margin: 4px 0 0; font-family: "Space Grotesk", "DM Sans", sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -0.035em; }
+    .audio-result p { margin: 3px 0 0; color: #91ad9d; font-size: 12px; font-weight: 600; }
+    .result-state { padding: 5px 8px; border: 1px solid rgba(130, 239, 190, 0.18); border-radius: 999px; color: #b8dfc9; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .result-state[data-state="streaming"] { color: #b9d3ff; border-color: rgba(124, 174, 255, 0.22); background: rgba(124, 174, 255, 0.07); }
+    .waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 66px;
+      margin: 12px 22px 0;
+      overflow: hidden;
+    }
+    .waveform-bar {
+      width: 100%;
+      min-width: 2px;
+      max-width: 7px;
+      height: var(--bar-height);
+      border-radius: 999px;
+      background: #31584d;
+      transform-origin: center;
+      transition: background 150ms ease, opacity 150ms ease;
+    }
+    .waveform-bar.is-active { background: var(--accent); box-shadow: 0 0 12px rgba(130, 239, 190, 0.16); }
+    .waveform.is-playing .waveform-bar.is-active { animation: wavePulse 780ms ease-in-out infinite alternate; animation-delay: var(--bar-delay); }
+    .player-controls {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 13px;
+      padding: 16px 22px 20px;
+    }
+    .play-button {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      padding: 0;
+      border: 1px solid rgba(181, 255, 217, 0.55);
+      border-radius: 50%;
+      background: var(--accent);
+      color: #062113;
+      box-shadow: 0 7px 22px rgba(67, 190, 126, 0.18);
+      transition: transform 150ms ease, background 150ms ease;
+    }
+    .play-button:hover:not(:disabled), .play-button:focus-visible { background: var(--accent-bright); transform: scale(1.05); }
+    .play-button:disabled { opacity: 0.5; }
+    .play-button .pause-icon { display: none; }
+    .play-button[data-state="pause"] .play-icon { display: none; }
+    .play-button[data-state="pause"] .pause-icon { display: block; }
+    .timeline { min-width: 0; }
+    .timeline input[type="range"] { --range-progress: 0%; }
+    .timeline input[type="range"]::-webkit-slider-runnable-track { background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--range-progress), #2b4b42 var(--range-progress), #2b4b42 100%); }
+    .time-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 2px; color: #8fa99a; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .player-action {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border: 1px solid rgba(160, 193, 180, 0.2);
+      border-radius: 10px;
+      background: transparent;
+      color: #b4d5c2;
+      text-decoration: none;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+    .player-action:hover, .player-action:focus-visible { border-color: rgba(130, 239, 190, 0.48); background: rgba(130, 239, 190, 0.1); color: var(--accent-bright); }
+    .player-action[aria-disabled="true"] { pointer-events: none; opacity: 0.42; }
+    .regenerate-button {
+      min-height: 38px;
+      padding: 0 10px;
+      border: 1px solid rgba(160, 193, 180, 0.2);
+      border-radius: 10px;
+      background: transparent;
+      color: #b4d5c2;
+      font-size: 12px;
+      font-weight: 700;
+      transition: color 150ms ease, border-color 150ms ease, background 150ms ease;
+    }
+    .regenerate-button:hover, .regenerate-button:focus-visible { border-color: rgba(130, 239, 190, 0.48); background: rgba(130, 239, 190, 0.1); color: var(--accent-bright); }
 
-  .gradient-text{
-    background: linear-gradient(135deg, #6366F1, #A855F7 55%, #06B6D4);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
+    .capabilities-section,
+    .history-section,
+    .how-section { scroll-margin-top: 96px; }
+    .capabilities-section { padding: 8px 0 clamp(75px, 10vw, 126px); }
+    .section-intro { max-width: 620px; }
+    .section-intro .section-heading { font-size: clamp(30px, 3.6vw, 45px); }
+    .section-intro > p:last-child { margin: 14px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+    .capability-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-top: 28px; }
+    .capability-card {
+      min-height: 190px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(12, 20, 34, 0.68);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+    .capability-card:hover { border-color: rgba(160, 192, 231, 0.31); background: #0d1727; transform: translateY(-3px); }
+    .capability-icon {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+    .capability-card:nth-child(2) .capability-icon { background: var(--success-soft); color: var(--accent); }
+    .capability-card:nth-child(3) .capability-icon { background: rgba(187, 146, 255, 0.12); color: #c5a7ff; }
+    .capability-card:nth-child(4) .capability-icon { background: var(--warning-soft); color: var(--warning); }
+    .capability-card h3 { margin: 20px 0 6px; font-family: "Space Grotesk", "DM Sans", sans-serif; font-size: 16px; font-weight: 600; letter-spacing: -0.025em; }
+    .capability-card p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .capability-number { color: var(--accent); }
 
-  #waveCanvas{ width:100%; height:44px; display:block; border-radius:10px; }
-</style>
+    .how-section { padding-bottom: clamp(75px, 10vw, 126px); }
+    .how-layout { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(28px, 7vw, 100px); align-items: start; }
+    .how-steps { display: grid; gap: 12px; }
+    .how-step { display: grid; grid-template-columns: 35px minmax(0, 1fr); gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--line); }
+    .how-step:first-child { border-top: 1px solid var(--line); }
+    .step-number { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid rgba(130, 239, 190, 0.26); border-radius: 50%; background: rgba(130, 239, 190, 0.08); color: var(--accent); font-size: 12px; font-weight: 700; }
+    .how-step h3 { margin: 2px 0 3px; color: #e3ebf5; font-size: 15px; font-weight: 700; }
+    .how-step p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .history-section { padding-bottom: clamp(75px, 10vw, 126px); }
+    .dashboard-heading { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-bottom: 25px; }
+    .dashboard-heading > div > p:last-child { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
+    .local-badge { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .local-badge svg { color: var(--accent); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; margin-bottom: 14px; }
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 145px;
+      padding: 21px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(12, 20, 34, 0.76);
+    }
+    .stat-card::after { position: absolute; right: -28px; bottom: -42px; width: 115px; height: 115px; border: 1px solid rgba(130, 239, 190, 0.07); border-radius: 50%; content: ""; box-shadow: 0 0 0 20px rgba(130, 239, 190, 0.025); }
+    .stat-label { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; margin: 0; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .stat-label svg { color: var(--accent); }
+    .stat-value { position: relative; z-index: 1; overflow: hidden; margin: 13px 0 3px; color: var(--text); font-family: "Space Grotesk", "DM Sans", sans-serif; font-size: 36px; font-weight: 600; letter-spacing: -0.06em; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+    .stat-value.voice-value { font-size: 24px; letter-spacing: -0.04em; }
+    .stat-caption { position: relative; z-index: 1; margin: 0; color: var(--subtle); font-size: 11px; font-weight: 600; }
+    .history-panel { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(12, 20, 34, 0.72); }
+    .history-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 70px; padding: 0 21px; border-bottom: 1px solid var(--line); }
+    .history-panel-title { display: flex; align-items: center; gap: 10px; }
+    .history-panel-title-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: rgba(124, 174, 255, 0.11); color: var(--blue); }
+    .history-panel-title h3 { margin: 0; font-family: "Space Grotesk", "DM Sans", sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -0.025em; }
+    .history-panel-title p { margin: 1px 0 0; color: var(--subtle); font-size: 11px; font-weight: 600; }
+    .clear-history-button { padding: 7px 9px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--subtle); font-size: 12px; font-weight: 700; transition: border-color 150ms ease, background 150ms ease, color 150ms ease; }
+    .clear-history-button:hover:not(:disabled), .clear-history-button:focus-visible { border-color: rgba(251, 113, 133, 0.35); background: var(--danger-soft); color: #ffc5cf; }
+    .clear-history-button:disabled { opacity: 0.45; }
+    .history-list { padding: 10px; }
+    .history-item { display: flex; align-items: center; justify-content: space-between; gap: 17px; padding: 13px 12px; border-radius: 12px; transition: background 150ms ease; }
+    .history-item + .history-item { border-top: 1px solid rgba(160, 185, 218, 0.08); }
+    .history-item:hover { background: rgba(255, 255, 255, 0.025); }
+    .history-item-main { min-width: 0; }
+    .history-text { overflow: hidden; margin: 0; color: #dce7f3; font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+    .history-meta { display: flex; flex-wrap: wrap; gap: 4px 7px; margin: 5px 0 0; color: var(--subtle); font-size: 11px; font-weight: 600; }
+    .history-meta span + span::before { margin-right: 7px; color: #455469; content: "•"; }
+    .history-date { flex: 0 0 auto; color: #77879a; font-size: 11px; font-weight: 600; text-align: right; }
+    .empty-history { display: grid; min-height: 215px; place-items: center; padding: 28px; text-align: center; }
+    .empty-history-icon { display: grid; width: 43px; height: 43px; place-items: center; margin: 0 auto 11px; border: 1px solid rgba(124, 174, 255, 0.2); border-radius: 14px; background: var(--blue-soft); color: var(--blue); }
+    .empty-history h4 { margin: 0; color: #e3ebf5; font-size: 15px; font-weight: 700; }
+    .empty-history p { max-width: 330px; margin: 5px auto 14px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .empty-start-button { padding: 0; border: 0; background: transparent; color: var(--accent); font-size: 12px; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+
+    .closing { padding: 0 0 75px; }
+    .closing-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+      overflow: hidden;
+      padding: clamp(27px, 5vw, 48px);
+      border: 1px solid rgba(130, 239, 190, 0.22);
+      border-radius: 25px;
+      background: #0e1e1a;
+      box-shadow: var(--shadow-soft);
+    }
+    .closing-copy h2 { font-size: clamp(27px, 3.4vw, 42px); line-height: 1.02; }
+    .closing-copy h2 span { color: var(--accent); }
+    .closing-copy p { max-width: 545px; margin: 12px 0 0; color: #a2bcb0; font-size: 15px; }
+    .closing .primary-button { flex: 0 0 auto; min-width: 158px; }
+
+    footer { border-top: 1px solid var(--line); background: rgba(3, 7, 13, 0.35); }
+    .footer-shell { display: flex; min-height: 86px; align-items: center; justify-content: space-between; gap: 20px; }
+    .footer-brand { display: inline-flex; align-items: center; gap: 8px; color: #d7e1ee; font-family: "Space Grotesk", "DM Sans", sans-serif; font-size: 14px; font-weight: 600; text-decoration: none; }
+    .footer-brand .brand-mark { width: 26px; height: 26px; border-radius: 8px; }
+    .footer-brand .brand-mark svg { width: 15px; height: 15px; }
+    .footer-copy { color: var(--subtle); font-size: 12px; font-weight: 600; }
+    .footer-link { color: var(--muted); font-size: 12px; font-weight: 700; text-decoration: none; }
+    .footer-link:hover, .footer-link:focus-visible { color: var(--accent); }
+
+    :focus-visible { outline: 3px solid rgba(130, 239, 190, 0.52); outline-offset: 3px; }
+    .nav-cta:focus-visible, .primary-button:focus-visible, .play-button:focus-visible { outline-color: #edfff5; }
+
+    .js .reveal { opacity: 0; transform: translateY(18px); }
+    .js .reveal.is-visible { opacity: 1; transform: translateY(0); transition: opacity 520ms ease, transform 520ms cubic-bezier(.2,.7,.2,1); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes statusPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(124, 174, 255, 0.3); } 50% { box-shadow: 0 0 0 5px rgba(124, 174, 255, 0); } }
+    @keyframes wavePulse { from { transform: scaleY(0.72); } to { transform: scaleY(1.08); } }
+
+    @media (max-width: 1000px) {
+      .hero { grid-template-columns: minmax(0, 1fr) minmax(240px, 0.63fr); gap: 40px; }
+      .studio-grid { grid-template-columns: minmax(0, 1.18fr) minmax(292px, 0.72fr); }
+      .capability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .capability-card { min-height: 165px; }
+    }
+    @media (max-width: 820px) {
+      .nav-links { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 26px; min-height: 0; padding-top: 59px; }
+      .hero-visual { width: min(100%, 460px); min-height: 225px; margin-left: auto; }
+      .signal-card { top: 0; }
+      .studio-grid { grid-template-columns: 1fr; }
+      .controls-column { border-top: 1px solid var(--line); border-left: 0; }
+      .how-layout { grid-template-columns: 1fr; gap: 34px; }
+    }
+    @media (max-width: 640px) {
+      .container { width: min(calc(100% - 28px), var(--content-width)); }
+      .nav-shell { min-height: 64px; gap: 12px; }
+      .brand { font-size: 17px; }
+      .nav-cta { min-height: 37px; padding: 0 10px; font-size: 12px; }
+      .nav-cta .icon { display: none; }
+      .hero { padding: 48px 0 42px; }
+      .hero h1 { font-size: clamp(40px, 12vw, 56px); }
+      .hero-description { margin-top: 18px; font-size: 16px; }
+      .hero-visual { min-height: 208px; }
+      .signal-card { padding: 19px; }
+      .hero-wave { height: 70px; margin: 21px 0 14px; }
+      .visual-float { right: -8px; bottom: -16px; padding: 9px 10px; }
+      .section-heading-row, .dashboard-heading { align-items: flex-start; flex-direction: column; gap: 13px; }
+      .server-pill { max-width: 100%; }
+      .studio-card { border-radius: 19px; }
+      .studio-topbar { min-height: 44px; padding: 0 16px; }
+      .shortcut-hint { display: none; }
+      .editor-column, .controls-column { padding: 18px; }
+      textarea { min-height: 220px; padding: 16px; font-size: 15px; }
+      .editor-toolbar { padding-left: 13px; }
+      .editor-bottom { align-items: flex-start; flex-direction: column; }
+      .editor-hint { display: none; }
+      .studio-actions { align-items: stretch; flex-direction: column; gap: 12px; padding: 15px 18px; }
+      .feedback { min-height: 18px; }
+      .action-buttons { width: 100%; }
+      .primary-button { width: 100%; flex: 1; min-width: 0; }
+      .audio-result { border-radius: 19px; }
+      .audio-result-header { padding: 17px 17px 0; }
+      .waveform { margin: 10px 17px 0; }
+      .player-controls { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; padding: 13px 17px 17px; }
+      .regenerate-button { display: none; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat-card { min-height: 119px; }
+      .history-panel-header { min-height: 66px; padding: 0 15px; }
+      .history-list { padding: 7px; }
+      .history-item { align-items: flex-start; flex-direction: column; gap: 5px; padding: 13px 9px; }
+      .history-date { text-align: left; }
+      .closing-card { align-items: flex-start; flex-direction: column; padding: 27px; }
+      .closing .primary-button { width: 100%; }
+      .footer-shell { align-items: flex-start; flex-direction: column; justify-content: center; gap: 6px; padding: 16px 0; }
+      .footer-link { position: absolute; right: 14px; }
+    }
+    @media (max-width: 390px) {
+      .nav-cta { padding: 0 9px; }
+      .hero-proof { gap: 7px; }
+      .proof-item { padding: 6px 8px; font-size: 11px; }
+      .template-label { width: 100%; margin-bottom: 1px; }
+      .voice-profile { grid-template-columns: 34px minmax(0, 1fr); padding: 10px; }
+      .voice-avatar { width: 34px; height: 34px; }
+      .voice-profile-head { align-items: flex-start; flex-direction: column; }
+      .preview-button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+      .js .reveal { opacity: 1; transform: none; }
+    }
+  </style>
 </head>
-<body class="text-ink font-sans min-h-screen flex flex-col relative">
+<body>
+  <a class="skip-link" href="#studio">Skip to voice studio</a>
 
-  <!-- 3D Intro -->
-  <div id="introScreen">
-    <div class="intro-cube-wrap">
-      <div class="intro-cube">
-        <div class="face front"></div>
-        <div class="face back"></div>
-        <div class="face right"></div>
-        <div class="face left"></div>
-        <div class="face top"></div>
-        <div class="face bottom"></div>
-      </div>
-    </div>
-    <p class="text-white font-serif font-bold text-xl tracking-tight">Vocalis</p>
-    <div class="intro-bar"><div class="intro-bar-fill"></div></div>
-  </div>
-
-  <!-- appRoot -->
-  <div id="appRoot">
-
-  <!-- Navbar -->
-  <nav class="relative z-20 w-full">
-    <div class="max-w-[1100px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <span class="logo-mark">
-          <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
+  <header class="site-header">
+    <div class="container nav-shell">
+      <a class="brand" href="#top" aria-label="Vocalis home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <path d="M3 14v-4M7.5 18V6M12 21V3M16.5 17V7M21 14v-4"/>
+          </svg>
         </span>
-        <span class="font-serif font-bold text-lg tracking-tight">Vocalis</span>
-      </div>
-      <a href="#dashboard" class="fab-soft text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-ink">
-        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Dashboard</span>
+        <span>Vocalis</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#studio">Studio</a>
+        <a href="#voices">Voices</a>
+        <a href="#history">History</a>
+        <a href="#about">About</a>
+      </nav>
+      <a class="nav-cta" href="#studio">
+        <span>Start creating</span>
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
-  </nav>
+  </header>
 
-  <main class="flex-1 w-full max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-14 relative z-10">
-
-    <header class="text-center mb-8 fade-up">
-      <div class="hero-logo">
-        <div class="bar-eq"><span></span><span></span><span></span><span></span><span></span></div>
+  <main id="top">
+    <section class="container hero reveal" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">AI Voice Studio</p>
+        <h1 id="hero-title">Turn your words into <span>natural-sounding voice.</span></h1>
+        <p class="hero-description">Create clear, expressive speech with a voice that fits your message. Pick a language, fine-tune the delivery, and generate in seconds.</p>
+        <div class="hero-proof" aria-label="Vocalis benefits">
+          <span class="proof-item"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3v18M7 7v10M17 7v10M3 10v4M21 10v4"/></svg>300+ voice options</span>
+          <span class="proof-item"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7M16 6l-4-4-4 4M12 2v13"/></svg>No signup</span>
+          <span class="proof-item"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5a5 5 0 0 0-7 0 5 5 0 0 0 0 7 5 5 0 0 0 7 0L12 12l3.5-3.5a5 5 0 1 1 0 7 5 5 0 0 1-7 0"/></svg>Unlimited use</span>
+          <span class="proof-item"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9M12 7v5l3 2"/></svg>Local history</span>
+        </div>
       </div>
-      <h1 class="font-serif text-4xl sm:text-5xl font-extrabold tracking-tight gradient-text">Vocalis</h1>
-      <p class="text-[15px] text-muted mt-3 font-medium">Free, unlimited text to speech</p>
-      <div class="flex flex-wrap items-center justify-center gap-2.5 mt-5">
-        <span class="chip-soft"><i data-lucide="infinity" class="w-3.5 h-3.5 text-indigo"></i> Unlimited</span>
-        <span class="chip-soft"><i data-lucide="lock-open" class="w-3.5 h-3.5 text-violet"></i> No signup</span>
-        <span class="chip-soft"><i data-lucide="zap" class="w-3.5 h-3.5 text-cyan"></i> 300+ voices</span>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="signal-card">
+          <div class="signal-topline">
+            <span class="signal-label">Live voice signal</span>
+            <span class="signal-status"><i></i>Ready</span>
+          </div>
+          <div class="hero-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="signal-footer"><span>Vocalis Neural</span><strong>Text → Voice</strong></div>
+        </div>
+        <div class="visual-float"><span class="float-icon"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M8 5.5v13M16 5.5v13M4 9v6M20 9v6"/></svg></span><span>Made for listening</span></div>
       </div>
-    </header>
+    </section>
 
-    <section id="mainCard" class="card-elev p-6 sm:p-9 space-y-7 fade-up" style="animation-delay:.08s;">
-
-      <div>
-        <label for="language" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
-          <span class="icon-badge" style="background:#EEF2FF;"><i data-lucide="globe" class="w-4 h-4 text-indigo"></i></span>
-          Language
-        </label>
-        <select id="language" class="field-soft w-full rounded-xl px-4 py-3 text-sm text-ink font-medium">
-          <option>Loading…</option>
-        </select>
+    <section id="studio" class="container studio-section reveal" aria-labelledby="studio-title">
+      <div class="section-heading-row">
+        <div>
+          <p class="section-eyebrow">Your workspace</p>
+          <h2 id="studio-title" class="section-heading">Create a voice that sounds like you mean it.</h2>
+          <p class="section-support">Choose from the connected voice catalog and keep control of every word, speed, and pitch.</p>
+        </div>
+        <div class="server-pill" id="serverStatus" data-state="connecting" role="status" aria-live="polite">
+          <span id="serverStatusText">Connecting to the voice catalog…</span>
+          <button id="retryConnection" class="retry-connection" type="button" hidden>Retry</button>
+        </div>
       </div>
 
-      <div>
-        <label for="voice" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted mb-2.5">
-          <span class="icon-badge" style="background:#FAF5FF;"><i data-lucide="mic" class="w-4 h-4 text-violet"></i></span>
-          Voice
-        </label>
-        <div class="flex gap-2">
-          <select id="voice" class="field-soft flex-1 rounded-xl px-4 py-3 text-sm text-ink font-medium">
-            <option>Loading…</option>
-          </select>
-          <button id="previewBtn" title="Preview this voice"
-            class="fab-soft shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-violet">
-            <i data-lucide="ear" class="w-4 h-4"></i>
+      <div class="studio-card">
+        <div class="studio-topbar">
+          <span class="studio-topbar-label">Voice generation</span>
+          <span class="shortcut-hint"><kbd>Ctrl</kbd> <kbd>Enter</kbd> to generate</span>
+        </div>
+
+        <div class="studio-grid">
+          <div class="editor-column">
+            <div class="panel-title-row">
+              <div>
+                <h3 class="panel-title">Your script</h3>
+                <p class="panel-description">Write something worth hearing.</p>
+              </div>
+            </div>
+
+            <div class="editor-shell">
+              <div class="editor-toolbar">
+                <label class="editor-label" for="text">
+                  <svg class="icon icon-sm label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                  Script editor
+                </label>
+                <div class="editor-utilities">
+                  <button id="copyBtn" class="icon-button" type="button" aria-label="Copy script" title="Copy script">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                  <button id="clearBtn" class="icon-button" type="button" aria-label="Clear script" title="Clear script">
+                    <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 21-4-4L15.5 4.5a2.12 2.12 0 0 1 3 3L6 20l-3-3zM16 5l3 3"/><path d="M6 20h15"/></svg>
+                  </button>
+                  <span class="character-count" id="charCount" aria-live="polite"><span id="charcount">0</span> / 100,000</span>
+                </div>
+              </div>
+              <textarea id="text" rows="8" maxlength="100000" aria-describedby="editorHint" placeholder="Start typing, paste a script, or choose a quick template below. Your voice will be generated exactly as written."></textarea>
+              <div class="editor-bottom">
+                <div class="template-list" aria-label="Quick-start templates">
+                  <span class="template-label">Quick start</span>
+                  <button class="template-button" type="button" data-template="quote" data-text="Kindness is a language the deaf can hear and the blind can see."><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2H5c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h2c0 2.5-1.5 4-4 4v4zM14 21c3 0 7-1 7-8V5c0-1.25-.75-2-2-2h-3c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h2c0 2.5-1.5 4-4 4v4z"/></svg>Quote</button>
+                  <button class="template-button" type="button" data-template="voicemail" data-text="Welcome, and thank you for calling. Please hold while we connect you to the next available representative."><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.34 1.78.65 2.62a2 2 0 0 1-.45 2.11L7.95 9.82a16 16 0 0 0 6 6l1.37-1.36a2 2 0 0 1 2.11-.45c.84.31 1.72.53 2.62.65A2 2 0 0 1 22 16.92z"/></svg>Voicemail</button>
+                  <button class="template-button" type="button" data-template="news" data-text="Breaking news: scientists have made a remarkable discovery that could change how we understand the universe."><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H20v16H6.5A2.5 2.5 0 0 1 4 17.5zM4 6.5v11M8 8h8M8 12h8M8 16h5"/></svg>News</button>
+                </div>
+                <span id="editorHint" class="editor-hint"><kbd>Ctrl</kbd> <kbd>Enter</kbd> to generate</span>
+              </div>
+            </div>
+          </div>
+
+          <aside class="controls-column" aria-label="Voice controls">
+            <div class="control-group">
+              <div class="field-label-row"><label class="field-label" for="language">Language</label><span class="field-note" id="languageNote">Loading catalog</span></div>
+              <select id="language" disabled aria-describedby="languageHelp"><option>Loading languages…</option></select>
+              <p class="field-help" id="languageHelp">Select the language and regional accent for your voice.</p>
+            </div>
+
+            <div class="control-group">
+              <div class="field-label-row"><label class="field-label" for="voice">Voice</label><span class="field-note" id="voiceCount">— options</span></div>
+              <select id="voice" disabled aria-describedby="voiceHelp"><option>Loading voices…</option></select>
+              <p class="field-help" id="voiceHelp">Every catalog detail below comes directly from the selected voice.</p>
+              <div class="voice-profile" aria-live="polite">
+                <span class="voice-avatar" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg></span>
+                <div class="voice-profile-main">
+                  <div class="voice-profile-head">
+                    <div>
+                      <p class="voice-name" id="selectedVoiceName">Choose a voice</p>
+                      <p class="voice-detail" id="selectedVoiceDetail">Voice details will appear here.</p>
+                    </div>
+                    <button id="previewBtn" class="preview-button" type="button" disabled aria-label="Preview selected voice">
+                      <svg class="icon icon-sm preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3l14 9-14 9V3z"/></svg>
+                      <span class="spinner" aria-hidden="true"></span>
+                      <span>Preview</span>
+                    </button>
+                  </div>
+                  <div class="voice-facts"><span class="voice-fact" id="voiceLocale">Locale —</span><span class="voice-fact" id="voiceGender">Gender —</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tuning-card">
+              <p class="tuning-heading"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Delivery controls</p>
+              <div class="tuning-stack">
+                <div class="range-control">
+                  <div class="range-header"><label class="range-label" for="speed">Speed</label><output class="range-value" id="speedVal" for="speed">+0%</output></div>
+                  <input type="range" id="speed" min="-50" max="100" step="5" value="0" aria-valuemin="-50" aria-valuemax="100" aria-valuenow="0" aria-valuetext="Normal speed">
+                  <div class="range-scale" aria-hidden="true"><span>−50%</span><span>Normal</span><span>+100%</span></div>
+                </div>
+                <div class="range-control">
+                  <div class="range-header"><label class="range-label" for="pitch">Pitch</label><output class="range-value" id="pitchVal" for="pitch">+0Hz</output></div>
+                  <input type="range" id="pitch" min="-50" max="50" step="5" value="0" aria-valuemin="-50" aria-valuemax="50" aria-valuenow="0" aria-valuetext="Natural pitch">
+                  <div class="range-scale" aria-hidden="true"><span>−50Hz</span><span>Natural</span><span>+50Hz</span></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="studio-actions">
+          <div class="feedback" id="feedback" data-tone="neutral" role="status" aria-live="polite">Loading the voice catalog…</div>
+          <div class="action-buttons">
+            <button id="cancelBtn" class="cancel-button" type="button" hidden>Cancel</button>
+            <button id="generateBtn" class="primary-button" type="button" disabled aria-busy="false">
+              <svg class="icon generate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+              <span class="spinner" aria-hidden="true"></span>
+              <span id="generateLabel">Generate speech</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <section id="audioResult" class="audio-result" hidden aria-labelledby="audioResultTitle">
+        <div class="audio-result-header">
+          <div>
+            <span class="result-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>Voice ready</span>
+            <h3 id="audioResultTitle">Your generated speech</h3>
+            <p id="audioResultMeta">Ready to play, seek, or download.</p>
+          </div>
+          <span id="audioResultState" class="result-state" data-state="ready">Ready</span>
+        </div>
+        <div id="waveform" class="waveform" aria-hidden="true"></div>
+        <div class="player-controls">
+          <button id="playBtn" class="play-button" type="button" disabled data-state="play" aria-label="Play generated speech">
+            <svg class="icon play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.7-6.86a1 1 0 0 0 0-1.7L9.53 4.3A1 1 0 0 0 8 5.14z"/></svg>
+            <svg class="icon pause-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
           </button>
-        </div>
-      </div>
-
-      <div>
-        <div class="flex items-center justify-between mb-2.5">
-          <label for="text" class="flex items-center gap-2.5 text-xs uppercase tracking-wider font-bold text-muted">
-            <span class="icon-badge" style="background:#ECFEFF;"><i data-lucide="text" class="w-4 h-4 text-cyan"></i></span>
-            Your text
-          </label>
-          <div class="flex items-center gap-3.5">
-            <button id="copyBtn" title="Copy text" class="text-muted hover:text-indigo transition-colors"><i data-lucide="copy" class="w-3.5 h-3.5"></i></button>
-            <button id="clearBtn" title="Clear text" class="text-muted hover:text-indigo transition-colors"><i data-lucide="eraser" class="w-3.5 h-3.5"></i></button>
-            <span class="text-xs text-muted font-semibold"><span id="charcount">0</span> characters</span>
+          <div class="timeline">
+            <label class="screen-reader-text" for="progress">Audio progress</label>
+            <input type="range" id="progress" min="0" max="100" step="0.1" value="0" disabled aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 minutes, 0 seconds">
+            <div class="time-row"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
           </div>
+          <a id="downloadBtn" class="player-action" download="vocalis-speech.mp3" aria-disabled="true" aria-label="Download generated speech" title="Download audio">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </a>
+          <button id="regenerateBtn" class="regenerate-button" type="button">Regenerate</button>
         </div>
-        <textarea id="text" rows="6"
-          class="field-soft w-full rounded-xl px-4 py-3.5 text-[15px] text-ink resize-y placeholder:text-muted/60"
-          placeholder="Enter your text here..."></textarea>
-        <div class="flex flex-wrap gap-2 mt-2.5">
-          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Kindness is a language the deaf can hear and the blind can see.">✨ Quote</button>
-          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Welcome! Thank you for calling. Please hold while we connect you to the next available representative.">📞 Voicemail</button>
-          <button class="quickfill text-xs font-medium px-3 py-1.5 rounded-full bg-bezel border border-line hover:border-indigo text-muted hover:text-indigo transition-colors" data-text="Breaking news: scientists have made a remarkable discovery that could change how we understand the universe.">📰 News</button>
+      </section>
+    </section>
+
+    <section id="voices" class="container capabilities-section reveal" aria-labelledby="capabilities-title">
+      <div class="section-intro">
+        <p class="section-eyebrow">Made for real work</p>
+        <h2 id="capabilities-title" class="section-heading">A voice studio that stays out of your way.</h2>
+        <p>Everything here supports the speech workflow: a broad catalog, practical delivery controls, reusable templates, and a local record of your work.</p>
+      </div>
+      <div class="capability-grid">
+        <article class="capability-card">
+          <span class="capability-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14.9 14.9 0 0 1 0 18M12 3a14.9 14.9 0 0 0 0 18"/></svg></span>
+          <h3><span class="capability-number" id="featureVoiceCount">300+</span> voice options</h3>
+          <p>Explore the connected catalog by language and regional locale, with voice name and gender shown from the source.</p>
+        </article>
+        <article class="capability-card">
+          <span class="capability-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg></span>
+          <h3>Fine-tuned delivery</h3>
+          <p>Set a faster or slower pace and adjust pitch with accessible controls before you generate.</p>
+        </article>
+        <article class="capability-card">
+          <span class="capability-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+          <h3>Start from a template</h3>
+          <p>Drop in a quote, voicemail, or news-style script when you want a quick place to start.</p>
+        </article>
+        <article class="capability-card">
+          <span class="capability-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18M7 15v3M12 10v8M17 6v12"/></svg></span>
+          <h3>Private local history</h3>
+          <p>Your recent generations and on-device usage stay in this browser. No account is required.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="container how-section reveal" aria-labelledby="how-title">
+      <div class="how-layout">
+        <div class="section-intro">
+          <p class="section-eyebrow">Simple by design</p>
+          <h2 id="how-title" class="section-heading">From first sentence to finished audio.</h2>
+          <p>Vocalis keeps the flow focused, so you can move from a written idea to a polished voice without learning a complicated production tool.</p>
+        </div>
+        <div class="how-steps">
+          <article class="how-step"><span class="step-number">01</span><div><h3>Choose a language and voice</h3><p>Browse the live catalog, then preview a voice before you commit to your script.</p></div></article>
+          <article class="how-step"><span class="step-number">02</span><div><h3>Shape the delivery</h3><p>Write or paste your text, then tune speed and pitch to suit the way it should sound.</p></div></article>
+          <article class="how-step"><span class="step-number">03</span><div><h3>Play, download, and keep moving</h3><p>Use the built-in player to review the result and download the generated MP3 when it is ready.</p></div></article>
         </div>
       </div>
+    </section>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <section id="history" class="container history-section reveal" aria-labelledby="history-title">
+      <div class="dashboard-heading">
         <div>
-          <div class="flex items-center justify-between mb-2.5">
-            <label for="speed" class="block text-xs uppercase tracking-wider font-bold text-muted">Speed</label>
-            <span class="text-xs text-white font-mono font-bold px-2 py-0.5 rounded-md" style="background:linear-gradient(135deg,#6366F1,#A855F7);" id="speedVal">0%</span>
-          </div>
-          <input type="range" id="speed" min="-50" max="100" step="5" value="0" class="w-full h-2 touch-manipulation">
+          <p class="section-eyebrow">Your workspace</p>
+          <h2 id="history-title" class="section-heading">Generation history, on your device.</h2>
+          <p>A clear view of the generations saved locally in this browser.</p>
         </div>
-        <div>
-          <div class="flex items-center justify-between mb-2.5">
-            <label for="pitch" class="block text-xs uppercase tracking-wider font-bold text-muted">Pitch</label>
-            <span class="text-xs text-white font-mono font-bold px-2 py-0.5 rounded-md" style="background:linear-gradient(135deg,#A855F7,#06B6D4);" id="pitchVal">0Hz</span>
-          </div>
-          <input type="range" id="pitch" min="-50" max="50" step="5" value="0" class="w-full h-2 touch-manipulation">
-        </div>
+        <span class="local-badge"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8M8 16h5M8 8h8"/></svg>Stored locally</span>
       </div>
-
-      <button id="generateBtn" disabled
-        class="btn-primary w-full flex items-center justify-center gap-2 text-white font-bold text-[15px] rounded-xl py-4">
-        <i data-lucide="play" class="w-4 h-4"></i>
-        <span id="generateLabel">Generate Speech</span>
-      </button>
-
-      <p id="statusLine" class="text-xs text-muted text-center -mt-3 font-medium">Connecting to voice server…</p>
-    </section>
-
-    <!-- Audio result with live waveform -->
-    <section id="audioResult" class="hidden mt-6 card-soft p-5 sm:p-6 fade-up">
-      <canvas id="waveCanvas" class="mb-3"></canvas>
-      <div class="flex items-center gap-4">
-        <button id="playBtn" class="fab-grad shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white">
-          <i data-lucide="play" class="w-5 h-5" id="playIcon"></i>
-        </button>
-        <div class="flex-1 min-w-0">
-          <input type="range" id="progress" min="0" max="100" value="0" class="w-full h-1.5">
-          <div class="flex justify-between text-xs text-muted mt-1.5 font-mono font-semibold">
-            <span id="currentTime">0:00</span>
-            <span id="duration">0:00</span>
-          </div>
+      <div class="stats-grid" aria-label="Usage statistics">
+        <article class="stat-card"><p class="stat-label"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>Generations</p><p id="statCount" class="stat-value">0</p><p class="stat-caption">Saved in recent history</p></article>
+        <article class="stat-card"><p class="stat-label"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M8 15V9M12 21V3M16 17V7M20 14v-4"/></svg>Characters spoken</p><p id="statChars" class="stat-value">0</p><p class="stat-caption">Across saved generations</p></article>
+        <article class="stat-card"><p class="stat-label"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 13.2a4 4 0 0 0-5.65-5.65L12 10.7 8.85 7.55A4 4 0 0 0 3.2 13.2L12 22z"/></svg>Favorite voice</p><p id="statVoice" class="stat-value voice-value">—</p><p class="stat-caption">Most used in local history</p></article>
+      </div>
+      <div class="history-panel">
+        <div class="history-panel-header">
+          <div class="history-panel-title"><span class="history-panel-title-icon"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/><path d="M12 7v5l3 2"/></svg></span><div><h3>Recent generations</h3><p>Up to 20 recent items</p></div></div>
+          <button id="clearHistoryBtn" class="clear-history-button" type="button" disabled>Clear history</button>
         </div>
-        <a id="downloadBtn" download="speech.mp3"
-          class="fab-soft shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-indigo">
-          <i data-lucide="download" class="w-5 h-5"></i>
-        </a>
+        <div id="historyList" class="history-list" aria-live="polite"></div>
       </div>
     </section>
 
-    <!-- Dashboard -->
-    <section id="dashboard" class="mt-16 scroll-mt-24 fade-up" style="animation-delay:.16s;">
-      <h2 class="font-serif text-2xl font-extrabold mb-1.5 flex items-center gap-2">
-        <i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo"></i> Dashboard
-      </h2>
-      <p class="text-sm text-muted mb-6 font-medium">Your usage on this device — stored locally, no account needed.</p>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Generations</p>
-          <p class="font-serif text-3xl font-extrabold gradient-text" id="statCount">0</p>
-        </div>
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Characters spoken</p>
-          <p class="font-serif text-3xl font-extrabold gradient-text" id="statChars">0</p>
-        </div>
-        <div class="stat-card p-5">
-          <p class="text-xs uppercase tracking-wider font-bold text-muted mb-1.5">Favorite voice</p>
-          <p class="font-serif text-xl font-extrabold text-ink" id="statVoice">—</p>
-        </div>
-      </div>
-
-      <div class="card-soft p-5 sm:p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm font-bold text-ink flex items-center gap-2"><i data-lucide="history" class="w-4 h-4 text-muted"></i> Recent generations</h3>
-          <button id="clearHistoryBtn" class="text-xs font-semibold text-muted hover:text-rose transition-colors">Clear history</button>
-        </div>
-        <div id="historyList" class="space-y-2">
-          <p class="text-xs text-muted font-medium" id="historyEmpty">No generations yet — try the box above.</p>
-        </div>
+    <section class="container closing reveal" aria-labelledby="closing-title">
+      <div class="closing-card">
+        <div class="closing-copy"><h2 id="closing-title">Ready when your <span>script is.</span></h2><p>Open the studio, choose a voice, and turn your next idea into audio without a signup or a complicated workflow.</p></div>
+        <a class="primary-button" href="#studio"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>Open studio</a>
       </div>
     </section>
-
   </main>
 
-  <footer class="text-center text-xs text-muted py-8 font-medium">
-    Made With <span class="text-rose">❤️</span> By ZEESHAN
+  <footer>
+    <div class="container footer-shell">
+      <a class="footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 14v-4M7.5 18V6M12 21V3M16.5 17V7M21 14v-4"/></svg></span>Vocalis</a>
+      <span class="footer-copy">AI Voice Studio · Built for clear communication</span>
+      <a class="footer-link" href="#studio">Create speech</a>
+    </div>
   </footer>
 
-  </div><!-- /#appRoot -->
+  <audio id="audioEl" preload="metadata"></audio>
 
-<audio id="audioEl" class="hidden"></audio>
+  <script>
+    // The existing production voice API remains the source of truth for voices and speech.
+    const API_BASE = "https://talking-tts-38rr.vercel.app";
+    const HISTORY_KEY = "vocalis_history_v1";
+    const VOICE_CACHE_KEY = "vocalis_voice_catalog_v2";
+    const VOICE_CACHE_TTL = 1000 * 60 * 60 * 24;
+    const MAX_CHARS = 100000; // Matches the API's accepted maximum.
+    const CHUNK_SIZE = 4000;
+    const CHUNK_CONCURRENCY = 4;
+    const MAX_HISTORY_ITEMS = 20;
+    const MAX_PREVIEW_CACHE_ITEMS = 8;
 
-<script>
-  const API_BASE = "https://talking-tts-38rr.vercel.app"; // backend URL
+    const languageEl = document.getElementById("language");
+    const voiceEl = document.getElementById("voice");
+    const textEl = document.getElementById("text");
+    const charcountEl = document.getElementById("charcount");
+    const charCountWrap = document.getElementById("charCount");
+    const speedEl = document.getElementById("speed");
+    const speedValEl = document.getElementById("speedVal");
+    const pitchEl = document.getElementById("pitch");
+    const pitchValEl = document.getElementById("pitchVal");
+    const generateBtn = document.getElementById("generateBtn");
+    const generateLabel = document.getElementById("generateLabel");
+    const cancelBtn = document.getElementById("cancelBtn");
+    const previewBtn = document.getElementById("previewBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const feedback = document.getElementById("feedback");
+    const serverStatus = document.getElementById("serverStatus");
+    const serverStatusText = document.getElementById("serverStatusText");
+    const retryConnection = document.getElementById("retryConnection");
+    const languageNote = document.getElementById("languageNote");
+    const voiceCount = document.getElementById("voiceCount");
+    const selectedVoiceName = document.getElementById("selectedVoiceName");
+    const selectedVoiceDetail = document.getElementById("selectedVoiceDetail");
+    const voiceLocale = document.getElementById("voiceLocale");
+    const voiceGender = document.getElementById("voiceGender");
+    const featureVoiceCount = document.getElementById("featureVoiceCount");
 
-  // ---------- 3D intro ----------
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      const intro = document.getElementById('introScreen');
-      intro.classList.add('hide');
-      document.getElementById('appRoot').classList.add('revealed');
-      setTimeout(() => { intro.style.display = 'none'; }, 650);
-    }, 1700);
-  });
+    const audioResult = document.getElementById("audioResult");
+    const audioResultMeta = document.getElementById("audioResultMeta");
+    const audioResultState = document.getElementById("audioResultState");
+    const audioEl = document.getElementById("audioEl");
+    const playBtn = document.getElementById("playBtn");
+    const progressEl = document.getElementById("progress");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const regenerateBtn = document.getElementById("regenerateBtn");
+    const waveform = document.getElementById("waveform");
 
-  const languageEl = document.getElementById('language');
-  const voiceEl = document.getElementById('voice');
-  const textEl = document.getElementById('text');
-  const charcountEl = document.getElementById('charcount');
-  const speedEl = document.getElementById('speed');
-  const speedValEl = document.getElementById('speedVal');
-  const pitchEl = document.getElementById('pitch');
-  const pitchValEl = document.getElementById('pitchVal');
-  const generateBtn = document.getElementById('generateBtn');
-  const generateLabel = document.getElementById('generateLabel');
-  const statusLine = document.getElementById('statusLine');
-  const audioResult = document.getElementById('audioResult');
-  const audioEl = document.getElementById('audioEl');
-  const playBtn = document.getElementById('playBtn');
-  const playIcon = document.getElementById('playIcon');
-  const progressEl = document.getElementById('progress');
-  const currentTimeEl = document.getElementById('currentTime');
-  const durationEl = document.getElementById('duration');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const previewBtn = document.getElementById('previewBtn');
-  const copyBtn = document.getElementById('copyBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const waveCanvas = document.getElementById('waveCanvas');
-  const waveCtx = waveCanvas.getContext('2d');
+    const statCount = document.getElementById("statCount");
+    const statChars = document.getElementById("statChars");
+    const statVoice = document.getElementById("statVoice");
+    const historyList = document.getElementById("historyList");
+    const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 
-  const statCount = document.getElementById('statCount');
-  const statChars = document.getElementById('statChars');
-  const statVoice = document.getElementById('statVoice');
-  const historyList = document.getElementById('historyList');
-  const historyEmpty = document.getElementById('historyEmpty');
-  const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+    let allVoices = [];
+    let isCatalogLoading = false;
+    let isGenerating = false;
+    let isPreviewing = false;
+    let generationController = null;
+    let previewController = null;
+    let generationTimer = null;
+    let activeAudioUrl = null;
+    let activeDownloadUrl = null;
+    let previewAudio = null;
+    let streamEndpointAvailable = null;
+    const previewCache = new Map();
+    const waveformBars = [];
 
-  let allVoices = [];
-  let lastUrl = null;
-  const MAX_CHARS = 500000;
-  const CHUNK_SIZE = 4000;
-  const CONCURRENCY = 12;
+    const langDisplay = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "language" }) : null;
+    const regionDisplay = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
 
-  // ---------- quick-fill examples ----------
-  document.querySelectorAll('.quickfill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      textEl.value = btn.dataset.text;
-      charcountEl.textContent = textEl.value.length;
-      textEl.focus();
-    });
-  });
-
-  // ---------- 3D tilt on main card ----------
-  const mainCard = document.getElementById('mainCard');
-  mainCard.addEventListener('mousemove', (e) => {
-    const rect = mainCard.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    mainCard.style.transform = `rotateY(${x * 2.5}deg) rotateX(${-y * 2.5}deg)`;
-  });
-  mainCard.addEventListener('mouseleave', () => { mainCard.style.transform = 'rotateY(0deg) rotateX(0deg)'; });
-
-  // ---------- history / dashboard ----------
-  const HISTORY_KEY = 'vocalis_history_v1';
-  function loadHistory() {
-    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
-    catch (e) { return []; }
-  }
-  function saveHistory(items) { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 20))); }
-  function addToHistory(entry) {
-    const items = loadHistory();
-    items.unshift(entry);
-    saveHistory(items);
-    renderDashboard();
-  }
-  function renderDashboard() {
-    const items = loadHistory();
-    statCount.textContent = items.length;
-    statChars.textContent = items.reduce((sum, i) => sum + (i.chars || 0), 0);
-    if (items.length === 0) { statVoice.textContent = '—'; }
-    else {
-      const counts = {};
-      items.forEach(i => { counts[i.voiceName] = (counts[i.voiceName] || 0) + 1; });
-      statVoice.textContent = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+    function safeLocalGet(key) {
+      try { return localStorage.getItem(key); } catch (error) { return null; }
     }
-    historyList.innerHTML = '';
-    if (items.length === 0) { historyList.appendChild(historyEmpty); return; }
-    for (const item of items) {
-      const div = document.createElement('div');
-      div.className = 'history-item px-4 py-3 flex items-center justify-between gap-3';
-      div.innerHTML = `
-        <div class="min-w-0">
-          <p class="text-sm text-ink font-medium truncate">${item.text}</p>
-          <p class="text-xs text-muted mt-0.5">${item.voiceName} · ${item.chars} chars · ${item.date}</p>
-        </div>`;
-      historyList.appendChild(div);
+
+    function safeLocalSet(key, value) {
+      try { localStorage.setItem(key, value); return true; } catch (error) { return false; }
     }
-  }
-  clearHistoryBtn.addEventListener('click', () => { localStorage.removeItem(HISTORY_KEY); renderDashboard(); });
 
-  // ---------- helpers ----------
-  const langDisplay = new Intl.DisplayNames(['en'], { type: 'language' });
-  const regionDisplay = new Intl.DisplayNames(['en'], { type: 'region' });
-  function friendlyLocale(locale) {
-    try {
-      const [lang, region] = locale.split('-');
-      const langName = langDisplay.of(lang) || lang;
-      const regionName = region ? (regionDisplay.of(region) || region) : null;
-      return regionName ? `${langName} (${regionName})` : langName;
-    } catch (e) { return locale; }
-  }
-  function formatTime(sec) {
-    if (!isFinite(sec)) return '0:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  }
-  function fmtSigned(val, suffix) {
-    const n = parseInt(val, 10);
-    return (n >= 0 ? '+' : '') + n + suffix;
-  }
-
-  textEl.addEventListener('input', () => { charcountEl.textContent = textEl.value.length; });
-  copyBtn.addEventListener('click', async () => { await navigator.clipboard.writeText(textEl.value); statusLine.textContent = 'Text copied to clipboard.'; });
-  clearBtn.addEventListener('click', () => { textEl.value = ''; charcountEl.textContent = 0; textEl.focus(); });
-  speedEl.addEventListener('input', () => { speedValEl.textContent = fmtSigned(speedEl.value, '%'); });
-  pitchEl.addEventListener('input', () => { pitchValEl.textContent = fmtSigned(pitchEl.value, 'Hz'); });
-
-  async function loadVoices() {
-    try {
-      const res = await fetch(`${API_BASE}/voices`);
-      if (!res.ok) throw new Error('Server error');
-      allVoices = await res.json();
-      const locales = [...new Set(allVoices.map(v => v.locale))].sort();
-      languageEl.innerHTML = '';
-      for (const loc of locales) {
-        const opt = document.createElement('option');
-        opt.value = loc; opt.textContent = friendlyLocale(loc);
-        languageEl.appendChild(opt);
-      }
-      languageEl.value = locales.find(l => l === 'en-US') || locales[0];
-      populateVoicesForLanguage();
-      statusLine.textContent = `Ready — ${allVoices.length} voices available.`;
-      generateBtn.disabled = false;
-    } catch (err) {
-      statusLine.textContent = `Could not reach the voice server. Please try again shortly.`;
-      console.error(err);
+    function safeLocalRemove(key) {
+      try { localStorage.removeItem(key); } catch (error) { /* Local storage can be unavailable in private contexts. */ }
     }
-  }
-  function populateVoicesForLanguage() {
-    const loc = languageEl.value;
-    voiceEl.innerHTML = '';
-    const filtered = allVoices.filter(v => v.locale === loc);
-    for (const v of filtered) {
-      const opt = document.createElement('option');
-      opt.value = v.id; opt.textContent = `${v.name} — ${v.gender}`;
-      voiceEl.appendChild(opt);
-    }
-    const anaOpt = [...voiceEl.options].find(o => o.textContent.startsWith('Ana —'));
-    if (anaOpt) voiceEl.value = anaOpt.value;
-  }
-  languageEl.addEventListener('change', populateVoicesForLanguage);
 
-  function validateInputs(text) {
-    const t = text.trim();
-    if (!t) return 'Please enter some text.';
-    if (t.length > MAX_CHARS) return `Text is too long (max ${MAX_CHARS.toLocaleString()} characters).`;
-    if (!voiceEl.value) return 'Please select a voice.';
-    return null;
-  }
-
-  async function requestSpeech(text, voice, rate, pitch) {
-    const res = await fetch(`${API_BASE}/speak`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voice, rate, pitch })
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || 'Generation failed');
-    }
-    return res.blob();
-  }
-
-  function splitIntoChunks(text, maxLen) {
-    if (text.length <= maxLen) return [text];
-    const sentences = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
-    const chunks = [];
-    let current = '';
-    for (const sentence of sentences) {
-      if ((current + sentence).length > maxLen && current.length > 0) {
-        chunks.push(current.trim());
-        current = sentence;
-      } else {
-        current += sentence;
+    function friendlyLocale(locale) {
+      try {
+        const parts = String(locale).split("-");
+        const language = langDisplay ? langDisplay.of(parts[0]) : parts[0];
+        const region = parts[1] && regionDisplay ? regionDisplay.of(parts[1]) : parts[1];
+        return region ? `${language} (${region})` : language;
+      } catch (error) {
+        return locale;
       }
     }
-    if (current.trim()) chunks.push(current.trim());
-    return chunks;
-  }
 
-  async function generateChunksParallel(chunks, voice, rate, pitch, concurrency) {
-    const results = new Array(chunks.length);
-    let nextIndex = 0;
-    async function worker() {
-      while (nextIndex < chunks.length) {
-        const i = nextIndex++;
-        results[i] = await requestSpeech(chunks[i], voice, rate, pitch);
-      }
+    function formatSigned(value, suffix) {
+      const number = Number(value);
+      return `${number >= 0 ? "+" : ""}${number}${suffix}`;
     }
-    const workerCount = Math.min(concurrency, chunks.length);
-    await Promise.all(Array.from({ length: workerCount }, () => worker()));
-    return results;
-  }
 
-  async function generate() {
-    const validationError = validateInputs(textEl.value);
-    if (validationError) { statusLine.textContent = validationError; return; }
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60).toString().padStart(2, "0");
+      return `${minutes}:${secs}`;
+    }
 
-    generateBtn.disabled = true;
-    generateLabel.textContent = 'Generating...';
-    statusLine.textContent = 'Generating speech…';
+    function formatNumber(number) {
+      return new Intl.NumberFormat("en-US").format(number || 0);
+    }
 
-    try {
-      const rate = fmtSigned(speedEl.value, '%');
-      const pitch = fmtSigned(pitchEl.value, 'Hz');
-      const text = textEl.value.trim();
-      const chunks = splitIntoChunks(text, CHUNK_SIZE);
+    function motionBehavior() {
+      return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    }
 
-      const blobs = chunks.length === 1
-        ? [await requestSpeech(chunks[0], voiceEl.value, rate, pitch)]
-        : await generateChunksParallel(chunks, voiceEl.value, rate, pitch, CONCURRENCY);
+    function setFeedback(message, tone = "neutral") {
+      feedback.textContent = message;
+      feedback.dataset.tone = tone;
+      feedback.setAttribute("role", tone === "error" ? "alert" : "status");
+    }
 
-      const blob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: 'audio/mpeg' });
-      if (lastUrl) URL.revokeObjectURL(lastUrl);
-      lastUrl = URL.createObjectURL(blob);
+    function setServerStatus(message, state = "connecting", canRetry = false) {
+      serverStatusText.textContent = message;
+      serverStatus.dataset.state = state;
+      retryConnection.hidden = !canRetry;
+    }
 
-      audioEl.src = lastUrl;
-      downloadBtn.href = lastUrl;
-      audioResult.classList.remove('hidden');
-      resetPlayerUI();
-      statusLine.textContent = 'Done.';
+    function setRangeFill(input) {
+      const min = Number(input.min);
+      const max = Number(input.max);
+      const value = Number(input.value);
+      const progress = ((value - min) / (max - min)) * 100;
+      input.style.setProperty("--range-progress", `${Math.max(0, Math.min(100, progress))}%`);
+    }
 
-      const voiceLabel = voiceEl.options[voiceEl.selectedIndex]?.textContent || voiceEl.value;
-      addToHistory({
-        text: text.length > 80 ? text.slice(0, 80) + '…' : text,
-        voiceName: voiceLabel, chars: text.length, date: new Date().toLocaleString()
+    function syncSpeedControl() {
+      speedValEl.textContent = formatSigned(speedEl.value, "%");
+      speedEl.setAttribute("aria-valuenow", speedEl.value);
+      speedEl.setAttribute("aria-valuetext", Number(speedEl.value) === 0 ? "Normal speed" : `${formatSigned(speedEl.value, "%")} speed`);
+      setRangeFill(speedEl);
+    }
+
+    function syncPitchControl() {
+      pitchValEl.textContent = formatSigned(pitchEl.value, "Hz");
+      pitchEl.setAttribute("aria-valuenow", pitchEl.value);
+      pitchEl.setAttribute("aria-valuetext", Number(pitchEl.value) === 0 ? "Natural pitch" : `${formatSigned(pitchEl.value, "Hz")} pitch`);
+      setRangeFill(pitchEl);
+    }
+
+    function syncTextEditor() {
+      const length = textEl.value.length;
+      charcountEl.textContent = formatNumber(length);
+      charCountWrap.classList.toggle("is-near-limit", length >= MAX_CHARS * 0.9 && length < MAX_CHARS);
+      charCountWrap.classList.toggle("is-at-limit", length >= MAX_CHARS);
+    }
+
+    function buildWaveform() {
+      waveform.replaceChildren();
+      waveformBars.length = 0;
+      const heights = [22, 38, 58, 31, 72, 43, 87, 54, 35, 66, 94, 45, 28, 63, 79, 42, 30, 58, 82, 49, 25, 68, 90, 52, 34, 72, 46, 29, 61, 85, 39, 56, 77, 47, 26, 63, 89, 52, 33, 70, 44, 25, 61, 81];
+      heights.forEach((height, index) => {
+        const bar = document.createElement("span");
+        bar.className = "waveform-bar";
+        bar.style.setProperty("--bar-height", `${height}%`);
+        bar.style.setProperty("--bar-delay", `${(index % 7) * 55}ms`);
+        waveform.appendChild(bar);
+        waveformBars.push(bar);
       });
-    } catch (err) {
-      statusLine.textContent = 'Error: ' + err.message;
-      console.error(err);
-    } finally {
-      generateBtn.disabled = false;
-      generateLabel.textContent = 'Generate Speech';
+      updateWaveformProgress(0);
     }
-  }
-  generateBtn.addEventListener('click', generate);
 
-  previewBtn.addEventListener('click', async () => {
-    if (!voiceEl.value) return;
-    previewBtn.disabled = true;
-    const originalIcon = previewBtn.innerHTML;
-    previewBtn.innerHTML = '<div class="w-4 h-4 border-2 border-violet border-t-transparent rounded-full animate-spin"></div>';
-    try {
-      const blob = await requestSpeech('Hello! This is a preview of my voice.', voiceEl.value, '+0%', '+0Hz');
-      const url = URL.createObjectURL(blob);
-      new Audio(url).play();
-    } catch (err) {
-      statusLine.textContent = 'Preview failed: ' + err.message;
-    } finally {
-      previewBtn.disabled = false;
-      previewBtn.innerHTML = originalIcon;
-      lucide.createIcons();
+    function updateWaveformProgress(progress) {
+      const activeIndex = Math.floor(progress * waveformBars.length);
+      waveformBars.forEach((bar, index) => bar.classList.toggle("is-active", index <= activeIndex && progress > 0));
     }
-  });
 
-  // ---------- audio player + decorative waveform (no audio routing — playback stays direct/reliable) ----------
-  let waveAnimRAF;
-
-  function resetPlayerUI() {
-    playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons();
-    progressEl.value = 0; currentTimeEl.textContent = '0:00'; durationEl.textContent = '0:00';
-    waveCanvas.width = waveCanvas.clientWidth * devicePixelRatio;
-    waveCanvas.height = waveCanvas.clientHeight * devicePixelRatio;
-    drawWaveIdle();
-  }
-
-  function drawWaveIdle() {
-    const w = waveCanvas.width, h = waveCanvas.height;
-    waveCtx.clearRect(0, 0, w, h);
-    const bars = 40;
-    for (let i = 0; i < bars; i++) {
-      const bw = w / bars;
-      const bh = h * 0.08;
-      const grad = waveCtx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#6366F1'); grad.addColorStop(1, '#A855F7');
-      waveCtx.fillStyle = grad;
-      waveCtx.fillRect(i * bw + bw * 0.2, h / 2 - bh / 2, bw * 0.6, bh);
+    function setPlayerState(isPlaying) {
+      playBtn.dataset.state = isPlaying ? "pause" : "play";
+      playBtn.setAttribute("aria-label", isPlaying ? "Pause generated speech" : "Play generated speech");
+      waveform.classList.toggle("is-playing", isPlaying);
     }
-  }
 
-  // Purely visual — driven by playback progress, not routed through Web Audio,
-  // so it can never interfere with actual audio output.
-  function drawWaveAnimated() {
-    const w = waveCanvas.width, h = waveCanvas.height;
-    waveCtx.clearRect(0, 0, w, h);
-    const bars = 40;
-    const progressFrac = audioEl.duration ? audioEl.currentTime / audioEl.duration : 0;
-    const activeBar = Math.floor(progressFrac * bars);
-    for (let i = 0; i < bars; i++) {
-      const bw = w / bars;
-      const distFromActive = Math.abs(i - activeBar);
-      const pulse = Math.max(0.15, 1 - distFromActive / 6) * (0.5 + 0.5 * Math.sin(Date.now() / 120 + i));
-      const bh = Math.max(h * 0.08, h * 0.75 * Math.max(0, pulse));
-      const grad = waveCtx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, '#6366F1'); grad.addColorStop(1, '#06B6D4');
-      waveCtx.fillStyle = grad;
-      waveCtx.fillRect(i * bw + bw * 0.2, h - bh, bw * 0.6, bh);
-    }
-    if (!audioEl.paused && !audioEl.ended) {
-      waveAnimRAF = requestAnimationFrame(drawWaveAnimated);
-    } else {
-      cancelAnimationFrame(waveAnimRAF);
-      drawWaveIdle();
-    }
-  }
-
-  playBtn.addEventListener('click', () => { audioEl.paused ? audioEl.play() : audioEl.pause(); });
-  audioEl.addEventListener('play', () => {
-    playIcon.setAttribute('data-lucide', 'pause'); lucide.createIcons();
-    drawWaveAnimated();
-  });
-  audioEl.addEventListener('pause', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
-  audioEl.addEventListener('ended', () => { playIcon.setAttribute('data-lucide', 'play'); lucide.createIcons(); });
-  audioEl.addEventListener('loadedmetadata', () => { durationEl.textContent = formatTime(audioEl.duration); });
-  audioEl.addEventListener('timeupdate', () => {
-    if (audioEl.duration) {
-      progressEl.value = (audioEl.currentTime / audioEl.duration) * 100;
+    function updateProgress() {
+      const duration = audioEl.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      const percent = Math.min(100, (audioEl.currentTime / duration) * 100);
+      progressEl.value = String(percent);
+      progressEl.setAttribute("aria-valuenow", String(Math.round(percent)));
+      progressEl.setAttribute("aria-valuetext", `${formatTime(audioEl.currentTime)} of ${formatTime(duration)}`);
+      setRangeFill(progressEl);
       currentTimeEl.textContent = formatTime(audioEl.currentTime);
+      updateWaveformProgress(percent / 100);
     }
-  });
-  progressEl.addEventListener('input', () => { if (audioEl.duration) audioEl.currentTime = (progressEl.value / 100) * audioEl.duration; });
 
-  // ---------- keyboard shortcut ----------
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { generate(); }
-  });
+    function resetPlayerUI() {
+      playBtn.disabled = true;
+      progressEl.disabled = true;
+      progressEl.value = "0";
+      progressEl.setAttribute("aria-valuenow", "0");
+      progressEl.setAttribute("aria-valuetext", "0 minutes, 0 seconds");
+      currentTimeEl.textContent = "0:00";
+      durationEl.textContent = "0:00";
+      setRangeFill(progressEl);
+      setPlayerState(false);
+      updateWaveformProgress(0);
+    }
 
-  lucide.createIcons();
-  loadVoices();
-  renderDashboard();
-  window.addEventListener('resize', () => {
-    waveCanvas.width = waveCanvas.clientWidth * devicePixelRatio;
-    waveCanvas.height = waveCanvas.clientHeight * devicePixelRatio;
-  });
-</script>
+    function revokeUrl(url) {
+      if (url && url.startsWith("blob:")) URL.revokeObjectURL(url);
+    }
 
+    function clearCurrentAudio() {
+      audioEl.pause();
+      audioEl.removeAttribute("src");
+      audioEl.load();
+      revokeUrl(activeAudioUrl);
+      if (activeDownloadUrl && activeDownloadUrl !== activeAudioUrl) revokeUrl(activeDownloadUrl);
+      activeAudioUrl = null;
+      activeDownloadUrl = null;
+      downloadBtn.removeAttribute("href");
+      downloadBtn.setAttribute("aria-disabled", "true");
+      resetPlayerUI();
+    }
+
+    function assignBlobAudio(blob, voiceName, state = "ready") {
+      clearCurrentAudio();
+      activeAudioUrl = URL.createObjectURL(blob);
+      activeDownloadUrl = activeAudioUrl;
+      audioEl.src = activeAudioUrl;
+      downloadBtn.href = activeDownloadUrl;
+      downloadBtn.setAttribute("aria-disabled", "false");
+      downloadBtn.download = `vocalis-${slugify(voiceName || "speech")}.mp3`;
+      audioResult.hidden = false;
+      audioResultMeta.textContent = `${voiceName || "Generated voice"} · ready to play, seek, or download.`;
+      audioResultState.textContent = state === "streaming" ? "Streaming" : "Ready";
+      audioResultState.dataset.state = state;
+      audioEl.load();
+    }
+
+    function assignProgressiveAudio(mediaSource, mediaUrl, voiceName) {
+      clearCurrentAudio();
+      activeAudioUrl = mediaUrl;
+      audioEl.src = mediaUrl;
+      downloadBtn.removeAttribute("href");
+      downloadBtn.setAttribute("aria-disabled", "true");
+      audioResult.hidden = false;
+      audioResultMeta.textContent = `${voiceName || "Generated voice"} · audio is arriving now.`;
+      audioResultState.textContent = "Streaming";
+      audioResultState.dataset.state = "streaming";
+      audioEl.load();
+    }
+
+    function completeProgressiveAudio(blob, voiceName) {
+      activeDownloadUrl = URL.createObjectURL(blob);
+      downloadBtn.href = activeDownloadUrl;
+      downloadBtn.setAttribute("aria-disabled", "false");
+      downloadBtn.download = `vocalis-${slugify(voiceName || "speech")}.mp3`;
+      audioResultMeta.textContent = `${voiceName || "Generated voice"} · ready to play, seek, or download.`;
+      audioResultState.textContent = "Ready";
+      audioResultState.dataset.state = "ready";
+    }
+
+    function slugify(value) {
+      return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "speech";
+    }
+
+    function getVoiceCache() {
+      const raw = safeLocalGet(VOICE_CACHE_KEY);
+      if (!raw) return null;
+      try {
+        const cached = JSON.parse(raw);
+        if (!cached || !Array.isArray(cached.voices) || cached.voices.length === 0 || !cached.savedAt) return null;
+        return cached;
+      } catch (error) {
+        safeLocalRemove(VOICE_CACHE_KEY);
+        return null;
+      }
+    }
+
+    function saveVoiceCache(voices) {
+      safeLocalSet(VOICE_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), voices }));
+    }
+
+    function currentVoice() {
+      return allVoices.find((voice) => voice.id === voiceEl.value) || null;
+    }
+
+    function updateVoiceProfile() {
+      const voice = currentVoice();
+      if (!voice) {
+        selectedVoiceName.textContent = "Choose a voice";
+        selectedVoiceDetail.textContent = "Voice details will appear here.";
+        voiceLocale.textContent = "Locale —";
+        voiceGender.textContent = "Gender —";
+        previewBtn.disabled = true;
+        return;
+      }
+      selectedVoiceName.textContent = voice.name;
+      selectedVoiceDetail.textContent = `${friendlyLocale(voice.locale)} · ${voice.gender}`;
+      voiceLocale.textContent = voice.locale;
+      voiceGender.textContent = voice.gender;
+      previewBtn.disabled = isGenerating || isPreviewing;
+    }
+
+    function populateVoicesForLanguage(preferredVoiceId = "") {
+      const selectedLocale = languageEl.value;
+      const choices = allVoices.filter((voice) => voice.locale === selectedLocale);
+      voiceEl.replaceChildren();
+      choices.forEach((voice) => {
+        const option = document.createElement("option");
+        option.value = voice.id;
+        option.textContent = `${voice.name} · ${voice.gender}`;
+        voiceEl.appendChild(option);
+      });
+      const hasPreferred = choices.some((voice) => voice.id === preferredVoiceId);
+      const preferredAna = choices.find((voice) => voice.name === "Ana");
+      voiceEl.value = hasPreferred ? preferredVoiceId : (preferredAna ? preferredAna.id : (choices[0] ? choices[0].id : ""));
+      voiceEl.disabled = choices.length === 0;
+      voiceCount.textContent = `${choices.length} ${choices.length === 1 ? "option" : "options"}`;
+      updateVoiceProfile();
+    }
+
+    function applyVoiceCatalog(voices) {
+      const previousLocale = languageEl.value;
+      const previousVoice = voiceEl.value;
+      allVoices = voices.filter((voice) => voice && voice.id && voice.name && voice.locale && voice.gender);
+      const locales = [...new Set(allVoices.map((voice) => voice.locale))].sort((a, b) => friendlyLocale(a).localeCompare(friendlyLocale(b)));
+      languageEl.replaceChildren();
+      locales.forEach((locale) => {
+        const option = document.createElement("option");
+        option.value = locale;
+        option.textContent = friendlyLocale(locale);
+        languageEl.appendChild(option);
+      });
+      const defaultLocale = locales.includes(previousLocale) ? previousLocale : (locales.includes("en-US") ? "en-US" : locales[0]);
+      languageEl.value = defaultLocale || "";
+      languageEl.disabled = locales.length === 0;
+      languageNote.textContent = `${locales.length} languages`;
+      populateVoicesForLanguage(previousVoice);
+      featureVoiceCount.textContent = allVoices.length ? formatNumber(allVoices.length) : "300+";
+      generateBtn.disabled = allVoices.length === 0 || isGenerating;
+    }
+
+    async function loadVoices({ force = false } = {}) {
+      if (isCatalogLoading) return;
+      isCatalogLoading = true;
+      const cached = getVoiceCache();
+      const cacheIsFresh = cached && (Date.now() - cached.savedAt < VOICE_CACHE_TTL);
+
+      if (!force && cached) {
+        applyVoiceCatalog(cached.voices);
+        setServerStatus(cacheIsFresh ? "Voice catalog ready · checking for updates…" : "Using saved voice catalog · refreshing…", "connecting");
+        setFeedback("Voice catalog ready. Checking the connection in the background…", "neutral");
+      } else if (allVoices.length === 0) {
+        setServerStatus("Connecting to the voice catalog…", "connecting");
+        setFeedback("Loading the voice catalog…", "neutral");
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/voices`, { headers: { Accept: "application/json" } });
+        if (!response.ok) {
+          const error = new Error("Voice catalog request failed");
+          error.status = response.status;
+          throw error;
+        }
+        const voices = await response.json();
+        if (!Array.isArray(voices) || voices.length === 0) throw new Error("Voice catalog was empty");
+        applyVoiceCatalog(voices);
+        saveVoiceCache(allVoices);
+        setServerStatus(`${formatNumber(allVoices.length)} voices online`, "ready");
+        setFeedback(`${formatNumber(allVoices.length)} voices are ready to use.`, "success");
+      } catch (error) {
+        if (allVoices.length > 0) {
+          setServerStatus("Saved catalog is ready · live refresh unavailable", "warning", true);
+          setFeedback("Your saved voice catalog is available. The server will be checked again when you retry.", "warning");
+          generateBtn.disabled = isGenerating;
+        } else {
+          languageEl.disabled = true;
+          voiceEl.disabled = true;
+          previewBtn.disabled = true;
+          generateBtn.disabled = true;
+          languageNote.textContent = "Unavailable";
+          voiceCount.textContent = "Unavailable";
+          setServerStatus("Voice server unavailable", "offline", true);
+          setFeedback("We couldn't connect to the voice server. Please try again in a moment.", "error");
+        }
+        console.warn("Unable to load voices", error);
+      } finally {
+        isCatalogLoading = false;
+      }
+    }
+
+    function validateInput(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return "Add some text before generating speech.";
+      if (trimmed.length > MAX_CHARS) return `Keep your script under ${formatNumber(MAX_CHARS)} characters.`;
+      if (!voiceEl.value) return "Choose a voice before generating speech.";
+      return null;
+    }
+
+    async function requestSpeech(text, voice, rate, pitch, signal, endpoint = "/speak") {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "audio/mpeg" },
+        body: JSON.stringify({ text, voice, rate, pitch }),
+        signal
+      });
+      if (!response.ok) {
+        const error = new Error("Speech request failed");
+        error.status = response.status;
+        throw error;
+      }
+      return response;
+    }
+
+    function splitIntoChunks(text, maxLength) {
+      if (text.length <= maxLength) return [text];
+      const parts = text.match(/[^.!?\n]+[.!?\n]*/g) || [text];
+      const chunks = [];
+      let current = "";
+
+      function addSegment(segment) {
+        let remaining = segment;
+        while (remaining.length > maxLength) {
+          let splitAt = remaining.lastIndexOf(" ", maxLength);
+          if (splitAt < Math.floor(maxLength * 0.55)) splitAt = maxLength;
+          const piece = remaining.slice(0, splitAt).trim();
+          if (piece) chunks.push(piece);
+          remaining = remaining.slice(splitAt).trimStart();
+        }
+        if (!remaining) return;
+        if (current && current.length + remaining.length > maxLength) {
+          chunks.push(current.trim());
+          current = "";
+        }
+        current += remaining;
+      }
+
+      parts.forEach((part) => {
+        if (part.length > maxLength) {
+          if (current.trim()) chunks.push(current.trim());
+          current = "";
+          addSegment(part);
+        } else if (current.length + part.length > maxLength && current.trim()) {
+          chunks.push(current.trim());
+          current = part;
+        } else {
+          current += part;
+        }
+      });
+      if (current.trim()) chunks.push(current.trim());
+      return chunks;
+    }
+
+    async function generateChunksParallel(chunks, voice, rate, pitch, controller) {
+      const results = new Array(chunks.length);
+      let nextIndex = 0;
+      async function worker() {
+        while (nextIndex < chunks.length && !controller.signal.aborted) {
+          const index = nextIndex++;
+          try {
+            const response = await requestSpeech(chunks[index], voice, rate, pitch, controller.signal);
+            results[index] = await response.blob();
+          } catch (error) {
+            if (!controller.signal.aborted) controller.abort();
+            throw error;
+          }
+        }
+      }
+      const workers = Array.from({ length: Math.min(CHUNK_CONCURRENCY, chunks.length) }, worker);
+      await Promise.all(workers);
+      return results;
+    }
+
+    function canUseProgressiveAudio() {
+      return typeof window.MediaSource === "function" && typeof window.MediaSource.isTypeSupported === "function" && window.MediaSource.isTypeSupported("audio/mpeg");
+    }
+
+    function waitForEvent(target, eventName, signal) {
+      return new Promise((resolve, reject) => {
+        const onEvent = () => cleanup(resolve);
+        const onAbort = () => cleanup(() => reject(new DOMException("Generation cancelled", "AbortError")));
+        const cleanup = (callback) => {
+          target.removeEventListener(eventName, onEvent);
+          if (signal) signal.removeEventListener("abort", onAbort);
+          callback();
+        };
+        target.addEventListener(eventName, onEvent, { once: true });
+        if (signal) signal.addEventListener("abort", onAbort, { once: true });
+      });
+    }
+
+    async function streamResponseToPlayer(response, voiceName, controller) {
+      if (!response.body || !canUseProgressiveAudio()) {
+        return { blob: await response.blob(), progressive: false };
+      }
+
+      const mediaSource = new MediaSource();
+      const mediaUrl = URL.createObjectURL(mediaSource);
+      let sourceBuffer;
+      let mediaSourceFailed = false;
+      let streamFinished = false;
+      let appendQueue = [];
+      let endStream;
+      const streamEnded = new Promise((resolve) => { endStream = resolve; });
+      const audioChunks = [];
+
+      try {
+        assignProgressiveAudio(mediaSource, mediaUrl, voiceName);
+        await waitForEvent(mediaSource, "sourceopen", controller.signal);
+        try {
+          sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+          sourceBuffer.mode = "sequence";
+        } catch (error) {
+          // Browser support can differ from isTypeSupported() in edge cases.
+          // The response is still untouched here, so fall back to a normal Blob.
+          const blob = await response.blob();
+          assignBlobAudio(blob, voiceName);
+          return { blob, progressive: false };
+        }
+
+        const appendNext = () => {
+          if (!sourceBuffer || sourceBuffer.updating) return;
+          if (appendQueue.length) {
+            try {
+              sourceBuffer.appendBuffer(appendQueue.shift());
+            } catch (error) {
+              mediaSourceFailed = true;
+              appendQueue = [];
+            }
+          } else if (streamFinished) {
+            try {
+              if (mediaSource.readyState === "open") mediaSource.endOfStream();
+            } catch (error) { /* The media source may already have closed. */ }
+            endStream();
+          }
+        };
+
+        sourceBuffer.addEventListener("updateend", appendNext);
+        sourceBuffer.addEventListener("error", () => { mediaSourceFailed = true; });
+        const reader = response.body.getReader();
+        let receivedFirstChunk = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value && value.byteLength) {
+            audioChunks.push(value);
+            if (!receivedFirstChunk) {
+              receivedFirstChunk = true;
+              audioResult.hidden = false;
+              setFeedback("Audio is arriving — you can start listening as it is buffered.", "working");
+            }
+            if (!mediaSourceFailed) {
+              appendQueue.push(value);
+              appendNext();
+            }
+          }
+        }
+        streamFinished = true;
+        appendNext();
+        if (!mediaSourceFailed) await streamEnded;
+        const blob = new Blob(audioChunks, { type: "audio/mpeg" });
+        if (mediaSourceFailed) {
+          assignBlobAudio(blob, voiceName);
+          return { blob, progressive: false };
+        }
+        completeProgressiveAudio(blob, voiceName);
+        return { blob, progressive: true };
+      } catch (error) {
+        if (activeAudioUrl === mediaUrl) clearCurrentAudio();
+        else revokeUrl(mediaUrl);
+        throw error;
+      }
+    }
+
+    async function requestProgressiveSpeech(text, voice, rate, pitch, controller, voiceName) {
+      const response = await requestSpeech(text, voice, rate, pitch, controller.signal, "/speak/stream");
+      return streamResponseToPlayer(response, voiceName, controller);
+    }
+
+    function startGenerationTimer(chunkCount) {
+      const startedAt = Date.now();
+      clearInterval(generationTimer);
+      generationTimer = window.setInterval(() => {
+        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+        if (chunkCount > 1) {
+          setFeedback(`Creating ${chunkCount} audio segments · ${elapsedSeconds}s elapsed…`, "working");
+        } else {
+          setFeedback(`Creating your voice · ${elapsedSeconds}s elapsed…`, "working");
+        }
+      }, 2200);
+    }
+
+    function stopGenerationTimer() {
+      if (generationTimer) window.clearInterval(generationTimer);
+      generationTimer = null;
+    }
+
+    function setGeneratingState(generating) {
+      isGenerating = generating;
+      generateBtn.dataset.loading = String(generating);
+      generateBtn.setAttribute("aria-busy", String(generating));
+      generateBtn.disabled = generating || allVoices.length === 0;
+      generateLabel.textContent = generating ? "Generating…" : "Generate speech";
+      cancelBtn.hidden = !generating;
+      previewBtn.disabled = generating || isPreviewing || !currentVoice();
+    }
+
+    function friendlyGenerationError(error) {
+      if (error && error.name === "AbortError") return "Generation cancelled. Your script is still here when you are ready.";
+      if (!navigator.onLine) return "You appear to be offline. Reconnect and try generating again.";
+      if (error && error.status === 400) return "That script or voice could not be processed. Review your selection and try again.";
+      if (error && error.status === 429) return "The voice service is busy right now. Please wait a moment and try again.";
+      if (error && (error.status === 502 || error.status === 503 || error.status === 504)) return "The voice service took too long to respond. Try a shorter script or try again shortly.";
+      return "We couldn't create that voice right now. Check your connection and try again.";
+    }
+
+    function stopPreview() {
+      if (previewController) previewController.abort();
+      previewController = null;
+      if (previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+      }
+      previewAudio = null;
+    }
+
+    async function generate() {
+      if (isGenerating) return;
+      const validationError = validateInput(textEl.value);
+      if (validationError) {
+        setFeedback(validationError, "warning");
+        textEl.focus();
+        return;
+      }
+
+      stopPreview();
+      const text = textEl.value.trim();
+      const voice = currentVoice();
+      const rate = formatSigned(speedEl.value, "%");
+      const pitch = formatSigned(pitchEl.value, "Hz");
+      const chunks = splitIntoChunks(text, CHUNK_SIZE);
+      generationController = new AbortController();
+      setGeneratingState(true);
+      setFeedback(chunks.length > 1 ? `Preparing ${chunks.length} audio segments…` : "Preparing your voice…", "working");
+      startGenerationTimer(chunks.length);
+
+      try {
+        let blob;
+        let usedProgressiveAudio = false;
+        if (chunks.length === 1 && canUseProgressiveAudio() && streamEndpointAvailable !== false) {
+          try {
+            const result = await requestProgressiveSpeech(text, voice.id, rate, pitch, generationController, voice.name);
+            blob = result.blob;
+            usedProgressiveAudio = result.progressive;
+            streamEndpointAvailable = true;
+          } catch (error) {
+            if (error && error.status === 404) {
+              // Existing deployments without the optional progressive endpoint fall back safely.
+              streamEndpointAvailable = false;
+              setFeedback("Creating your voice…", "working");
+            } else {
+              throw error;
+            }
+          }
+        }
+
+        if (!blob) {
+          const blobs = chunks.length === 1
+            ? [await (await requestSpeech(text, voice.id, rate, pitch, generationController.signal)).blob()]
+            : await generateChunksParallel(chunks, voice.id, rate, pitch, generationController);
+          blob = blobs.length === 1 ? blobs[0] : new Blob(blobs, { type: "audio/mpeg" });
+          assignBlobAudio(blob, voice.name);
+        }
+
+        if (!blob.size) throw new Error("Empty audio response");
+        const entry = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          text: text.length > 140 ? `${text.slice(0, 140).trim()}…` : text,
+          chars: text.length,
+          voiceName: voice.name,
+          voiceMeta: `${voice.locale} · ${voice.gender}`,
+          date: new Date().toLocaleString()
+        };
+        addToHistory(entry);
+        setFeedback(usedProgressiveAudio ? "Voice complete. Your audio was buffered as it arrived." : "Voice ready. Play it, review it, or download the MP3.", "success");
+      } catch (error) {
+        if (error && error.name !== "AbortError") console.error("Speech generation failed", error);
+        setFeedback(friendlyGenerationError(error), error && error.name === "AbortError" ? "warning" : "error");
+      } finally {
+        stopGenerationTimer();
+        generationController = null;
+        setGeneratingState(false);
+      }
+    }
+
+    function previewCacheSet(voiceId, url) {
+      if (previewCache.has(voiceId)) revokeUrl(previewCache.get(voiceId));
+      previewCache.set(voiceId, url);
+      while (previewCache.size > MAX_PREVIEW_CACHE_ITEMS) {
+        const [oldestVoice, oldestUrl] = previewCache.entries().next().value;
+        previewCache.delete(oldestVoice);
+        revokeUrl(oldestUrl);
+      }
+    }
+
+    function playPreview(url, voiceName) {
+      if (previewAudio) previewAudio.pause();
+      previewAudio = new Audio(url);
+      previewAudio.addEventListener("ended", () => { setFeedback(`${voiceName} preview finished.`, "neutral"); }, { once: true });
+      previewAudio.play().then(() => setFeedback(`Playing ${voiceName}'s voice preview.`, "success")).catch(() => setFeedback("Preview is ready. Press play if your browser blocked automatic playback.", "warning"));
+    }
+
+    async function previewVoice() {
+      if (isPreviewing || isGenerating) return;
+      const voice = currentVoice();
+      if (!voice) {
+        setFeedback("Choose a voice to preview it.", "warning");
+        return;
+      }
+      stopPreview();
+      const cachedUrl = previewCache.get(voice.id);
+      if (cachedUrl) {
+        playPreview(cachedUrl, voice.name);
+        return;
+      }
+
+      isPreviewing = true;
+      previewBtn.dataset.loading = "true";
+      previewBtn.disabled = true;
+      previewController = new AbortController();
+      setFeedback(`Loading ${voice.name}'s voice preview…`, "working");
+      try {
+        const response = await requestSpeech("Hello. This is a quick preview of my voice.", voice.id, "+0%", "+0Hz", previewController.signal);
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        previewCacheSet(voice.id, url);
+        playPreview(url, voice.name);
+      } catch (error) {
+        if (error && error.name !== "AbortError") {
+          console.warn("Voice preview failed", error);
+          setFeedback("We couldn't load that preview right now. You can still try generating your script.", "error");
+        }
+      } finally {
+        isPreviewing = false;
+        previewController = null;
+        previewBtn.dataset.loading = "false";
+        previewBtn.disabled = isGenerating || !currentVoice();
+      }
+    }
+
+    function loadHistory() {
+      const raw = safeLocalGet(HISTORY_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item === "object") : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveHistory(items) {
+      safeLocalSet(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY_ITEMS)));
+    }
+
+    function addToHistory(entry) {
+      const entries = loadHistory();
+      entries.unshift(entry);
+      saveHistory(entries);
+      renderDashboard();
+    }
+
+    function createEmptyHistory() {
+      const empty = document.createElement("div");
+      empty.className = "empty-history";
+      const content = document.createElement("div");
+      const icon = document.createElement("span");
+      icon.className = "empty-history-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/><path d="M12 7v5l3 2"/></svg>';
+      const title = document.createElement("h4");
+      title.textContent = "No generations yet";
+      const description = document.createElement("p");
+      description.textContent = "Create your first voice in the studio above. It will appear here on this device.";
+      const button = document.createElement("button");
+      button.className = "empty-start-button";
+      button.type = "button";
+      button.textContent = "Start creating";
+      button.addEventListener("click", () => {
+        document.getElementById("studio").scrollIntoView({ behavior: motionBehavior(), block: "start" });
+        window.setTimeout(() => textEl.focus({ preventScroll: true }), 350);
+      });
+      content.append(icon, title, description, button);
+      empty.appendChild(content);
+      return empty;
+    }
+
+    function renderDashboard() {
+      const entries = loadHistory();
+      statCount.textContent = formatNumber(entries.length);
+      const totalCharacters = entries.reduce((sum, item) => sum + (Number(item.chars) || 0), 0);
+      statChars.textContent = formatNumber(totalCharacters);
+      if (entries.length) {
+        const voiceUsage = new Map();
+        entries.forEach((item) => {
+          const voiceName = item.voiceName || "Unknown voice";
+          voiceUsage.set(voiceName, (voiceUsage.get(voiceName) || 0) + 1);
+        });
+        const favorite = [...voiceUsage.entries()].sort((a, b) => b[1] - a[1])[0][0];
+        statVoice.textContent = favorite;
+        statVoice.title = favorite;
+      } else {
+        statVoice.textContent = "—";
+        statVoice.removeAttribute("title");
+      }
+      clearHistoryBtn.disabled = entries.length === 0;
+      historyList.replaceChildren();
+      if (!entries.length) {
+        historyList.appendChild(createEmptyHistory());
+        return;
+      }
+
+      entries.forEach((item) => {
+        const row = document.createElement("article");
+        row.className = "history-item";
+        const main = document.createElement("div");
+        main.className = "history-item-main";
+        const content = document.createElement("p");
+        content.className = "history-text";
+        content.textContent = item.text || "Generated speech";
+        content.title = item.text || "Generated speech";
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+        const voice = document.createElement("span");
+        voice.textContent = item.voiceName || "Unknown voice";
+        const chars = document.createElement("span");
+        chars.textContent = `${formatNumber(Number(item.chars) || 0)} characters`;
+        meta.append(voice, chars);
+        main.append(content, meta);
+        const date = document.createElement("time");
+        date.className = "history-date";
+        date.textContent = item.date || "Recently";
+        row.append(main, date);
+        historyList.appendChild(row);
+      });
+    }
+
+    function clearHistory() {
+      if (!loadHistory().length) return;
+      safeLocalRemove(HISTORY_KEY);
+      renderDashboard();
+      setFeedback("Local generation history cleared.", "success");
+    }
+
+    function revealSections() {
+      const items = document.querySelectorAll(".reveal");
+      if (typeof window.IntersectionObserver !== "function" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        items.forEach((item) => item.classList.add("is-visible"));
+        return;
+      }
+      const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            currentObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      items.forEach((item) => observer.observe(item));
+    }
+
+    document.querySelectorAll(".template-button").forEach((button) => {
+      button.addEventListener("click", () => {
+        textEl.value = button.dataset.text || "";
+        syncTextEditor();
+        textEl.focus();
+        setFeedback(`${button.dataset.template || "Template"} template added. Edit it to make it yours.`, "success");
+      });
+    });
+
+    textEl.addEventListener("input", syncTextEditor);
+    speedEl.addEventListener("input", syncSpeedControl);
+    pitchEl.addEventListener("input", syncPitchControl);
+    languageEl.addEventListener("change", () => {
+      stopPreview();
+      populateVoicesForLanguage("");
+      setFeedback(`Language changed to ${friendlyLocale(languageEl.value)}.`, "neutral");
+    });
+    voiceEl.addEventListener("change", () => {
+      stopPreview();
+      updateVoiceProfile();
+      const voice = currentVoice();
+      if (voice) setFeedback(`${voice.name} selected. Preview it or generate your script.`, "neutral");
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      if (!textEl.value) {
+        setFeedback("There is no script to copy yet.", "warning");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(textEl.value);
+      } catch (error) {
+        textEl.focus();
+        textEl.select();
+        try { document.execCommand("copy"); } catch (fallbackError) { /* Feedback below covers unavailable clipboard access. */ }
+        textEl.setSelectionRange(textEl.value.length, textEl.value.length);
+      }
+      setFeedback("Script copied to your clipboard.", "success");
+    });
+
+    clearBtn.addEventListener("click", () => {
+      if (!textEl.value) return;
+      textEl.value = "";
+      syncTextEditor();
+      textEl.focus();
+      setFeedback("Script cleared.", "neutral");
+    });
+
+    generateBtn.addEventListener("click", generate);
+    regenerateBtn.addEventListener("click", generate);
+    cancelBtn.addEventListener("click", () => {
+      if (generationController) generationController.abort();
+    });
+    previewBtn.addEventListener("click", previewVoice);
+    retryConnection.addEventListener("click", () => loadVoices({ force: true }));
+    clearHistoryBtn.addEventListener("click", clearHistory);
+
+    playBtn.addEventListener("click", () => {
+      if (!audioEl.src) return;
+      if (audioEl.paused) {
+        audioEl.play().catch(() => setFeedback("Playback could not start automatically. Please try the play button again.", "warning"));
+      } else {
+        audioEl.pause();
+      }
+    });
+
+    progressEl.addEventListener("input", () => {
+      if (!Number.isFinite(audioEl.duration) || audioEl.duration <= 0) return;
+      audioEl.currentTime = (Number(progressEl.value) / 100) * audioEl.duration;
+      updateProgress();
+    });
+
+    audioEl.addEventListener("loadedmetadata", () => {
+      durationEl.textContent = formatTime(audioEl.duration);
+      progressEl.disabled = !Number.isFinite(audioEl.duration) || audioEl.duration <= 0;
+      playBtn.disabled = false;
+    });
+    audioEl.addEventListener("canplay", () => { playBtn.disabled = false; });
+    audioEl.addEventListener("play", () => setPlayerState(true));
+    audioEl.addEventListener("pause", () => setPlayerState(false));
+    audioEl.addEventListener("ended", () => { setPlayerState(false); updateProgress(); });
+    audioEl.addEventListener("timeupdate", updateProgress);
+    audioEl.addEventListener("error", () => {
+      if (audioEl.src) setFeedback("The generated audio could not be played. Try generating it again.", "error");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        generate();
+      }
+    });
+
+    window.addEventListener("beforeunload", () => {
+      stopPreview();
+      revokeUrl(activeAudioUrl);
+      if (activeDownloadUrl && activeDownloadUrl !== activeAudioUrl) revokeUrl(activeDownloadUrl);
+      previewCache.forEach((url) => revokeUrl(url));
+    });
+
+    buildWaveform();
+    syncTextEditor();
+    syncSpeedControl();
+    syncPitchControl();
+    renderDashboard();
+    revealSections();
+    loadVoices();
+  </script>
 </body>
 </html>
